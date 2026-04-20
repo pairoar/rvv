@@ -1,4 +1,6 @@
 # coverage.cmake
+# CMake module to set up code coverage targets and flags for the project.
+# This module defines a common interface library "coverage_config" that applies the necessary compiler and linker flags for code coverage, and a function "add_coverage_target" to create custom targets for generating coverage reports.
 
 # common coverage target & flags
 if(NOT TARGET coverage_config)

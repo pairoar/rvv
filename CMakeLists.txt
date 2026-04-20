@@ -46,7 +46,7 @@ if(TARGET_ARCH STREQUAL "host")
     else()
         message(STATUS "Build 64bit")
         target_compile_definitions(${CMAKE_PROJECT_NAME}_common_settings INTERFACE
-                CONFIG_SUPPORT_64              # #define CONFIG_SUPPORT_64
+                CONFIG_SUPPORT_64
             )
     endif()
 endif()
@@ -129,7 +129,7 @@ if(TARGET_ARCH STREQUAL "host")
 endif()
 
 # ==========================================
-# [추가/수정된 부분] HAL Test 빌드 옵션 추가
+# HAL Test 빌드 시 app 모듈 제외, gtest 포함 여부에 따라 test 모듈 포함 여부 결정
 # ==========================================
 option(BUILD_HAL_TEST "Build HAL test target instead of full application" OFF)
 
