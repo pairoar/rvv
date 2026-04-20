@@ -1,0 +1,21 @@
+# style : LLVM
+BasedOnStyle: LLVM
+
+# indentation
+IndentWidth: 4
+
+# max line size
+ColumnLimit: 100
+
+# curly brach
+BreakBeforeBraces: Attach
+
+# pointer alignment(int *p)
+PointerAlignment: Right
+
+# empty line
+MaxEmptyLinesToKeep: 1
+
+# alignment (colon, assign operator)
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false

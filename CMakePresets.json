@@ -1,0 +1,57 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "riscv64",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-riscv64.cmake"
+      }
+    },
+    {
+      "name": "riscv64-custom",
+      "binaryDir": "${sourceDir}/build/riscv64",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-riscv64.cmake",
+        "RISCV_TOOLCHAIN_DIR": "~/toolchains/riscv64",
+        "TOOLCHAIN_PREFIX": "riscv64-unknown-elf-"
+      }
+    },
+    {
+      "name": "riscv32",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-riscv32.cmake"
+      }
+    },
+    {
+      "name": "riscv32-custom",
+      "binaryDir": "${sourceDir}/build/riscv32",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-riscv32.cmake",
+        "RISCV_TOOLCHAIN_DIR": "~/toolchains/riscv32",
+        "TOOLCHAIN_PREFIX": "riscv32-unknown-elf-"
+      }
+    },
+    {
+      "name": "host",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-host.cmake"
+      }
+    },
+    {
+      "name": "arm",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-arm.cmake"
+      }
+    }
+  ]
+}
