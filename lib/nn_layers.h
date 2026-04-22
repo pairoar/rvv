@@ -1,6 +1,7 @@
 #ifndef NN_LAYER_H
 #define NN_LAYER_H
 
+#include "vmath_driver.h"
 #include "hal_math.h"
 #include <stdio.h>
 

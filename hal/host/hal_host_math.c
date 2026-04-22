@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
 /*
     static functions
 */
@@ -79,10 +81,10 @@ static uint128_t _mul_u64(const uint64_t a, const uint64_t b) {
  */
 static uint128_t _sub_u128(const uint128_t a, const uint128_t b) {
     uint128_t res;
-    
+
     // 1. 하위 64비트 뺄셈
     res.l = a.l - b.l;
-    
+
     // 2. 빌림수(Borrow) 발생 여부 확인
     // a.l이 b.l보다 작으면 하위 연산에서 상위 비트의 값을 빌려와야 함
     uint64_t borrow = (a.l > a.l + b.l) ? 1 : 0; // 또는 (a.l < b.l) ? 1 : 0;
@@ -91,7 +93,7 @@ static uint128_t _sub_u128(const uint128_t a, const uint128_t b) {
 
     // 3. 상위 64비트 연산 (빌림수 반영)
     res.u = a.u - b.u - borrow;
-    
+
     return res;
 }
 
@@ -153,7 +155,7 @@ static uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     uint64_t carry = 0;
     uint64_t sum = p00.u + p01.l;
     carry = (sum < p00.u) ? 1 : 0;
-    
+
     sum += p10.l;
     carry += (sum < p10.l) ? 1 : 0;
     res.d[1] = sum;
@@ -162,10 +164,10 @@ static uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     uint64_t carry2 = 0;
     sum = p11.l + p01.u;
     carry2 = (sum < p11.l) ? 1 : 0;
-    
+
     sum += p10.u;
     carry2 += (sum < p10.u) ? 1 : 0;
-    
+
     sum += carry; // 이전 d[1]에서 넘어온 carry 더하기
     carry2 += (sum < carry) ? 1 : 0;
     res.d[2] = sum;
@@ -546,7 +548,7 @@ void hal_mac_i128(int256_t *c, const int128_t *a, const int128_t *b, const size_
     for (uint32_t i = 0; i < n; i++) {
         // 1. 128bit x 128bit -> 256bit 단일 곱셈 (음수 부호 확장 로직 자동 적용)
         int256_t prod = _mul_i128(a[i], b[i]);
-        
+
         // 2. 256bit 덧셈 누산 (비트 레벨 덧셈은 부호 여부와 무관하므로 안전함)
         c[i] = _add_i256(c[i], prod);
     }
@@ -693,7 +695,7 @@ void hal_div_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t
 /* i128/u128 */
 void hal_div_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL) return;
-    
+
     if (ret) *ret = HAL_MATH_SUCCESS; // 에러 초기화
 
     for (size_t i = 0; i < n; i++) {
@@ -701,9 +703,9 @@ void hal_div_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_
         if (b[i].l == 0 && b[i].u == 0) {
             c[i].l = 0; // 요청하신 대로 0으로 세팅
             c[i].u = 0;
-            
+
             // 에러 변수에 상태 기록 (나중에 외부에서 이 값을 보고 판단)
-            if (ret) *ret |= HAL_MATH_ERR_DIV_BY_ZERO; 
+            if (ret) *ret |= HAL_MATH_ERR_DIV_BY_ZERO;
             continue; // 에러가 나도 다음 배열 요소의 연산은 계속 진행
         }
 
@@ -722,7 +724,7 @@ void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const si
         if (b[i].l == 0 && b[i].u == 0) {
             c[i].l = 0; // 0으로 세팅
             c[i].u = 0;
-            
+
             if (ret) *ret |= HAL_MATH_ERR_DIV_BY_ZERO;
             continue;
         }
@@ -819,11 +821,11 @@ void hal_dot_u64(uint128_t* result, const uint64_t* a, const uint64_t* b, const 
 void hal_dot_i128(int256_t* result, const int128_t* a, const int128_t* b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL) return;
     int256_t sum = {{0, 0, 0, 0}};
-    
+
     for (size_t i = 0; i < n; i++) {
         // 구조체 0-Skip 최적화 (한쪽이라도 0이면 곱셈 결과는 0)
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0)) continue;
-        
+
         int256_t prod = _mul_i128(a[i], b[i]);
         sum = _add_i256(sum, prod);
     }
@@ -833,11 +835,11 @@ void hal_dot_i128(int256_t* result, const int128_t* a, const int128_t* b, const 
 void hal_dot_u128(uint256_t* result, const uint128_t* a, const uint128_t* b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL) return;
     uint256_t sum = {{0, 0, 0, 0}};
-    
+
     for (size_t i = 0; i < n; i++) {
         // 구조체 0-Skip 최적화
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0)) continue;
-        
+
         uint256_t prod = _mul_u128(a[i], b[i]);
         sum = _add_u256(sum, prod);
     }
@@ -1166,7 +1168,7 @@ void hal_div_f32(float *c, const float *a, const float *b, const size_t n, int *
 void hal_dot_f32(double* result, const float* a, const float* b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL) return;
     double sum = 0.0;
-    
+
     for (size_t i = 0; i < n; i++) {
         if (a[i] == 0.0f || b[i] == 0.0f) continue;
         sum += (double)a[i] * b[i]; // double 정밀도 보장
@@ -1195,6 +1197,45 @@ void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N,
             if (pa[i][k] != 0.0f) {
                 for (int j = 0; j < N; j++) {
                     pc[i][j] += (double)pa[i][k] * pb[k][j];
+                }
+            }
+        }
+    }
+}
+
+
+void hal_matrix_mul_tiled_f32(double* c, const float* a, const float* b, int M, int N, int K, int tile_size) {
+    // VLA Mapping
+    double (*pc)[N] = (double (*)[N])c;
+    const float (*pa)[K] = (const float (*)[K])a;
+    const float (*pb)[N] = (const float (*)[N])b;
+
+    // 출력 버퍼 초기화
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            pc[i][j] = 0.0;
+        }
+    }
+
+    // Outer loops: Tile 단위 이동
+    for (int i = 0; i < M; i += tile_size) {
+        for (int j = 0; j < N; j += tile_size) {
+            for (int k = 0; k < K; k += tile_size) {
+
+                int i_end = MIN(i + tile_size, M);
+                int j_end = MIN(j + tile_size, N);
+                int k_end = MIN(k + tile_size, K);
+
+                // Inner loops: Tile 내부 연산
+                for (int ii = i; ii < i_end; ii++) {
+                    for (int jj = j; jj < j_end; jj++) {
+                        double sum = pc[ii][jj];
+                        for (int kk = k; kk < k_end; kk++) {
+                            // float * float -> double 누적
+                            sum += (double)pa[ii][kk] * (double)pb[kk][jj];
+                        }
+                        pc[ii][jj] = sum;
+                    }
                 }
             }
         }

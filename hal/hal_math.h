@@ -283,6 +283,9 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
 */
 void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N, int K);
 
+// [추가] 타일링 기법이 적용된 최적화 행렬 곱셈
+void hal_matrix_mul_tiled_f32(double* c, const float* a, const float* b, int M, int N, int K, int tile_size);
+
 /* new end */
 
 /* ======================================================================== */

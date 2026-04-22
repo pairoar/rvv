@@ -1,5 +1,8 @@
+.text
+.align 2
+
 # =============================================================================
-# AERMOB RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
+# RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -439,3 +442,41 @@ hal_matrix_mul_f32:
 8:  addi t0, t0, 1
     j 1b
 9:  ret
+
+
+
+.global hal_matrix_mul_tiled_f32
+# ==============================================================================
+# void hal_matrix_mul_tiled_f32(double* c, const float* a, const float* b,
+#                               int M, int N, int K, int tile_size);
+#
+# [Registers]
+# a0: double* c        (Output matrix, 64-bit precision)
+# a1: const float* a   (Input matrix A, 32-bit)
+# a2: const float* b   (Input matrix B, 32-bit)
+# a3: int M            (Rows of A)
+# a4: int N            (Cols of B)
+# a5: int K            (Cols of A / Rows of B)
+# a6: int tile_size    (Max items to process per vector instruction)
+# ==============================================================================
+hal_matrix_mul_tiled_f32:
+    # 1. 스택 프레임 생성 및 레지스터 백업 (필요한 경우)
+    addi sp, sp, -16
+    sw ra, 12(sp)
+    sw s0, 8(sp)
+
+    # 2. RVV 환경 설정 (vsetvli)
+    # e32(32-bit 요소), m1(LMUL=1, 레지스터 1개씩 사용), ta(Tail Agnostic), ma(Mask Agnostic)
+    # a6(tile_size)를 요청 길이(AVL)로 주고, 실제 처리 가능한 길이(vl)를 t0에 받아옴
+    vsetvli t0, a6, e32, m1, ta, ma
+
+    # ---------------------------------------------------------
+    # [TODO] 여기에 3중 루프(M, N, K)와 벡터 로드(vle32.v),
+    # 연산(vfwmacc.vf), 스토어(vse64.v) 로직이 들어갑니다.
+    # ---------------------------------------------------------
+
+    # 3. 스택 복구 및 복귀
+    lw s0, 8(sp)
+    lw ra, 12(sp)
+    addi sp, sp, 16
+    ret
