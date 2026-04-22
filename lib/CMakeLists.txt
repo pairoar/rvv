@@ -1,5 +1,5 @@
 # lib/CMakeLists.txt
-add_library(vmath STATIC vmath.c nn_dense_layer.c dsp_fir.c dsp_iir.c image_filter.c)
+add_library(vmath STATIC vmath.c nn_layers.c dsp_fir.c dsp_iir.c image_filter.c)
 
 # current directory
 target_include_directories(vmath PUBLIC

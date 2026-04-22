@@ -1,5 +1,5 @@
-#ifndef NN_DENSE_LAYER_H
-#define NN_DENSE_LAYER_H
+#ifndef NN_LAYER_H
+#define NN_LAYER_H
 
 #include "hal_math.h"
 #include <stdio.h>

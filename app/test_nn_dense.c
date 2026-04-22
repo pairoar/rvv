@@ -1,4 +1,4 @@
-#include "nn_dense_layer.h"
+#include "nn_layers.h"
 #include <stdio.h>
 
 void test_nn_dense(void) {
