@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 typedef enum {
     HAL_TEST_INIT,
@@ -93,6 +94,18 @@ typedef enum {
     HAL_TEST_MTRX_MUL_I128,
     HAL_TEST_MTRX_MUL_U128,
 
+    /* Matrix Tiled */
+    HAL_TEST_MTRX_MUL_TILED_I8,
+    HAL_TEST_MTRX_MUL_TILED_U8,
+    HAL_TEST_MTRX_MUL_TILED_I16,
+    HAL_TEST_MTRX_MUL_TILED_U16,
+    HAL_TEST_MTRX_MUL_TILED_I32,
+    HAL_TEST_MTRX_MUL_TILED_U32,
+    HAL_TEST_MTRX_MUL_TILED_I64,
+    HAL_TEST_MTRX_MUL_TILED_U64,
+    HAL_TEST_MTRX_MUL_TILED_I128,
+    HAL_TEST_MTRX_MUL_TILED_U128,
+
     /* float */
     HAL_TEST_ADD_F32,
     HAL_TEST_SUB_F32,
@@ -101,6 +114,7 @@ typedef enum {
     HAL_TEST_DIV_F32,
     HAL_TEST_DOT_F32,
     HAL_TEST_MTRX_MUL_F32,
+    HAL_TEST_MTRX_MUL_TILED_F32,
 
     HAL_TEST_MAX,
 } HAL_TEST_LIST_E;
@@ -457,16 +471,16 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] = a[i] + b[i];                                                                 \
                                                                                                    \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_add_##S_IN(c_hw, a, b, 10);                                                            \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
                                                                                                    \
         if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
     /* 2. SUB Test */                                                                              \
@@ -477,16 +491,16 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] = a[i] - b[i];                                                                 \
                                                                                                    \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_sub_##S_IN(c_hw, a, b, 10);                                                            \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
                                                                                                    \
         if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
     /* 3. MUL Test */                                                                              \
@@ -495,16 +509,16 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         T_OUT c_hw[10] = {0}, c_sw[10] = {0};                                                      \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] = (T_OUT)a[i] * (T_OUT)b[i];                                                   \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_mul_##S_IN(c_hw, a, b, 10);                                                            \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
                                                                                                    \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 10)) {                                            \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
     /* 4. MAC Test */                                                                              \
@@ -514,37 +528,37 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         T_OUT c_sw[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};                                 \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] += (T_OUT)a[i] * (T_OUT)b[i];                                                  \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_mac_##S_IN(c_hw, a, b, 10);                                                            \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
                                                                                                    \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 10)) {                                            \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
-    /* 5. DIV Test (예외 처리 및 ret 출력 강화) */                                                 \
+    /* 5. DIV Test (예외 처리 및 ret 출력 강화) */                                                      \
     static int test_hal_div_##S_IN(void) {                                                         \
         T_IN a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};                                    \
-        /* 인덱스 2번과 7번에 의도적으로 0을 넣어 예외가 잘 잡히는지 테스트합니다. */              \
+        /* 인덱스 2번과 7번에 의도적으로 0을 넣어 예외가 잘 잡히는지 테스트합니다. */                              \
         T_IN b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};                                               \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
         int ret = HAL_MATH_SUCCESS;                                                                \
-        /* SW 정답지 생성 (0으로 나누어 PC가 뻗는 것을 방지) */                                    \
+        /* SW 정답지 생성 (0으로 나누어 PC가 뻗는 것을 방지) */                                             \
         for (int i = 0; i < 10; i++) {                                                             \
             if (b[i] == 0)                                                                         \
                 c_sw[i] = 0;                                                                       \
             else                                                                                   \
                 c_sw[i] = a[i] / b[i];                                                             \
         }                                                                                          \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_div_##S_IN(c_hw, a, b, 10, &ret);                                                      \
         uint64_t end = get_mcycle();                                                               \
-        /* HAL 함수가 에러를 감지했다면 로그 출력 */                                               \
+        /* HAL 함수가 에러를 감지했다면 로그 출력 */                                                       \
         if (ret != 0) {                                                                            \
             if (ret == 1 || ret == HAL_MATH_ERR_DIV_BY_ZERO) {                                     \
                 printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);       \
@@ -553,9 +567,9 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
             }                                                                                      \
         }                                                                                          \
         if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
     /* 6. DOT Test */                                                                              \
@@ -564,15 +578,15 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         T_OUT c_hw = 0, c_sw = 0;                                                                  \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw += (T_OUT)a[i] * (T_OUT)b[i];                                                     \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_dot_##S_IN(&c_hw, a, b, 10);                                                           \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
         if (hal_verify_array_##S_OUT(&c_sw, &c_hw, 1)) {                                           \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }                                                                                              \
     /* 7. MTRX MUL Test */                                                                         \
@@ -587,15 +601,52 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
                 c_sw[i * 2 + j] = sum;                                                             \
             }                                                                                      \
         }                                                                                          \
-        /* --- 프로파일링 시작 --- */                                                              \
+        /* --- 프로파일링 시작 --- */                                                                  \
         uint64_t start = get_mcycle();                                                             \
         hal_matrix_mul_##S_IN(c_hw, a, b, 2, 2, 3);                                                \
         uint64_t end = get_mcycle();                                                               \
-        /* --- 프로파일링 종료 --- */                                                              \
+        /* --- 프로파일링 종료 --- */                                                                  \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 4)) {                                             \
-            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                           \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
         } else {                                                                                   \
-            return -1; /* 실패 시 -1 반환 */                                                       \
+            return -1; /* 실패 시 -1 반환 */                                                          \
+        }                                                                                          \
+    }                                                                                              \
+    /* 8. MTRX MUL Tiled Test */                                                                   \
+    static int test_hal_mtrx_mul_tiled_##S_IN(void) {                                              \
+        int M = 131, N = 71, K = 79;                                                               \
+        int tile_size = 64;                                                                        \
+        T_IN *A = (T_IN *)malloc(sizeof(T_IN) * M * K);                                            \
+        T_IN *B = (T_IN *)malloc(sizeof(T_IN) * K * N);                                            \
+        T_OUT *CS = (T_OUT *)malloc(sizeof(T_OUT) * M * N);                                        \
+        T_OUT *CH = (T_OUT *)malloc(sizeof(T_OUT) * M * N);                                        \
+        T_IN (*pa)[K] = (T_IN (*)[K])A;                                                            \
+        T_IN (*pb)[N] = (T_IN (*)[N])B;                                                            \
+        T_OUT (*ps)[N] = (T_OUT (*)[N])CS;                                                         \
+        T_OUT (*ph)[N] = (T_OUT (*)[N])CH;                                                         \
+        memset(A, 1, sizeof(T_IN) * M * K);                                                        \
+        memset(B, 2, sizeof(T_IN) * K * N);                                                        \
+        memset(CS, 0, sizeof(T_OUT) * M * N);                                                       \
+        memset(CH, 0, sizeof(T_OUT) * M * N);                                                       \
+        /* 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응) */                                           \
+        for (int i = 0; i < M; i++) {                                                         \
+            for (int k = 0; k < K; k++) {                                                     \
+                if (pa[i][k] != 0) {                                                               \
+                    for (int j = 0; j < N; j++) {                                             \
+                        ps[i][j] += (T_OUT)pa[i][k] * pb[k][j];                                    \
+                    }                                                                              \
+                }                                                                                  \
+            }                                                                                      \
+        }                                                                                          \
+        /* --- 프로파일링 시작 --- */                                                                  \
+        uint64_t start = get_mcycle();                                                             \
+        hal_matrix_mul_tiled_##S_IN(CH, A, B, M, N, K, tile_size);                                          \
+        uint64_t end = get_mcycle();                                                               \
+        /* --- 프로파일링 종료 --- */                                                                  \
+        if (hal_verify_array_##S_OUT(CS, CH, M*N)) {                                             \
+            return (int)(end - start); /* 성공 시 소요된 클럭 수 반환 */                                 \
+        } else {                                                                                   \
+            return -1; /* 실패 시 -1 반환 */                                                          \
         }                                                                                          \
     }
 
@@ -648,7 +699,13 @@ DUMMY_TEST(test_hal_dot_i128)
 DUMMY_TEST(test_hal_dot_u128)
 DUMMY_TEST(test_hal_mtrx_mul_i128)
 DUMMY_TEST(test_hal_mtrx_mul_u128)
+
+DUMMY_TEST(test_hal_mtrx_mul_tiled_i64)
+DUMMY_TEST(test_hal_mtrx_mul_tiled_u64)
+DUMMY_TEST(test_hal_mtrx_mul_tiled_i128)
+DUMMY_TEST(test_hal_mtrx_mul_tiled_u128)
 // <---
+
 
 // ---> edge case start
 // -----------------------------------------------------------------------------
@@ -663,7 +720,7 @@ static int test_hal_edge_overflow_i32(void) {
     int32_t c_sw[4] = {0};
 
     // SW 계산: C언어의 UB(Undefined Behavior)를 피하기 위해 Unsigned로 캐스팅 후 연산
-    for (int i = 0; i < LEN; i++) {
+    for (size_t i = 0; i < LEN; i++) {
         c_sw[i] = (int32_t)((uint32_t)a[i] + (uint32_t)b[i]);
     }
 
@@ -689,7 +746,7 @@ static int test_hal_edge_float_limits(void) {
     float c_sw[5] = {0};
 
     // SW 계산 (덧셈의 경우)
-    for (int i = 0; i < LEN; i++)
+    for (size_t i = 0; i < LEN; i++)
         c_sw[i] = a[i] + b[i];
 
     hal_add_f32(c_hw, a, b, LEN);
@@ -713,7 +770,7 @@ static int test_hal_edge_unaligned_access(void) {
     float *unaligned_c = (float *)(&buffer_c[2]); // 2바이트 엇갈림
 
     // 초기값 세팅
-    for (int i = 0; i < LEN; i++) {
+    for (size_t i = 0; i < LEN; i++) {
         unaligned_a[i] = (float)i;
         unaligned_b[i] = (float)(i * 2);
     }
@@ -861,6 +918,28 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
     [HAL_TEST_MTRX_MUL_U128] = {HAL_TEST_MTRX_MUL_U128, test_hal_mtrx_mul_u128, "MTRX_MUL_U128",
                                 "Matrix Mul (uint128_t)"},
 
+    [HAL_TEST_MTRX_MUL_TILED_I8] = {HAL_TEST_MTRX_MUL_TILED_I8, test_hal_mtrx_mul_tiled_i8, "MTRX_MUL_TILED_I8",
+                              "Matrix Mul tiled (int8_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_I16] = {HAL_TEST_MTRX_MUL_TILED_I16, test_hal_mtrx_mul_tiled_i16, "MTRX_MUL_TILED_I16",
+                               "Matrix Mul tiled (int16_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_I32] = {HAL_TEST_MTRX_MUL_TILED_I32, test_hal_mtrx_mul_tiled_i32, "MTRX_MUL_TILED_I32",
+                               "Matrix Mul tiled (int32_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_I64] = {HAL_TEST_MTRX_MUL_TILED_I64, test_hal_mtrx_mul_tiled_i64, "MTRX_MUL_TILED_I64",
+                               "Matrix Mul tiled (int64_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_I128] = {HAL_TEST_MTRX_MUL_TILED_I128, test_hal_mtrx_mul_tiled_i128, "MTRX_MUL_TILED_I128",
+                                "Matrix Mul tiled (int128_t)"},
+
+    [HAL_TEST_MTRX_MUL_TILED_U8] = {HAL_TEST_MTRX_MUL_TILED_U8, test_hal_mtrx_mul_tiled_u8, "MTRX_MUL_TILED_U8",
+                              "Matrix Mul tiled (uint8_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_U16] = {HAL_TEST_MTRX_MUL_TILED_U16, test_hal_mtrx_mul_tiled_u16, "MTRX_MUL_TILED_U16",
+                               "Matrix Mul tiled (uint16_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_U32] = {HAL_TEST_MTRX_MUL_TILED_U32, test_hal_mtrx_mul_tiled_u32, "MTRX_MUL_TILED_U32",
+                               "Matrix Mul tiled (uint32_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_U64] = {HAL_TEST_MTRX_MUL_TILED_U64, test_hal_mtrx_mul_tiled_u64, "MTRX_MUL_TILED_U64",
+                               "Matrix Mul tiled (uint64_t)"},
+    [HAL_TEST_MTRX_MUL_TILED_U128] = {HAL_TEST_MTRX_MUL_TILED_U128, test_hal_mtrx_mul_tiled_u128, "MTRX_MUL_TILED_U128",
+                                "Matrix Mul tiled (uint128_t)"},
+
     [HAL_TEST_ADD_F32] = {HAL_TEST_ADD_F32, test_hal_add_f32, "VADD_F32", "Vector add (float)"},
     [HAL_TEST_SUB_F32] = {HAL_TEST_SUB_F32, test_hal_sub_f32, "VSUB_F32", "Vector sub (float)"},
     [HAL_TEST_MUL_F32] = {HAL_TEST_MUL_F32, test_hal_mul_f32, "VMUL_F32", "Vector mul (float)"},
@@ -870,6 +949,8 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
                           "Vector dot product (float)"},
     [HAL_TEST_MTRX_MUL_F32] = {HAL_TEST_MTRX_MUL_F32, test_hal_mtrx_mul_f32, "MTRX_MUL_F32",
                                "Matrix Mul (float)"},
+    [HAL_TEST_MTRX_MUL_TILED_F32] = {HAL_TEST_MTRX_MUL_TILED_F32, test_hal_mtrx_mul_tiled_f32, "MTRX_MUL_TILED_F32",
+                               "Matrix Mul tiled (float)"},
 };
 
 /* * 모든 테스트를 실행하고, 실패한 테스트의 개수를 반환합니다.
