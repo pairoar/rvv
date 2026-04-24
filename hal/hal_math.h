@@ -24,8 +24,7 @@ typedef struct {
 
 // 256-bit signed integer type definition
 typedef struct {
-    int64_t msb;
-    uint64_t d[3];
+    uint64_t d[4];
 } int256_t;
 
 #if 1
