@@ -11,17 +11,26 @@
 
 # 1. 타겟 시스템 설정
 # 시뮬레이터나 베어메탈 환경인 경우 "Generic", 리눅스 환경이면 "Linux"를 사용합니다.
-set(CMAKE_SYSTEM_NAME Linux)
+#set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR riscv64)
 
 # 2. 툴체인 경로 설정 (핵심)
 # Ubuntu 환경의 기본 패키지 경로를 기본값으로 하되, 외부에서 인자로 덮어쓸 수 있도록 CACHE 변수로 지정합니다.
-#set(RISCV_TOOLCHAIN_DIR "/usr" CACHE PATH "Path to the RISC-V toolchain root directory")
-set(RISCV_TOOLCHAIN_DIR "/disk/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
-
+# set(RISCV_TOOLCHAIN_DIR "/usr" CACHE PATH "Path to the RISC-V toolchain root directory")
 # 베어메탈 환경(newlib)이라면 "riscv64-unknown-elf-"를 사용하세요.
-#set(TOOLCHAIN_PREFIX "riscv64-linux-gnu-")
-set(TOOLCHAIN_PREFIX "riscv64-unknown-elf-")
+
+if (APPLE)
+    set(CMAKE_C_COMPILER_WORKS 1)
+    set(CMAKE_CXX_COMPILER_WORKS 1)
+
+    set(RISCV_TOOLCHAIN_DIR "/opt/homebrew/Cellar/riscv-gnu-toolchain/main" CACHE PATH "Path to the RISC-V toolchain root directory")
+    set(TOOLCHAIN_PREFIX "riscv64-unknown-elf-")
+else()
+    set(RISCV_TOOLCHAIN_DIR "/disk/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
+    @set(RISCV_TOOLCHAIN_DIR "$ENV{HOME}/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
+    set(TOOLCHAIN_PREFIX "riscv64-unknown-elf-")
+endif()
+
 
 # 3. 컴파일러 및 유틸리티 경로 명시
 set(CMAKE_C_COMPILER       "${RISCV_TOOLCHAIN_DIR}/bin/${TOOLCHAIN_PREFIX}gcc")
