@@ -26,6 +26,13 @@ else()
 endif()
 
 # Dynamic allocation of source and header paths based on architecture
+#target_include_directories(hal PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
+# Common source files for all architectures
+target_sources(hal PRIVATE
+        hal_soft_math.c
+    )
+
 if(TARGET_ARCH STREQUAL "host")
     target_sources(hal PRIVATE
         host/hal_host_math.c
@@ -89,7 +96,7 @@ if(BUILD_HAL_TEST)
     # hal_test가 hal을 링크함으로써 헤더 경로 및 의존성을 자동으로 상속받습니다.
     target_link_libraries(hal_test PRIVATE hal m)
 
-# ---------------------------------------------------------
+    # ---------------------------------------------------------
     # make run_hal_test 타겟 (QEMU 절대경로 탐색 기능 추가)
     # ---------------------------------------------------------
     # Makefile에 있던 기존 toolchain 경로를 HINTS로 제공합니다.
@@ -100,21 +107,42 @@ if(BUILD_HAL_TEST)
         set(RUN_CMD $<TARGET_FILE:hal_test>)
 
     elseif(TARGET_ARCH STREQUAL "riscv32")
-        #set(QEMU_SEARCH_PATH "$ENV{HOME}/toolchains/riscv32/bin")
-        set(QEMU_SEARCH_PATH "/disk/toolchains/riscv32/bin")
-        # RV32: 환경 변수 및 명시적 경로에서 QEMU 탐색
-        find_program(QEMU_RV32 qemu-riscv32 HINTS ${QEMU_SEARCH_PATH})
+        if(APPLE)
+            # MscOS
+            set(QEMU_SEARCH_PATH "/opt/homebrew/Cellar/qemu/10.2.2/bin")
+            set(QEMU_EXEC "qemu-system-riscv32")
+        else()
+            # Linux
+            set(QEMU_SEARCH_PATH "/disk/toolchains/riscv32/bin")
+            #set(QEMU_SEARCH_PATH "$ENV{HOME}/toolchains/riscv32/bin")
+            set(QEMU_EXEC "qemu-riscv32")
+        endif()
+
+        find_program(QEMU_RV32 ${QEMU_EXEC} HINTS ${QEMU_SEARCH_PATH})
         if(NOT QEMU_RV32)
             message(FATAL_ERROR "qemu-riscv32를 찾을 수 없습니다. Toolchain 경로를 확인해주세요.")
         endif()
+
         set(QEMU_FLAGS "-cpu" "rv32,v=true,vlen=128")
         set(RUN_CMD ${QEMU_RV32} ${QEMU_FLAGS} $<TARGET_FILE:hal_test>)
 
     elseif(TARGET_ARCH STREQUAL "riscv64")
-        #set(QEMU_SEARCH_PATH "$ENV{HOME}/toolchains/riscv64/bin")
-        set(QEMU_SEARCH_PATH "/disk/toolchains/riscv64/bin")
+        message(STATUS "0.riscv64 ${CMAKE_SYSTEM_NAME}")
+        if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            # MscOS
+            set(QEMU_SEARCH_PATH "/opt/homebrew/Cellar/qemu/10.2.2/bin")
+            set(QEMU_EXEC "qemu-system-riscv64")
+            message(STATUS "Apple")
+        else()
+            # Linux
+            set(QEMU_SEARCH_PATH "/disk/toolchains/riscv64/bin")
+            #set(QEMU_SEARCH_PATH "$ENV{HOME}/toolchains/riscv64/bin")
+            set(QEMU_EXEC "qemu-riscv64")
+            message(STATUS "Linux")
+        endif()
+
         # RV64: 환경 변수 및 명시적 경로에서 QEMU 탐색
-        find_program(QEMU_RV64 qemu-riscv64 HINTS ${QEMU_SEARCH_PATH})
+        find_program(QEMU_RV64 ${QEMU_EXEC} HINTS ${QEMU_SEARCH_PATH})
         if(NOT QEMU_RV64)
             message(FATAL_ERROR "qemu-riscv64를 찾을 수 없습니다. Toolchain 경로를 확인해주세요.")
         endif()
@@ -152,7 +180,8 @@ target_include_directories(hal PUBLIC
 )
 
 # Specify the public headers for this target. (list multiple headers separated by spaces.)
-set_target_properties(hal PROPERTIES PUBLIC_HEADER "hal_math.h")
+set_target_properties(hal PROPERTIES
+    PUBLIC_HEADER "hal_math.h")
 
 # add the destination for PUBLIC_HEADER to the installation rules.
 install(TARGETS hal

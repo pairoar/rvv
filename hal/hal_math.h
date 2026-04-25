@@ -70,19 +70,7 @@ extern "C" {
 /*    Public Function Prototypes (Exposed APIs)                             */
 /* ======================================================================== */
 
-extern void hal_init_hw(void);
 extern void hal_wait_until_done(void);
-#if 0
-extern void hal_vad(void *c, void *a, void *b, const uint32_t n, InOutType out_t, InOutType in_t);
-extern void hal_mac_u(void *c, void *a, void *b, const uint32_t n, InOutType out_t, InOutType in_t);
-extern void hal_vmul_u(void *c, void *a, void *b, const uint32_t n, InOutType out_t,
-                       InOutType in_t);
-extern void hal_mtrx_u(void *c, void *a, void *b, uint32_t a_row, uint32_t a_col, uint32_t b_row,
-                       uint32_t b_col, InOutType out_t, InOutType in_t);
-#endif
-/* new start */
-
-void hal_init_hw(void);
 
 /*
     addition
@@ -244,24 +232,6 @@ void hal_matrix_mul_i128(int256_t *c, const int128_t *a, const int128_t *b, int 
 void hal_matrix_mul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M, int N, int K);
 
 /*
-    Matrix Multiplication Tiled
-*/
-void hal_matrix_mul_tiled_i8(int16_t* c, const int8_t* a, const int8_t* b, int M, int N, int K, int tile_size);
-void hal_matrix_mul_tiled_u8(uint16_t* c, const uint8_t* a, const uint8_t* b, int M, int N, int K, int tile_size);
-
-void hal_matrix_mul_tiled_i16(int32_t* c, const int16_t* a, const int16_t* b, int M, int N, int K, int tile_size);
-void hal_matrix_mul_tiled_u16(uint32_t* c, const uint16_t* a, const uint16_t* b, int M, int N, int K, int tile_size);
-
-void hal_matrix_mul_tiled_i32(int64_t* c, const int32_t* a, const int32_t* b, int M, int N, int K, int tile_size);
-void hal_matrix_mul_tiled_u32(uint64_t* c, const uint32_t* a, const uint32_t* b, int M, int N, int K, int tile_size);
-
-void hal_matrix_mul_tiled_i64(int128_t* c, const int64_t* a, const int64_t* b, int M, int N, int K, int tile_size);
-void hal_matrix_mul_tiled_u64(uint128_t* c, const uint64_t* a, const uint64_t* b, int M, int N, int K, int tile_size);
-
-void hal_matrix_mul_tiled_i128(int256_t* c, const int128_t* a, const int128_t* b, int M, int N, int K, int tile_size);
-void hal_matrix_mul_tiled_u128(uint256_t* c, const uint128_t* a, const uint128_t* b, int M, int N, int K, int tile_size);
-
-/*
     float 32
 */
 /*
@@ -299,11 +269,6 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
     matrix multiplication
 */
 void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N, int K);
-
-// [추가] 타일링 기법이 적용된 최적화 행렬 곱셈
-void hal_matrix_mul_tiled_f32(double* c, const float* a, const float* b, int M, int N, int K, int tile_size);
-
-/* new end */
 
 /* ======================================================================== */
 /*    Close C++ Block                                                       */
