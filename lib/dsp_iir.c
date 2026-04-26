@@ -1,4 +1,5 @@
 #include "hal_math.h"
+#include "vmath_driver.h"
 #include <stddef.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -24,6 +25,9 @@
  */
 void dsp_iir_f32(float *output, const float *input, const float *a_coeffs, const float *b_coeffs,
                  int num_samples, int num_a, int num_b) {
+
+    // 함수 시작 시 가속기 전원 ON 및 독점
+    vmath_drv_lock();
 
     // 과거 데이터를 참조하기 위해 필요한 최대 지연(Delay) 길이 계산
     // 예: num_b = 3 (x[n], x[n-1], x[n-2]), num_a = 4 (y[n-1] ... y[n-4])
@@ -59,4 +63,7 @@ void dsp_iir_f32(float *output, const float *input, const float *a_coeffs, const
         double iir_result = feedforward_sum - feedback_sum;
         output[i] = (float)iir_result;
     }
+
+    // 함수 종료 전 가속기 전원 OFF 및 반환
+    vmath_drv_unlock();
 }

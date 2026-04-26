@@ -1,4 +1,5 @@
 #include "hal_math.h"
+#include "vmath_driver.h"
 #include <stddef.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -15,6 +16,9 @@ void dsp_fir_f32(float *output, const float *input, const float *coeffs, int num
                  int num_taps) {
     if (num_samples < num_taps)
         return;
+
+    // 함수 시작 시 가속기 전원 ON 및 독점
+    vmath_drv_lock();
 
     // 1. 초기 지연(Delay Line) 구간 처리
     // 과거 데이터가 충분하지 않은 맨 앞부분은 0으로 채우거나 원본을 바이패스합니다.
@@ -36,4 +40,7 @@ void dsp_fir_f32(float *output, const float *input, const float *coeffs, int num
         // double로 정밀하게 계산된 결과를 float로 다운캐스팅하여 저장
         output[i] = (float)dot_result;
     }
+
+    // 함수 종료 전 가속기 전원 OFF 및 반환
+    vmath_drv_unlock();
 }

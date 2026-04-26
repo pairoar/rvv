@@ -1,4 +1,5 @@
 #include "hal_math.h"
+#include "vmath_driver.h"
 #include <stddef.h>
 
 /**
@@ -12,6 +13,9 @@
  */
 void image_conv2d_f32(float *output, const float *input, int width, int height, const float *kernel,
                       int k_size) {
+    // 함수 시작 시 가속기 전원 ON 및 독점
+    vmath_drv_lock();
+
     int k_half = k_size / 2;
     int k_len = k_size * k_size;
 
@@ -27,7 +31,7 @@ void image_conv2d_f32(float *output, const float *input, int width, int height, 
     for (int y = k_half; y < height - k_half; y++) {
         for (int x = k_half; x < width - k_half; x++) {
 
-            // 1. 2D 윈도우(예: 3x3) 영역을 읽어서 1D 배열로 펼치기 (Flatten)
+            // 2D 윈도우(예: 3x3) 영역을 읽어서 1D 배열로 펼치기 (Flatten)
             int idx = 0;
             for (int ky = -k_half; ky <= k_half; ky++) {
                 for (int kx = -k_half; kx <= k_half; kx++) {
@@ -35,13 +39,16 @@ void image_conv2d_f32(float *output, const float *input, int width, int height, 
                 }
             }
 
-            // 2. RVV 가속기를 이용한 초고속 내적(Dot Product) 연산!
+            // RVV 가속기를 이용한 초고속 내적(Dot Product) 연산!
             // 3x3 커널이면 길이 9짜리 벡터 내적이 한 방에 수행됩니다.
             double dot_result = 0.0;
+
             hal_dot_f32(&dot_result, window, kernel, k_len);
 
-            // 3. 결과 저장 (중앙 픽셀 위치에 덮어쓰기)
+            // 결과 저장 (중앙 픽셀 위치에 덮어쓰기)
             output[y * width + x] = (float)dot_result;
         }
     }
+    // 함수 종료 전 가속기 전원 OFF 및 반환
+    vmath_drv_unlock();
 }
