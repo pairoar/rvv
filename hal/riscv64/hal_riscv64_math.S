@@ -1,5 +1,9 @@
+.text
+.align 2
+.option arch, +v    # <--- [추가] CMake 플래그와 무관하게 이 파일은 무조건 Vector 확장을 활성화함!
+
 # =============================================================================
-# AERMOB RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
+# RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -439,3 +443,299 @@ hal_matrix_mul_f32:
 8:  addi t0, t0, 1
     j 1b
 9:  ret
+
+
+
+.global hal_matrix_mul_tiled_f32
+# ==============================================================================
+# void hal_matrix_mul_tiled_f32(double* c, const float* a, const float* b,
+#                               int M, int N, int K, int tile_size);
+# ==============================================================================
+hal_matrix_mul_tiled_f32:
+    beqz a3, .L_end_f32
+    beqz a4, .L_end_f32
+    beqz a5, .L_end_f32
+
+    slli a7, a4, 2           # a7 = B 행렬 Stride (N * 4 bytes)
+    li t0, 0                 # i = 0
+.L_loop_M_f32:
+    bge t0, a3, .L_end_f32
+    li t1, 0                 # j = 0
+.L_loop_N_f32:
+    bge t1, a4, .L_next_M_f32
+
+    sub t2, a4, t1
+    bltu t2, a6, .L_set_vl_f32
+    mv t2, a6
+.L_set_vl_f32:
+    vsetvli t3, t2, e32, m1, ta, ma
+
+    # C 버퍼(누산기) 포인터 계산 및 로드
+    mul t4, t0, a4
+    add t4, t4, t1
+    slli t4, t4, 3
+    add t4, a0, t4
+
+    vsetvli zero, t3, e64, m2, ta, ma
+    vle64.v v16, (t4)
+
+    vsetvli zero, t3, e32, m1, ta, ma
+
+    # A, B 포인터 초기화
+    mul t6, t0, a5
+    slli t6, t6, 2
+    add t6, a1, t6
+    slli t5, t1, 2
+    add t5, a2, t5
+
+    li t2, 0                 # k = 0
+.L_loop_K_f32:
+    bge t2, a5, .L_next_N_f32
+
+    flw fa0, 0(t6)           # 스칼라 A[i][k]
+    vle32.v v8, (t5)         # 벡터 B[k][j : j+vl]
+
+    # Widening MAC
+    vfwmacc.vf v16, fa0, v8
+
+    # Pointer Bumping
+    addi t6, t6, 4           # A_ptr++
+    add t5, t5, a7           # B_ptr += B_stride
+
+    addi t2, t2, 1
+    j .L_loop_K_f32
+
+.L_next_N_f32:
+    vsetvli zero, t3, e64, m2, ta, ma
+    vse64.v v16, (t4)
+    add t1, t1, t3
+    j .L_loop_N_f32
+
+.L_next_M_f32:
+    addi t0, t0, 1
+    j .L_loop_M_f32
+
+.L_end_f32:
+    ret
+
+# -----------------------------------------------------------------------------
+# [추가] 128비트 ADD / SUB (Carry & Borrow Mask 활용)
+# -----------------------------------------------------------------------------
+.macro DEF_ADD_128 NAME
+.global \NAME
+\NAME:
+    li t1, 8                 # 구조체 내 하위 64비트(l) 오프셋
+    li t6, 16                # 구조체 전체 크기 (Stride = 16 bytes)
+    beqz a3, 2f
+1:  vsetvli t0, a3, e64, m1, ta, ma
+    add t4, a1, t1           # a.l 주소
+    add t5, a2, t1           # b.l 주소
+    vlse64.v v2, (t4), t6    # v2 = a.l (strided load)
+    vlse64.v v4, (t5), t6    # v4 = b.l
+
+    vadd.vv v6, v2, v4       # v6 = a.l + b.l
+    vmsltu.vv v0, v6, v2     # 캐리(Carry) 발생 확인 -> v0 마스크에 저장
+
+    vlse64.v v8, (a1), t6    # v8 = a.u
+    vlse64.v v10, (a2), t6   # v10 = b.u
+    vadc.vvm v12, v8, v10, v0 # v12 = a.u + b.u + carry
+
+    add t4, a0, t1
+    vsse64.v v6, (t4), t6    # c.l 저장
+    vsse64.v v12, (a0), t6   # c.u 저장
+
+    slli t2, t0, 4           # 포인터 이동 (처리 개수 * 16바이트)
+    add a0, a0, t2
+    add a1, a1, t2
+    add a2, a2, t2
+    sub a3, a3, t0
+    bnez a3, 1b
+2:  ret
+.endm
+
+.macro DEF_SUB_128 NAME
+.global \NAME
+\NAME:
+    li t1, 8
+    li t6, 16
+    beqz a3, 2f
+1:  vsetvli t0, a3, e64, m1, ta, ma
+    add t4, a1, t1
+    add t5, a2, t1
+    vlse64.v v2, (t4), t6    # a.l
+    vlse64.v v4, (t5), t6    # b.l
+
+    vsub.vv v6, v2, v4       # v6 = a.l - b.l
+    vmsltu.vv v0, v2, v4     # 빌림수(Borrow) 발생 (a.l < b.l) -> v0 마스크
+
+    vlse64.v v8, (a1), t6    # a.u
+    vlse64.v v10, (a2), t6   # b.u
+    vsbc.vvm v12, v8, v10, v0 # v12 = a.u - b.u - borrow
+
+    add t4, a0, t1
+    vsse64.v v6, (t4), t6
+    vsse64.v v12, (a0), t6
+
+    slli t2, t0, 4
+    add a0, a0, t2
+    add a1, a1, t2
+    add a2, a2, t2
+    sub a3, a3, t0
+    bnez a3, 1b
+2:  ret
+.endm
+
+DEF_ADD_128 hal_add_i128
+DEF_ADD_128 hal_add_u128
+DEF_SUB_128 hal_sub_i128
+DEF_SUB_128 hal_sub_u128
+
+
+# -----------------------------------------------------------------------------
+# [추가] 64비트 MUL -> 128비트 결과 (vmulh 활용 및 구조체 매핑)
+# int128_t는 {int64_t u; uint64_t l;} 순서이므로 vsseg2e64를 사용합니다.
+# -----------------------------------------------------------------------------
+.macro DEF_MUL64 NAME, MULH_INSN
+.global \NAME
+\NAME:
+    beqz a3, 2f
+1:  vsetvli t0, a3, e64, m1, ta, ma
+    vle64.v v8, (a1)
+    vle64.v v10, (a2)
+
+    \MULH_INSN v14, v8, v10  # 상위 64비트 (u) -> v14
+    vmul.vv v15, v8, v10     # 하위 64비트 (l) -> v15
+
+    # vsseg2e64.v: v14와 v15를 교차 저장.
+    # v14는 offset 0 (u)에, v15는 offset 8 (l)에 완벽하게 꽂힙니다!
+    vsseg2e64.v v14, (a0)
+
+    slli t1, t0, 4           # c += 16
+    add a0, a0, t1
+    slli t1, t0, 3           # a, b += 8
+    add a1, a1, t1
+    add a2, a2, t1
+    sub a3, a3, t0
+    bnez a3, 1b
+2:  ret
+.endm
+
+DEF_MUL64 hal_mul_i64, vmulh.vv
+DEF_MUL64 hal_mul_u64, vmulhu.vv
+
+# -----------------------------------------------------------------------------
+# [수정됨] 8/16/32-bit Tiled Matrix Multiply 매크로 (s0 레지스터 및 스택 활용)
+# -----------------------------------------------------------------------------
+.macro DEF_WMATRIX_TILED NAME_I, NAME_U, L_SCALAR_I, L_SCALAR_U, MAC_INSN_I, MAC_INSN_U, SEW, WSEW, SHIFT, WSHIFT, BYTES
+.global \NAME_I
+.global \NAME_U
+
+\NAME_I:
+    # 임시 레지스터 고갈로 s0를 사용하기 위해 스택에 백업
+    addi sp, sp, -16
+    sw s0, 0(sp)
+
+    beqz a3, 9f
+    beqz a4, 9f
+    beqz a5, 9f
+    slli a7, a4, \SHIFT      # a7 = B 행렬 Stride
+    li t0, 0                 # i = 0
+1:  bge t0, a3, 9f
+    li t1, 0                 # j = 0
+2:  bge t1, a4, 8f
+    sub t2, a4, t1
+    bltu t2, a6, 3f
+    mv t2, a6
+3:  vsetvli t3, t2, \SEW, m1, ta, ma
+    # c_ptr 계산
+    mul t4, t0, a4
+    add t4, t4, t1
+    slli t4, t4, \WSHIFT
+    add t4, a0, t4
+    # C 버퍼 로드
+    vsetvli zero, t3, \WSEW, m2, ta, ma
+    vl\WSEW\().v v16, (t4)
+    vsetvli zero, t3, \SEW, m1, ta, ma
+    # A_ptr, B_ptr 계산
+    mul t6, t0, a5
+    slli t6, t6, \SHIFT
+    add t6, a1, t6           # t6 = &A[i][0]
+    slli t5, t1, \SHIFT
+    add t5, a2, t5           # t5 = &B[0][j]
+    li t2, 0                 # k = 0
+4:  bge t2, a5, 7f
+    \L_SCALAR_I s0, 0(t6)    # [수정] t7 -> s0
+    vl\SEW\().v v8, (t5)     # 벡터 B 로드
+    \MAC_INSN_I v16, s0, v8  # [수정] t7 -> s0
+    addi t6, t6, \BYTES      # A_ptr++
+    add t5, t5, a7           # B_ptr += B_Stride
+    addi t2, t2, 1
+    j 4b
+7:  vsetvli zero, t3, \WSEW, m2, ta, ma
+    vs\WSEW\().v v16, (t4)   # C 버퍼 스토어
+    add t1, t1, t3
+    j 2b
+8:  addi t0, t0, 1
+    j 1b
+9:
+    # 리턴 전 s0 완벽 복구
+    lw s0, 0(sp)
+    addi sp, sp, 16
+    ret
+
+\NAME_U:
+    # 임시 레지스터 고갈로 s0를 사용하기 위해 스택에 백업
+    addi sp, sp, -16
+    sw s0, 0(sp)
+
+    # Unsigned 버전 로직 (Signed와 동일구조, 명령어만 변경)
+    beqz a3, 19f
+    beqz a4, 19f
+    beqz a5, 19f
+    slli a7, a4, \SHIFT
+    li t0, 0
+11: bge t0, a3, 19f
+    li t1, 0
+12: bge t1, a4, 18f
+    sub t2, a4, t1
+    bltu t2, a6, 13f
+    mv t2, a6
+13: vsetvli t3, t2, \SEW, m1, ta, ma
+    mul t4, t0, a4
+    add t4, t4, t1
+    slli t4, t4, \WSHIFT
+    add t4, a0, t4
+    vsetvli zero, t3, \WSEW, m2, ta, ma
+    vl\WSEW\().v v16, (t4)
+    vsetvli zero, t3, \SEW, m1, ta, ma
+    mul t6, t0, a5
+    slli t6, t6, \SHIFT
+    add t6, a1, t6
+    slli t5, t1, \SHIFT
+    add t5, a2, t5
+    li t2, 0
+14: bge t2, a5, 17f
+    \L_SCALAR_U s0, 0(t6)    # [수정] t7 -> s0
+    vl\SEW\().v v8, (t5)
+    \MAC_INSN_U v16, s0, v8  # [수정] t7 -> s0
+    addi t6, t6, \BYTES
+    add t5, t5, a7
+    addi t2, t2, 1
+    j 14b
+17: vsetvli zero, t3, \WSEW, m2, ta, ma
+    vs\WSEW\().v v16, (t4)
+    add t1, t1, t3
+    j 12b
+18: addi t0, t0, 1
+    j 11b
+19:
+    # 리턴 전 s0 완벽 복구
+    lw s0, 0(sp)
+    addi sp, sp, 16
+    ret
+.endm
+
+# 매크로 호출: 8, 16, 32비트 타일링 함수 6개 단숨에 생성!
+DEF_WMATRIX_TILED hal_matrix_mul_tiled_i8, hal_matrix_mul_tiled_u8, lb, lbu, vwmacc.vx, vwmaccu.vx, e8, e16, 0, 1, 1
+DEF_WMATRIX_TILED hal_matrix_mul_tiled_i16, hal_matrix_mul_tiled_u16, lh, lhu, vwmacc.vx, vwmaccu.vx, e16, e32, 1, 2, 2
+DEF_WMATRIX_TILED hal_matrix_mul_tiled_i32, hal_matrix_mul_tiled_u32, lw, lw, vwmacc.vx, vwmaccu.vx, e32, e64, 2, 3, 4

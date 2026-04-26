@@ -1,5 +1,6 @@
 .text
 .align 2
+.option arch, +v    # <--- [추가] CMake 플래그와 무관하게 이 파일은 무조건 Vector 확장을 활성화함!
 
 # =============================================================================
 # RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
