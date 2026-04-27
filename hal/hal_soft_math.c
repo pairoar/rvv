@@ -279,6 +279,23 @@ int128_t _div_i128(const int128_t n, const int128_t d) {
 }
 
 // -----------------------------------------------------------------------------
+// HAL Public C API
+// -----------------------------------------------------------------------------
+// 벤치마크를 위한 순수 C언어 O(N^3) 행렬 곱셈 연산
+// void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
+void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            float sum = 0.0f;
+            for (int k = 0; k < K; k++) {
+                sum += A[i * K + k] * B[k * N + j];
+            }
+            out[i * N + j] = sum;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
 // HAL Public API: 128/256-bit Software Emulation Wrappers
 // -----------------------------------------------------------------------------
 
@@ -689,17 +706,20 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u128(uint256_t *c, const uint128_t *a, co
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const float *b, int M, int N,
+// HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const float *b, int M, int
+// N,
+//                                            int K, int tile_size) {
+HAL_FALLBACK void hal_matrix_mul_tiled_f32(float *c, const float *a, const float *b, int M, int N,
                                            int K, int tile_size) {
     // VLA Mapping
-    double (*pc)[N] = (double (*)[N])c;
+    float (*pc)[N] = (float (*)[N])c;
     const float (*pa)[K] = (const float (*)[K])a;
     const float (*pb)[N] = (const float (*)[N])b;
 
     // 출력 버퍼 초기화
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
-            pc[i][j] = 0.0;
+            pc[i][j] = 0.0f;
         }
     }
 
@@ -715,10 +735,10 @@ HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const floa
                 // Inner loops: Tile 내부 연산
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
-                        double sum = pc[ii][jj];
+                        float sum = pc[ii][jj];
                         for (int kk = k; kk < k_end; kk++) {
-                            // float * float -> double 누적
-                            sum += (double)pa[ii][kk] * (double)pb[kk][jj];
+                            // float * float -> float 누적
+                            sum += (float)pa[ii][kk] * (float)pb[kk][jj];
                         }
                         pc[ii][jj] = sum;
                     }

@@ -1,8 +1,8 @@
 #ifndef NN_LAYER_H
 #define NN_LAYER_H
 
-#include "vmath_driver.h"
 #include "hal_math.h"
+#include "vmath_driver.h"
 #include <stdio.h>
 
 /**************************************************
@@ -16,5 +16,9 @@
  */
 void nn_dense_layer_f32(float *output, const float *input, const float *weight, const float *bias,
                         int in_features, int out_features);
+
+void nn_maxpool_2d_f32(float *output, const float *input, int width, int height);
+void nn_softmax_f32(float *io_buffer, int length);
+// NN Layers
 
 #endif // NN_LAYER_H

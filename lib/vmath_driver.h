@@ -2,11 +2,7 @@
 #include <stdbool.h>
 
 // 가속기 상태 코드
-typedef enum {
-    VMATH_OK = 0,
-    VMATH_BUSY,
-    VMATH_ERROR
-} vmath_status_t;
+typedef enum { VMATH_OK = 0, VMATH_BUSY, VMATH_ERROR } vmath_status_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +15,7 @@ vmath_status_t vmath_drv_init(void);
 vmath_status_t vmath_drv_lock(void);
 
 // 가속기 사용 권한 반납 (Mutex Unlock)
-void vmath_drv_unlock(void);
+vmath_status_t vmath_drv_unlock(void);
 
 #ifdef __cplusplus
 }

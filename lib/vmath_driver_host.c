@@ -1,6 +1,6 @@
 #include "vmath_driver.h"
-#include <stdio.h>
 #include <pthread.h> // Host OS의 스레드 라이브러리 사용
+#include <stdio.h>
 
 static pthread_mutex_t g_vmath_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool g_is_initialized = false;
@@ -20,7 +20,8 @@ vmath_status_t vmath_drv_lock(void) {
     return VMATH_OK;
 }
 
-void vmath_drv_unlock(void) {
+vmath_status_t vmath_drv_unlock(void) {
     // printf("[Virtual Driver] 가속기 반납 (Unlock)\n"); // 디버깅용
     pthread_mutex_unlock(&g_vmath_mutex);
+    return VMATH_OK;
 }

@@ -27,22 +27,16 @@ typedef struct {
     uint64_t d[4];
 } int256_t;
 
-#if 1
 // 128-bit signed integer type definition
-#ifndef uint128_t
 typedef struct {
     uint64_t u;
     uint64_t l;
 } uint128_t;
-#endif
 
 // 256-bit unsigned integer type definition
-#ifndef uint256_t
 typedef struct {
     uint64_t d[4]; // d[0]: LSB, d[3]: MSB
 } uint256_t;
-#endif
-#endif
 
 #define HAL_OP_SUCCESS 0
 #define HAL_OP_ERR_DIV_BY_ZERO 1
@@ -270,6 +264,9 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
 */
 void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N, int K);
 
+// 순수 C언어 행렬 곱셈 (벤치마크 대조군)
+// void hal_matrix_mul_c_f32(double *out, const float *A, const float *B, int M, int N, int K);
+void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K);
 /* ======================================================================== */
 /*    Close C++ Block                                                       */
 /* ======================================================================== */
