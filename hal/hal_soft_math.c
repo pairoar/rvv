@@ -12,7 +12,7 @@
 uint128_t _add_u128_u64(const uint128_t a, const uint64_t b) {
     uint128_t res;
     res.l = a.l + b;
-    res.u = a.u + ((res.l < a.l) ? 1 : 0); // Carry 발생 시 u에 1 추가
+    res.u = a.u + ((res.l < a.l) ? 1 : 0); // Add 1 to u if a carry occurs
     return res;
 }
 
@@ -34,8 +34,8 @@ uint256_t _add_u256(const uint256_t a, const uint256_t b) {
 
     for (uint32_t i = 0; i < 4; i++) {
         uint64_t sum = a.d[i] + b.d[i] + carry;
-        // 1. a.d[i] + b.d[i]에서 오버플로우 발생: sum < a.d[i]
-        // 2. carry를 더해서 오버플로우 발생: carry && sum == a.d[i]
+        // Overflow occurs in a.d[i] + b.d[i]: sum < a.d[i]
+        // Overflow occurs when adding the carry : carry && sum == a.d[i]
         carry = (sum < a.d[i]) || (carry && sum == a.d[i]) ? 1 : 0;
         c.d[i] = sum;
     }
@@ -68,45 +68,45 @@ uint128_t _mul_u64(const uint64_t a, const uint64_t b) {
 /* --- 128-bit Subtraction --- */
 
 /**
- * @brief 부호 없는 128비트 뺄셈 (a - b)
+ * @brief unsigned 128bit subtracrtion (a - b)
  */
 uint128_t _sub_u128(const uint128_t a, const uint128_t b) {
     uint128_t res;
 
-    // 1. 하위 64비트 뺄셈
+    // low 64bit subtraction
     res.l = a.l - b.l;
 
-    // 2. 빌림수(Borrow) 발생 여부 확인
-    // a.l이 b.l보다 작으면 하위 연산에서 상위 비트의 값을 빌려와야 함
-    uint64_t borrow = (a.l > a.l + b.l) ? 1 : 0; // 또는 (a.l < b.l) ? 1 : 0;
-    // 보다 명확한 borrow 판별: (a.l < b.l)
+    // 2. check for the occurrence of a borrow
+    //  If a.l is less than b.l, the subtraction operation must borrow the value of the high bit from the higher-order operation.
+    uint64_t borrow = (a.l > a.l + b.l) ? 1 : 0; // or (a.l < b.l) ? 1 : 0;
+    // More Precise Borrow Determination : (a.l < b.l)
     borrow = (a.l < b.l) ? 1 : 0;
 
-    // 3. 상위 64비트 연산 (빌림수 반영)
+    // Upper 64-bit Operation (Incorporating Borrow)
     res.u = a.u - b.u - borrow;
 
     return res;
 }
 
 /**
- * @brief 부호 있는 128비트 뺄셈 (a - b)
+ * @brief  signed 128 bit subtraction (a - b)
  */
 int128_t _sub_i128(const int128_t a, const int128_t b) {
-    // 2의 보수 체계에서 뺄셈 비트 로직은 Unsigned와 동일함
+    // In the two's complement system, the bit-level logic for subtraction is identical to that of unsigned arithmetic.
     uint128_t res = _sub_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     return *(int128_t *)&res;
 }
 
-/* --- 256-bit Subtraction (필요시) --- */
+/* --- 256-bit Subtraction (if required) --- */
 uint256_t _sub_u256(const uint256_t a, const uint256_t b) {
     uint256_t c = {0};
     uint64_t borrow = 0;
 
     for (int i = 0; i < 4; i++) {
         uint64_t sub = a.d[i] - b.d[i] - borrow;
-        // 빌림수 발생 조건:
-        // 1. a.d[i] < b.d[i] 인 경우
-        // 2. borrow가 있었는데 결과적으로 a.d[i]와 b.d[i]가 같아져서 더 빌려와야 하는 경우
+        // Condition for Borrowing:
+        // 1. a.d[i] < b.d[i]
+        // 2. A borrow operation occurred, but as a result, `a.d[i]` and `b.d[i]` became equal, necessitating a further borrow.
         if (borrow) {
             borrow = (a.d[i] <= b.d[i]) ? 1 : 0;
         } else {
@@ -120,12 +120,11 @@ uint256_t _sub_u256(const uint256_t a, const uint256_t b) {
 int128_t _mul_i64(const int64_t a, const int64_t b) {
     uint128_t res_u = _mul_u64((uint64_t)a, (uint64_t)b);
 
-    // 구조체 멤버를 명시적으로 지정하여 할당 (Swap 방지)
     int128_t res;
     res.u = (int64_t)res_u.u;
     res.l = res_u.l;
 
-    // 2. 음수일 경우 2의 보수 체계에 맞게 상위 비트(u) 보정
+    // If the value is negative, correct the high-order bit (u) in accordance with the two's complement system.
     if (a < 0)
         res.u -= b;
     if (b < 0)
@@ -134,20 +133,20 @@ int128_t _mul_i64(const int64_t a, const int64_t b) {
     return res;
 }
 
-/* 단일 대형 곱셈: 128bit * 128bit -> 256bit */
+/* Single Large Multiplication: 128bit * 128bit -> 256bit */
 uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     uint256_t res = {{0, 0, 0, 0}};
 
-    // 4개의 부분 곱 (각각 128비트)
+    // 4 partial products (128 bits each)
     uint128_t p00 = _mul_u64(a.l, b.l);
     uint128_t p01 = _mul_u64(a.l, b.u);
     uint128_t p10 = _mul_u64(a.u, b.l);
     uint128_t p11 = _mul_u64(a.u, b.u);
 
-    // [d0] 하위 64비트
+    // [d0] lower 64 bit
     res.d[0] = p00.l;
 
-    // [d1] Carry 관리 및 계산
+    // [d1] Carry management and calculation
     uint64_t carry = 0;
     uint64_t sum = p00.u + p01.l;
     carry = (sum < p00.u) ? 1 : 0;
@@ -156,7 +155,7 @@ uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     carry += (sum < p10.l) ? 1 : 0;
     res.d[1] = sum;
 
-    // [d2] Carry 관리 및 계산
+    // [d2] Carry management and calculation
     uint64_t carry2 = 0;
     sum = p11.l + p01.u;
     carry2 = (sum < p11.l) ? 1 : 0;
@@ -164,24 +163,24 @@ uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     sum += p10.u;
     carry2 += (sum < p10.u) ? 1 : 0;
 
-    sum += carry; // 이전 d[1]에서 넘어온 carry 더하기
+    sum += carry; // Add carry from previous d[1]
     carry2 += (sum < carry) ? 1 : 0;
     res.d[2] = sum;
 
-    // [d3] 최상위 64비트 계산
+    // [d3] Calculate the highest 64 bits
     res.d[3] = p11.u + carry2;
 
     return res;
 }
 
 int256_t _mul_i128(const int128_t a, const int128_t b) {
-    // 1. 부호 없는 256비트 곱셈
+    // 1. Unsigned 256-bit multiplication
     uint256_t res_u = _mul_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     int256_t res = *(int256_t *)&res_u;
 
-    // 2. 음수 입력에 대한 부호 확장(Sign Extension) 보정
-    // 128비트 부호 있는 정수 곱셈에서도 2의 보수 보정 로직은 동일하게 상위 비트 뺄셈으로
-    // 처리됩니다.
+    // 2. Sign extension correction for negative inputs
+    // In 128-bit signed integer multiplication, the two's complement correction logic is similarly handled
+    // by subtracting from the upper bits.
     if (a.u < 0) {
         res.d[2] -= b.l;
         int64_t borrow = (res.d[2] > (uint64_t)(res.d[2] + b.l)) ? 1 : 0;
@@ -196,7 +195,7 @@ int256_t _mul_i128(const int128_t a, const int128_t b) {
     return res;
 }
 
-/* 부호 없는 128비트 크기 비교 (a >= b 이면 1, 아니면 0) */
+/* Unsigned 128-bit comparison (returns 1 if a >= b, otherwise 0) */
 int _cmp_ge_u128(const uint128_t a, const uint128_t b) {
     if (a.u > b.u)
         return 1;
@@ -205,29 +204,29 @@ int _cmp_ge_u128(const uint128_t a, const uint128_t b) {
     return (a.l >= b.l) ? 1 : 0;
 }
 
-/* 128-bit 소프트웨어 나눗셈 (Unsigned) */
+/* 128-bit Software Division (Unsigned) */
 uint128_t _div_u128(uint128_t n, uint128_t d) {
-    uint128_t q = {0, 0}; // 몫 (Quotient)
-    uint128_t r = {0, 0}; // 나머지 (Remainder)
+    uint128_t q = {0, 0}; // Quotient
+    uint128_t r = {0, 0}; // Remainder
 
-    // 127번 비트부터 0번 비트까지 Shift-and-Subtract 수행
+    // Perform Shift-and-Subtract from bit 127 down to 0
     for (int i = 127; i >= 0; i--) {
-        // r을 왼쪽으로 1칸 Shift
+        // Shift r left by 1 bit
         r.u = (r.u << 1) | (r.l >> 63);
         r.l = (r.l << 1);
 
-        // n의 i번째 비트를 r의 최하위 비트에 삽입
+        // Insert the i-th bit of n into the LSB of r
         uint64_t bit = (i >= 64) ? ((n.u >> (i - 64)) & 1) : ((n.l >> i) & 1);
         r.l |= bit;
 
-        // r >= d 이면 r에서 d를 빼고 몫의 해당 비트를 1로 세팅
+        // If r >= d, subtract d from r and set the corresponding bit in the quotient to 1
         if (_cmp_ge_u128(r, d)) {
-            // r -= d (128비트 뺄셈)
+            // r -= d (128-bit subtraction)
             uint64_t prev_l = r.l;
             r.l -= d.l;
-            r.u -= d.u + ((r.l > prev_l) ? 1 : 0); // 빌림수(Borrow) 처리
+            r.u -= d.u + ((r.l > prev_l) ? 1 : 0); // Handle borrow
 
-            // q의 i번째 비트 세팅
+            // Set the i-th bit of q
             if (i >= 64)
                 q.u |= (1ULL << (i - 64));
             else
@@ -237,14 +236,14 @@ uint128_t _div_u128(uint128_t n, uint128_t d) {
     return q;
 }
 
-/* 128-bit 소프트웨어 나눗셈 (Signed) */
+/* 128-bit Software Division (Signed) */
 int128_t _div_i128(const int128_t n, const int128_t d) {
-    // 1. 부호 판별
+    // 1. Determine sign
     int sign_n = (n.u < 0) ? -1 : 1;
     int sign_d = (d.u < 0) ? -1 : 1;
     int sign_res = sign_n * sign_d;
 
-    // 2. 2의 보수 체계를 이용해 절대값(Unsigned)으로 변환
+    // 2. Convert to absolute value (Unsigned) using two's complement
     uint128_t un = *(uint128_t *)&n;
     if (sign_n < 0) {
         un.l = ~un.l;
@@ -263,10 +262,10 @@ int128_t _div_i128(const int128_t n, const int128_t d) {
             ud.u += 1;
     }
 
-    // 3. 부호 없는 나눗셈 수행
+    // 3. Perform unsigned division
     uint128_t uq = _div_u128(un, ud);
 
-    // 4. 결과에 부호 적용 (음수여야 하면 다시 2의 보수 취함)
+    // 4. Apply sign to the result (take two's complement again if it should be negative)
     if (sign_res < 0) {
         uq.l = ~uq.l;
         uq.u = ~uq.u;
@@ -281,7 +280,7 @@ int128_t _div_i128(const int128_t n, const int128_t d) {
 // -----------------------------------------------------------------------------
 // HAL Public C API
 // -----------------------------------------------------------------------------
-// 벤치마크를 위한 순수 C언어 O(N^3) 행렬 곱셈 연산
+// Pure C O(N^3) matrix multiplication for benchmarking
 // void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
 void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
     for (int i = 0; i < M; i++) {
@@ -320,21 +319,21 @@ HAL_FALLBACK void hal_div_i128(int128_t *c, const int128_t *a, const int128_t *b
         return;
 
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS; // Initialize error
 
     for (size_t i = 0; i < n; i++) {
-        // Divide by Zero 체크 (구조체의 l, u가 모두 0인지 확인)
+        // Check for Divide by Zero (verify if both l and u of the struct are 0)
         if (b[i].l == 0 && b[i].u == 0) {
-            c[i].l = 0; // 요청하신 대로 0으로 세팅
+            c[i].l = 0; // Set to 0 as requested
             c[i].u = 0;
 
-            // 에러 변수에 상태 기록 (나중에 외부에서 이 값을 보고 판단)
+            // Record status in error variable (to be evaluated externally later)
             if (ret)
                 *ret |= HAL_MATH_ERR_DIV_BY_ZERO;
-            continue; // 에러가 나도 다음 배열 요소의 연산은 계속 진행
+            continue; // Continue processing the next array elements even if an error occurs
         }
 
-        // 안전한 소프트웨어 나눗셈 수행
+        // Perform safe software division
         c[i] = _div_i128(a[i], b[i]);
     }
 }
@@ -348,9 +347,9 @@ HAL_FALLBACK void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t
         *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
-        // Divide by Zero 체크
+        // Check for Divide by Zero
         if (b[i].l == 0 && b[i].u == 0) {
-            c[i].l = 0; // 0으로 세팅
+            c[i].l = 0; // Set to 0
             c[i].u = 0;
 
             if (ret)
@@ -358,7 +357,7 @@ HAL_FALLBACK void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t
             continue;
         }
 
-        // 안전한 소프트웨어 나눗셈 수행
+        // Perform safe software division
         c[i] = _div_u128(a[i], b[i]);
     }
 }
@@ -374,14 +373,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i8(int16_t *c, const int8_t *a, const int
     const int8_t (*pa)[K] = (const int8_t (*)[K])a;
     const int8_t (*pb)[N] = (const int8_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -390,7 +389,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i8(int16_t *c, const int8_t *a, const int
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         int16_t sum = pc[ii][jj];
@@ -412,14 +411,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u8(uint16_t *c, const uint8_t *a, const u
     const uint8_t (*pa)[K] = (const uint8_t (*)[K])a;
     const uint8_t (*pb)[N] = (const uint8_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -428,7 +427,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u8(uint16_t *c, const uint8_t *a, const u
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         uint16_t sum = pc[ii][jj];
@@ -451,14 +450,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i16(int32_t *c, const int16_t *a, const i
     const int16_t (*pa)[K] = (const int16_t (*)[K])a;
     const int16_t (*pb)[N] = (const int16_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -467,7 +466,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i16(int32_t *c, const int16_t *a, const i
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         int32_t sum = pc[ii][jj];
@@ -489,14 +488,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u16(uint32_t *c, const uint16_t *a, const
     const uint16_t (*pa)[K] = (const uint16_t (*)[K])a;
     const uint16_t (*pb)[N] = (const uint16_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -505,7 +504,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u16(uint32_t *c, const uint16_t *a, const
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         uint32_t sum = pc[ii][jj];
@@ -528,14 +527,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i32(int64_t *c, const int32_t *a, const i
     const int32_t (*pa)[K] = (const int32_t (*)[K])a;
     const int32_t (*pb)[N] = (const int32_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0.0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -544,7 +543,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i32(int64_t *c, const int32_t *a, const i
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         int64_t sum = pc[ii][jj];
@@ -566,14 +565,14 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u32(uint64_t *c, const uint32_t *a, const
     const uint32_t (*pa)[K] = (const uint32_t (*)[K])a;
     const uint32_t (*pb)[N] = (const uint32_t (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0.0;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -582,7 +581,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u32(uint64_t *c, const uint32_t *a, const
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         uint64_t sum = pc[ii][jj];
@@ -706,24 +705,21 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u128(uint256_t *c, const uint128_t *a, co
     }
 }
 
-// HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const float *b, int M, int
-// N,
-//                                            int K, int tile_size) {
-HAL_FALLBACK void hal_matrix_mul_tiled_f32(float *c, const float *a, const float *b, int M, int N,
+HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const float *b, int M, int N,
                                            int K, int tile_size) {
     // VLA Mapping
-    float (*pc)[N] = (float (*)[N])c;
+    double (*pc)[N] = (double (*)[N])c;
     const float (*pa)[K] = (const float (*)[K])a;
     const float (*pb)[N] = (const float (*)[N])b;
 
-    // 출력 버퍼 초기화
+    // Initialize output buffer
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             pc[i][j] = 0.0f;
         }
     }
 
-    // Outer loops: Tile 단위 이동
+    // Outer loops: Move by tile size
     for (int i = 0; i < M; i += tile_size) {
         for (int j = 0; j < N; j += tile_size) {
             for (int k = 0; k < K; k += tile_size) {
@@ -732,12 +728,12 @@ HAL_FALLBACK void hal_matrix_mul_tiled_f32(float *c, const float *a, const float
                 int j_end = MIN(j + tile_size, N);
                 int k_end = MIN(k + tile_size, K);
 
-                // Inner loops: Tile 내부 연산
+                // Inner loops: Operations within the tile
                 for (int ii = i; ii < i_end; ii++) {
                     for (int jj = j; jj < j_end; jj++) {
                         float sum = pc[ii][jj];
                         for (int kk = k; kk < k_end; kk++) {
-                            // float * float -> float 누적
+                            // Accumulate float * float -> float
                             sum += (float)pa[ii][kk] * (float)pb[kk][jj];
                         }
                         pc[ii][jj] = sum;
@@ -756,7 +752,7 @@ HAL_FALLBACK void hal_dot_i64(int128_t *result, const int64_t *a, const int64_t 
     int128_t sum = {0, 0};
     for (size_t i = 0; i < n; i++) {
         if (a[i] == 0 || b[i] == 0)
-            continue; // 0-Skip 최적화
+            continue; // 0-Skip optimization
         int128_t prod = _mul_i64(a[i], b[i]);
         sum = _add_i128(sum, prod);
     }
@@ -785,7 +781,7 @@ HAL_FALLBACK void hal_dot_i128(int256_t *result, const int128_t *a, const int128
     int256_t sum = {0};
 
     for (size_t i = 0; i < n; i++) {
-        // 구조체 0-Skip 최적화 (한쪽이라도 0이면 곱셈 결과는 0)
+        // Struct 0-Skip optimization (if either is 0, the multiplication result is 0)
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0))
             continue;
 
@@ -802,7 +798,7 @@ HAL_FALLBACK void hal_dot_u128(uint256_t *result, const uint128_t *a, const uint
     uint256_t sum = {{0, 0, 0, 0}};
 
     for (size_t i = 0; i < n; i++) {
-        // 구조체 0-Skip 최적화
+        // Struct 0-Skip optimization
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0))
             continue;
 
@@ -837,10 +833,10 @@ HAL_FALLBACK void hal_mac_i128(int256_t *c, const int128_t *a, const int128_t *b
         return;
 
     for (uint32_t i = 0; i < n; i++) {
-        // 1. 128bit x 128bit -> 256bit 단일 곱셈 (음수 부호 확장 로직 자동 적용)
+        // 1. 128bit x 128bit -> 256bit single multiplication (negative sign extension logic applied automatically)
         int256_t prod = _mul_i128(a[i], b[i]);
 
-        // 2. 256bit 덧셈 누산 (비트 레벨 덧셈은 부호 여부와 무관하므로 안전함)
+        // 2. 256bit addition accumulation (bit-level addition is safe regardless of sign)
         c[i] = _add_i256(c[i], prod);
     }
 }
@@ -870,7 +866,7 @@ HAL_FALLBACK void hal_matrix_mul_i64(int128_t *c, const int64_t *a, const int64_
     int64_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(int128_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. i-k-j order operation (Cache optimization and Sparse matrix handling)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -896,7 +892,7 @@ HAL_FALLBACK void hal_matrix_mul_u64(uint128_t *c, const uint64_t *a, const uint
     uint64_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(uint128_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. i-k-j order operation (Cache optimization and Sparse matrix handling)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -923,7 +919,7 @@ HAL_FALLBACK void hal_matrix_mul_i128(int256_t *c, const int128_t *a, const int1
     int128_t(*pb)[N] = (void *)b;
     memset(c, 0, sizeof(int256_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. i-k-j order operation (Cache optimization and Sparse matrix handling)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             // if (pa[i][k] != 0) {
@@ -950,7 +946,7 @@ HAL_FALLBACK void hal_matrix_mul_u128(uint256_t *c, const uint128_t *a, const ui
     uint128_t(*pb)[N] = (void *)b;
     memset(c, 0, sizeof(uint256_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. i-k-j order operation (Cache optimization and Sparse matrix handling)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if ((pa[i][k].u != 0) || (pa[i][k].l != 0)) {
@@ -962,3 +958,5 @@ HAL_FALLBACK void hal_matrix_mul_u128(uint256_t *c, const uint128_t *a, const ui
         }
     }
 }
+
+

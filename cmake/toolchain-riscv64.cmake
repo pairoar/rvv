@@ -27,7 +27,7 @@ if (APPLE)
     set(TOOLCHAIN_PREFIX "riscv64-unknown-elf-")
 else()
     set(RISCV_TOOLCHAIN_DIR "/disk/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
-    @set(RISCV_TOOLCHAIN_DIR "$ENV{HOME}/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
+    #set(RISCV_TOOLCHAIN_DIR "$ENV{HOME}/toolchains/riscv64" CACHE PATH "Path to the RISC-V toolchain root directory")
     set(TOOLCHAIN_PREFIX "riscv64-unknown-elf-")
 endif()
 

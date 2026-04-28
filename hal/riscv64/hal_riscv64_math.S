@@ -1,13 +1,13 @@
 .text
 .align 2
-.option arch, +v    # <--- [추가] CMake 플래그와 무관하게 이 파일은 무조건 Vector 확장을 활성화함!
+.option arch, +v    # Regardless of CMake flags, this file unconditionally enables Vector extensions
 
 # =============================================================================
 # RVV HAL LAYER (Macro-Driven Implementation - RV32 Final)
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# 1. ADD / SUB 매크로 (입출력 크기 동일)
+# 1. ADD / SUB Macro (Input and output sizes are identical.)
 # -----------------------------------------------------------------------------
 .macro DEF_OP_SAME NAME_I, NAME_U, INSN, INSN_U, SEW, SHIFT
 .global \NAME_I
@@ -44,30 +44,30 @@
 .endm
 
 # -----------------------------------------------------------------------------
-# 2. DIV (Divide by Zero 예외 처리 포함) 매크로
+# 2. DIV (Includes Divide-by-Zero Exception Handling) Macro
 # -----------------------------------------------------------------------------
 .macro DEF_DIV_INT NAME_I, NAME_U, INSN, INSN_U, SEW, SHIFT
 .global \NAME_I
 .global \NAME_U
 \NAME_I:
-    bnez a4, 1f          # a4(ret)가 NULL이 아니면 1f로 점프
+    bnez a4, 1f          # if a4(ret) is not a NULL, jump to 1f 
     j 2f
-1:  sw zero, 0(a4)       # *ret = 0 (초기화)
+1:  sw zero, 0(a4)       # *ret = 0 (initialize)
 2:  beqz a3, 9f
 3:  vsetvli t0, a3, \SEW, m1, ta, ma
     vl\SEW\().v v1, (a1)
     vl\SEW\().v v2, (a2)
-    \INSN v3, v1, v2     # v3 = a / b (0으로 나누면 -1 발생)
+    \INSN v3, v1, v2     # v3 = a / b (Generates -1 on divide-by-zero)
 
-    vmseq.vi v0, v2, 0   # v0 마스크 레지스터: b == 0 인 위치를 1로 세팅
+    vmseq.vi v0, v2, 0   # v0 mask register: Set to 1 where b == 0
     vmv.v.i v4, 0        # v4 = 0
-    vmerge.vvm v3, v3, v4, v0  # v0가 1인 곳은 v4(0)으로, 아니면 v3(결과)로 덮어씀!
+    vmerge.vvm v3, v3, v4, v0  # Overwrite with v4(0) where v0 is 1, otherwise keep v3(result)!
 
     vs\SEW\().v v3, (a0)
 
-    beqz a4, 4f          # 에러 코드를 넘길 필요가 없으면 패스
-    vcpop.m t2, v0       # v0 마스크에서 1인 비트의 개수를 카운트
-    beqz t2, 4f          # 0으로 나눈 적이 없으면 패스
+    beqz a4, 4f          # Skip if there is no need to pass an error code
+    vcpop.m t2, v0       # Count the number of 1s in the v0 mask
+    beqz t2, 4f          # Skip if no divide-by-zero occurred
     lw t3, 0(a4)
     ori t3, t3, 1        # *ret |= HAL_MATH_ERR_DIV_BY_ZERO
     sw t3, 0(a4)
@@ -108,7 +108,7 @@
 .endm
 
 # -----------------------------------------------------------------------------
-# 3. MUL & MAC (Widening) 매크로
+# 3. MUL & MAC (Widening) Macro
 # -----------------------------------------------------------------------------
 .macro DEF_WMUL NAME_I, NAME_U, INSN, INSN_U, SEW, WSEW, SHIFT, WSHIFT
 .global \NAME_I
@@ -183,7 +183,7 @@
 .endm
 
 # -----------------------------------------------------------------------------
-# 4. DOT Product (Widening) 매크로
+# 4. DOT Product (Widening) Macro
 # -----------------------------------------------------------------------------
 .macro DEF_WDOT NAME_I, NAME_U, MUL_INSN, MUL_INSN_U, SEW, WSEW, SHIFT
 .global \NAME_I
@@ -197,7 +197,7 @@
     vl\SEW\().v v1, (a2)
     \MUL_INSN v2, v0, v1
 
-    # [핵심] 리덕션 연산을 위해 자료형을 WSEW(확장 크기)로 강제 스위칭
+    # [Core] Forcefully switch data type to WSEW (widened size) for reduction operation
     vsetvli zero, t0, \WSEW, m2, ta, ma
     vredsum.vs v8, v2, v8
 
@@ -235,7 +235,7 @@
 .endm
 
 # -----------------------------------------------------------------------------
-# 5. Matrix Multiply (Widening) 매크로
+# 5. Matrix Multiply (Widening) Macro
 # -----------------------------------------------------------------------------
 .macro DEF_WMATRIX NAME_I, NAME_U, L_SCALAR_I, L_SCALAR_U, MAC_INSN_I, MAC_INSN_U, SEW, WSEW, SHIFT, WSHIFT
 .global \NAME_I
@@ -310,7 +310,7 @@
 .endm
 
 # =============================================================================
-# 매크로 호출부
+# Macro Invocations
 # =============================================================================
 
 # --- 1. ADD / SUB / DIV ---
@@ -333,10 +333,10 @@ DEF_OP_SAME hal_add_f32, hal_dummy_add_f32, vfadd.vv, vfadd.vv, e32, 2
 DEF_OP_SAME hal_sub_f32, hal_dummy_sub_f32, vfsub.vv, vfsub.vv, e32, 2
 
 # -----------------------------------------------------------------------------
-# [수정됨] Float 32 수동 구현부 (vle / vse 명령어 스펠링 복구)
+#  Float 32 Manual Implementation (Restored vle / vse instruction spelling)
 # -----------------------------------------------------------------------------
 
-# [Float 32 예외 처리 나눗셈]
+# [Float 32 Division with Exception Handling]
 .global hal_div_f32
 hal_div_f32:
     bnez a4, 1f
@@ -346,12 +346,12 @@ hal_div_f32:
     vsetvli t0, zero, e32, m1, ta, ma
     vmv.v.i v4, 0        # v4 = 0.0f
 3:  vsetvli t0, a3, e32, m1, ta, ma
-    vle32.v v1, (a1)     # [수정] vle32.v
-    vle32.v v2, (a2)     # [수정] vle32.v
+    vle32.v v1, (a1)     #  vle32.v
+    vle32.v v2, (a2)     #  vle32.v
     vfdiv.vv v3, v1, v2
-    vmfeq.vv v0, v2, v4  # 마스크: b == 0.0f
+    vmfeq.vv v0, v2, v4  # Mask: b == 0.0f
     vmerge.vvm v3, v3, v4, v0
-    vse32.v v3, (a0)     # [수정] vse32.v
+    vse32.v v3, (a0)     #  vse32.v
     beqz a4, 4f
     vcpop.m t2, v0
     beqz t2, 4f
@@ -389,8 +389,8 @@ hal_dot_f32:
     vmv.v.i v8, 0
     beqz a3, 2f
 1:  vsetvli t0, a3, e32, m1, ta, ma
-    vle32.v v0, (a1)     # [수정] vle32.v
-    vle32.v v1, (a2)     # [수정] vle32.v
+    vle32.v v0, (a1)     #  vle32.v
+    vle32.v v1, (a2)     #  vle32.v
     vfwmul.vv v2, v0, v1
     vsetvli zero, t0, e64, m2, ta, ma
     vfredusum.vs v8, v2, v8
@@ -401,7 +401,7 @@ hal_dot_f32:
     bnez a3, 1b
 2:  li t0, 1
     vsetvli zero, t0, e64, m1, ta, ma
-    vse64.v v8, (a0)     # [수정] vse64.v
+    vse64.v v8, (a0)     #  vse64.v
     ret
 
 # --- 5. Widening MATRIX MUL ---
@@ -428,10 +428,10 @@ hal_matrix_mul_f32:
     add t4, a0, t4
     mv t5, a4
 3:  vsetvli a6, t5, e32, m1, ta, ma
-    vle32.v v0, (t3)     # [수정] vle32.v
-    vle64.v v2, (t4)     # [수정] vle64.v
+    vle32.v v0, (t3)     #  vle32.v
+    vle64.v v2, (t4)     #  vle64.v
     vfwmacc.vf v2, fa0, v0
-    vse64.v v2, (t4)     # [수정] vse64.v
+    vse64.v v2, (t4)     #  vse64.v
     slli t2, a6, 2
     add t3, t3, t2
     slli t2, a6, 3
@@ -456,7 +456,7 @@ hal_matrix_mul_tiled_f32:
     beqz a4, .L_end_f32
     beqz a5, .L_end_f32
 
-    slli a7, a4, 2           # a7 = B 행렬 Stride (N * 4 bytes)
+    slli a7, a4, 2           # a7 = B matrix Stride (N * 4 bytes)
     li t0, 0                 # i = 0
 .L_loop_M_f32:
     bge t0, a3, .L_end_f32
@@ -470,7 +470,7 @@ hal_matrix_mul_tiled_f32:
 .L_set_vl_f32:
     vsetvli t3, t2, e32, m1, ta, ma
 
-    # C 버퍼(누산기) 포인터 계산 및 로드
+    # Calculate and load C buffer (accumulator) pointer
     mul t4, t0, a4
     add t4, t4, t1
     slli t4, t4, 3
@@ -481,7 +481,7 @@ hal_matrix_mul_tiled_f32:
 
     vsetvli zero, t3, e32, m1, ta, ma
 
-    # A, B 포인터 초기화
+    # Initialize A, B pointers
     mul t6, t0, a5
     slli t6, t6, 2
     add t6, a1, t6
@@ -492,8 +492,8 @@ hal_matrix_mul_tiled_f32:
 .L_loop_K_f32:
     bge t2, a5, .L_next_N_f32
 
-    flw fa0, 0(t6)           # 스칼라 A[i][k]
-    vle32.v v8, (t5)         # 벡터 B[k][j : j+vl]
+    flw fa0, 0(t6)           # Scalar A[i][k]
+    vle32.v v8, (t5)         # Vector B[k][j : j+vl]
 
     # Widening MAC
     vfwmacc.vf v16, fa0, v8
@@ -519,32 +519,32 @@ hal_matrix_mul_tiled_f32:
     ret
 
 # -----------------------------------------------------------------------------
-# [추가] 128비트 ADD / SUB (Carry & Borrow Mask 활용)
+#  128-bit ADD / SUB (Utilizing Carry & Borrow Masks)
 # -----------------------------------------------------------------------------
 .macro DEF_ADD_128 NAME
 .global \NAME
 \NAME:
-    li t1, 8                 # 구조체 내 하위 64비트(l) 오프셋
-    li t6, 16                # 구조체 전체 크기 (Stride = 16 bytes)
+    li t1, 8                 # Lower 64-bit (l) offset within the struct
+    li t6, 16                # Total struct size (Stride = 16 bytes)
     beqz a3, 2f
 1:  vsetvli t0, a3, e64, m1, ta, ma
-    add t4, a1, t1           # a.l 주소
-    add t5, a2, t1           # b.l 주소
+    add t4, a1, t1           # Address of a.l
+    add t5, a2, t1           # Address of b.l
     vlse64.v v2, (t4), t6    # v2 = a.l (strided load)
     vlse64.v v4, (t5), t6    # v4 = b.l
 
     vadd.vv v6, v2, v4       # v6 = a.l + b.l
-    vmsltu.vv v0, v6, v2     # 캐리(Carry) 발생 확인 -> v0 마스크에 저장
+    vmsltu.vv v0, v6, v2     # Check for Carry generation -> store in v0 mask
 
     vlse64.v v8, (a1), t6    # v8 = a.u
     vlse64.v v10, (a2), t6   # v10 = b.u
     vadc.vvm v12, v8, v10, v0 # v12 = a.u + b.u + carry
 
     add t4, a0, t1
-    vsse64.v v6, (t4), t6    # c.l 저장
-    vsse64.v v12, (a0), t6   # c.u 저장
+    vsse64.v v6, (t4), t6    # Store c.l
+    vsse64.v v12, (a0), t6   # Store c.u
 
-    slli t2, t0, 4           # 포인터 이동 (처리 개수 * 16바이트)
+    slli t2, t0, 4           # Pointer advance (elements processed * 16 bytes)
     add a0, a0, t2
     add a1, a1, t2
     add a2, a2, t2
@@ -566,7 +566,7 @@ hal_matrix_mul_tiled_f32:
     vlse64.v v4, (t5), t6    # b.l
 
     vsub.vv v6, v2, v4       # v6 = a.l - b.l
-    vmsltu.vv v0, v2, v4     # 빌림수(Borrow) 발생 (a.l < b.l) -> v0 마스크
+    vmsltu.vv v0, v2, v4     # Check for Borrow generation (a.l < b.l) -> v0 mask
 
     vlse64.v v8, (a1), t6    # a.u
     vlse64.v v10, (a2), t6   # b.u
@@ -592,8 +592,8 @@ DEF_SUB_128 hal_sub_u128
 
 
 # -----------------------------------------------------------------------------
-# [추가] 64비트 MUL -> 128비트 결과 (vmulh 활용 및 구조체 매핑)
-# int128_t는 {int64_t u; uint64_t l;} 순서이므로 vsseg2e64를 사용합니다.
+#  64-bit MUL -> 128-bit Result (Utilizing vmulh and struct mapping)
+# Since int128_t is ordered as {int64_t u; uint64_t l;}, vsseg2e64 is used.
 # -----------------------------------------------------------------------------
 .macro DEF_MUL64 NAME, MULH_INSN
 .global \NAME
@@ -603,11 +603,11 @@ DEF_SUB_128 hal_sub_u128
     vle64.v v8, (a1)
     vle64.v v10, (a2)
 
-    \MULH_INSN v14, v8, v10  # 상위 64비트 (u) -> v14
-    vmul.vv v15, v8, v10     # 하위 64비트 (l) -> v15
+    \MULH_INSN v14, v8, v10  # Upper 64 bits (u) -> v14
+    vmul.vv v15, v8, v10     # Lower 64 bits (l) -> v15
 
-    # vsseg2e64.v: v14와 v15를 교차 저장.
-    # v14는 offset 0 (u)에, v15는 offset 8 (l)에 완벽하게 꽂힙니다!
+    # vsseg2e64.v: Interleaved store for v14 and v15.
+    # v14 perfectly fits into offset 0 (u), and v15 into offset 8 (l)!
     vsseg2e64.v v14, (a0)
 
     slli t1, t0, 4           # c += 16
@@ -624,21 +624,21 @@ DEF_MUL64 hal_mul_i64, vmulh.vv
 DEF_MUL64 hal_mul_u64, vmulhu.vv
 
 # -----------------------------------------------------------------------------
-# [수정됨] 8/16/32-bit Tiled Matrix Multiply 매크로 (s0 레지스터 및 스택 활용)
+#  8/16/32-bit Tiled Matrix Multiply Macro (Utilizing s0 register and stack)
 # -----------------------------------------------------------------------------
 .macro DEF_WMATRIX_TILED NAME_I, NAME_U, L_SCALAR_I, L_SCALAR_U, MAC_INSN_I, MAC_INSN_U, SEW, WSEW, SHIFT, WSHIFT, BYTES
 .global \NAME_I
 .global \NAME_U
 
 \NAME_I:
-    # 임시 레지스터 고갈로 s0를 사용하기 위해 스택에 백업
+    # Backup s0 to stack due to temporary register exhaustion
     addi sp, sp, -16
     sw s0, 0(sp)
 
     beqz a3, 9f
     beqz a4, 9f
     beqz a5, 9f
-    slli a7, a4, \SHIFT      # a7 = B 행렬 Stride
+    slli a7, a4, \SHIFT      # a7 = B matrix Stride
     li t0, 0                 # i = 0
 1:  bge t0, a3, 9f
     li t1, 0                 # j = 0
@@ -647,16 +647,16 @@ DEF_MUL64 hal_mul_u64, vmulhu.vv
     bltu t2, a6, 3f
     mv t2, a6
 3:  vsetvli t3, t2, \SEW, m1, ta, ma
-    # c_ptr 계산
+    # Calculate c_ptr
     mul t4, t0, a4
     add t4, t4, t1
     slli t4, t4, \WSHIFT
     add t4, a0, t4
-    # C 버퍼 로드
+    # Load C buffer
     vsetvli zero, t3, \WSEW, m2, ta, ma
     vl\WSEW\().v v16, (t4)
     vsetvli zero, t3, \SEW, m1, ta, ma
-    # A_ptr, B_ptr 계산
+    # Calculate A_ptr, B_ptr
     mul t6, t0, a5
     slli t6, t6, \SHIFT
     add t6, a1, t6           # t6 = &A[i][0]
@@ -664,31 +664,31 @@ DEF_MUL64 hal_mul_u64, vmulhu.vv
     add t5, a2, t5           # t5 = &B[0][j]
     li t2, 0                 # k = 0
 4:  bge t2, a5, 7f
-    \L_SCALAR_I s0, 0(t6)    # [수정] t7 -> s0
-    vl\SEW\().v v8, (t5)     # 벡터 B 로드
-    \MAC_INSN_I v16, s0, v8  # [수정] t7 -> s0
+    \L_SCALAR_I s0, 0(t6)    #  t7 -> s0
+    vl\SEW\().v v8, (t5)     # Load vector B
+    \MAC_INSN_I v16, s0, v8  #  t7 -> s0
     addi t6, t6, \BYTES      # A_ptr++
     add t5, t5, a7           # B_ptr += B_Stride
     addi t2, t2, 1
     j 4b
 7:  vsetvli zero, t3, \WSEW, m2, ta, ma
-    vs\WSEW\().v v16, (t4)   # C 버퍼 스토어
+    vs\WSEW\().v v16, (t4)   # Store to C buffer
     add t1, t1, t3
     j 2b
 8:  addi t0, t0, 1
     j 1b
 9:
-    # 리턴 전 s0 완벽 복구
+    # Perfectly restore s0 before returning
     lw s0, 0(sp)
     addi sp, sp, 16
     ret
 
 \NAME_U:
-    # 임시 레지스터 고갈로 s0를 사용하기 위해 스택에 백업
+    # Backup s0 to stack due to temporary register exhaustion
     addi sp, sp, -16
     sw s0, 0(sp)
 
-    # Unsigned 버전 로직 (Signed와 동일구조, 명령어만 변경)
+    # Unsigned version logic (Same structure as Signed, only instructions changed)
     beqz a3, 19f
     beqz a4, 19f
     beqz a5, 19f
@@ -715,9 +715,9 @@ DEF_MUL64 hal_mul_u64, vmulhu.vv
     add t5, a2, t5
     li t2, 0
 14: bge t2, a5, 17f
-    \L_SCALAR_U s0, 0(t6)    # [수정] t7 -> s0
+    \L_SCALAR_U s0, 0(t6)    #  t7 -> s0
     vl\SEW\().v v8, (t5)
-    \MAC_INSN_U v16, s0, v8  # [수정] t7 -> s0
+    \MAC_INSN_U v16, s0, v8  #  t7 -> s0
     addi t6, t6, \BYTES
     add t5, t5, a7
     addi t2, t2, 1
@@ -729,13 +729,13 @@ DEF_MUL64 hal_mul_u64, vmulhu.vv
 18: addi t0, t0, 1
     j 11b
 19:
-    # 리턴 전 s0 완벽 복구
+    # Perfectly restore s0 before returning
     lw s0, 0(sp)
     addi sp, sp, 16
     ret
 .endm
 
-# 매크로 호출: 8, 16, 32비트 타일링 함수 6개 단숨에 생성!
+# Macro Invocations: Generate 6 tiling functions for 8, 16, 32-bit all at once!
 DEF_WMATRIX_TILED hal_matrix_mul_tiled_i8, hal_matrix_mul_tiled_u8, lb, lbu, vwmacc.vx, vwmaccu.vx, e8, e16, 0, 1, 1
 DEF_WMATRIX_TILED hal_matrix_mul_tiled_i16, hal_matrix_mul_tiled_u16, lh, lhu, vwmacc.vx, vwmaccu.vx, e16, e32, 1, 2, 2
 DEF_WMATRIX_TILED hal_matrix_mul_tiled_i32, hal_matrix_mul_tiled_u32, lw, lw, vwmacc.vx, vwmaccu.vx, e32, e64, 2, 3, 4

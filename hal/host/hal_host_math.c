@@ -243,7 +243,7 @@ void hal_div_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n, int
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -261,7 +261,7 @@ void hal_div_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n, 
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -280,7 +280,7 @@ void hal_div_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n,
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -298,7 +298,7 @@ void hal_div_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -317,7 +317,7 @@ void hal_div_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n,
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -335,7 +335,7 @@ void hal_div_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -354,7 +354,7 @@ void hal_div_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n,
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -372,7 +372,7 @@ void hal_div_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0) {
@@ -395,7 +395,7 @@ void hal_dot_i8(int16_t *result, const int8_t *a, const int8_t *b, const size_t 
         return;
     int16_t sum = 0;
     for (size_t i = 0; i < n; i++) {
-        sum += (int16_t)a[i] * b[i]; // 명시적 캐스팅으로 오버플로우 방지
+        sum += (int16_t)a[i] * b[i]; // Prevent overflow using explicit casting
     }
     *result = sum;
 }
@@ -468,7 +468,7 @@ void hal_matrix_mul_i8(int16_t *c, const int8_t *a, const int8_t *b, int M, int 
     int8_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(int16_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -492,7 +492,7 @@ void hal_matrix_mul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M, i
     uint8_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(uint16_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -517,7 +517,7 @@ void hal_matrix_mul_i16(int32_t *c, const int16_t *a, const int16_t *b, int M, i
     int16_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(int32_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -541,7 +541,7 @@ void hal_matrix_mul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M
     uint16_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(uint32_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -566,7 +566,7 @@ void hal_matrix_mul_i32(int64_t *c, const int32_t *a, const int32_t *b, int M, i
     int32_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(int64_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -592,7 +592,7 @@ void hal_matrix_mul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M
     uint32_t (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(uint64_t) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
@@ -651,7 +651,7 @@ void hal_div_f32(float *c, const float *a, const float *b, const size_t n, int *
         return;
 
     if (ret)
-        *ret = HAL_MATH_SUCCESS; // 에러 초기화
+        *ret = HAL_MATH_SUCCESS;
 
     for (size_t i = 0; i < n; i++) {
         if (b[i] == 0.0f) {
@@ -676,7 +676,7 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
     for (size_t i = 0; i < n; i++) {
         if (a[i] == 0.0f || b[i] == 0.0f)
             continue;
-        sum += (double)a[i] * b[i]; // double 정밀도 보장
+        sum += (double)a[i] * b[i]; // Guaranteed Double Precision
     }
     *result = sum;
 }
@@ -696,7 +696,7 @@ void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N,
     float (*pb)[N] = (void *)b;
     memset(c, 0, sizeof(double) * M * N);
 
-    // 3. i-k-j 순서로 연산 (캐시 최적화 및 Sparse 대응)
+    // 3. Operations performed in the order i-k-j (Cache Optimization and Sparse Support)
     for (int i = 0; i < M; i++) {
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0.0f) {

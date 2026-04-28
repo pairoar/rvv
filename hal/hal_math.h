@@ -64,8 +64,6 @@ extern "C" {
 /*    Public Function Prototypes (Exposed APIs)                             */
 /* ======================================================================== */
 
-extern void hal_wait_until_done(void);
-
 /*
     addition
 */
@@ -254,7 +252,7 @@ void hal_div_f32(float *c, const float *a, const float *b, const size_t n, int *
 /*
     dot product
 */
-/* * 행렬 곱셈 (Signed)
+/* * Matrix Multiplication (Signed)
  * C (M x N) = A (M x K) * B (K x N)
  */
 void hal_dot_f32(double *result, const float *a, const float *b, const size_t n);
@@ -264,7 +262,7 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
 */
 void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N, int K);
 
-// 순수 C언어 행렬 곱셈 (벤치마크 대조군)
+// pure C language Multiplication(Benchmark Control Group)
 // void hal_matrix_mul_c_f32(double *out, const float *A, const float *B, int M, int N, int K);
 void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K);
 /* ======================================================================== */
@@ -275,4 +273,4 @@ void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int
 }
 #endif
 
-#endif // AERMOB_HAL_H
+#endif
