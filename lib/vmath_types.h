@@ -15,7 +15,10 @@ typedef enum {
     
     // 시스템/하드웨어 관련 에러 (-20 ~ )
     VMATH_ERR_UNSUPPORTED     = -20, // 현재 타겟 하드웨어에서 지원하지 않는 연산임
-    VMATH_ERR_HW_FAULT        = -21  // 하드웨어 유닛(FPU/Vector) 상태 이상
+    VMATH_ERR_HW_FAULT        = -21,  // 하드웨어 유닛(FPU/Vector) 상태 이상
+
+    // 값 비교
+    VMATH_ERR_VALUES_DO_NOT_MATCH = -30,    // Error. Values ​​do not match.
 } vmath_status_t;
 
 #endif // VMATH_TYPES_H
