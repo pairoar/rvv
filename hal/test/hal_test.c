@@ -526,7 +526,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
 #define TEST_LEN 1024
 #define DEFINE_HAL_TESTS(T_IN, T_OUT, S_IN, S_OUT)                                                 \
     /* 1. ADD Test */                                                                              \
-    static int test_hal_add_##S_IN(void) {                                                         \
+    static int test_hal_vadd_##S_IN(void) {                                                        \
         T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
              b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
@@ -535,7 +535,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
                                                                                                    \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_add_##S_IN(c_hw, a, b, 10);                                                            \
+        hal_vadd_##S_IN(c_hw, a, b, 10);                                                           \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
@@ -546,7 +546,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 2. SUB Test */                                                                              \
-    static int test_hal_sub_##S_IN(void) {                                                         \
+    static int test_hal_vsub_##S_IN(void) {                                                        \
         T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
              b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
@@ -555,7 +555,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
                                                                                                    \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_sub_##S_IN(c_hw, a, b, 10);                                                            \
+        hal_vsub_##S_IN(c_hw, a, b, 10);                                                           \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
@@ -566,14 +566,14 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 3. MUL Test */                                                                              \
-    static int test_hal_vmul_##S_IN(void) {                                                         \
+    static int test_hal_vmul_##S_IN(void) {                                                        \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};    \
         T_OUT c_hw[10] = {0}, c_sw[10] = {0};                                                      \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] = (T_OUT)a[i] * (T_OUT)b[i];                                                   \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_vmul_##S_IN(c_hw, a, b, 10);                                                            \
+        hal_vmul_##S_IN(c_hw, a, b, 10);                                                           \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
@@ -584,7 +584,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 4. MAC Test */                                                                              \
-    static int test_hal_mac_##S_IN(void) {                                                         \
+    static int test_hal_vmac_##S_IN(void) {                                                        \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};    \
         T_OUT c_hw[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};                                 \
         T_OUT c_sw[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};                                 \
@@ -592,7 +592,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
             c_sw[i] += (T_OUT)a[i] * (T_OUT)b[i];                                                  \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_mac_##S_IN(c_hw, a, b, 10);                                                            \
+        hal_vmac_##S_IN(c_hw, a, b, 10);                                                           \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
@@ -603,7 +603,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 5. DIV Test (Enhanced exception handling and ret output) */                                 \
-    static int test_hal_div_##S_IN(void) {                                                         \
+    static int test_hal_vdiv_##S_IN(void) {                                                        \
         T_IN a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};                                    \
         /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */                \
         T_IN b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};                                               \
@@ -618,7 +618,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_div_##S_IN(c_hw, a, b, 10, &ret);                                                      \
+        hal_vdiv_##S_IN(c_hw, a, b, 10, &ret);                                                     \
         uint64_t end = get_mcycle();                                                               \
         /* Print log if HAL function detects an error */                                           \
         if (ret != 0) {                                                                            \
@@ -635,14 +635,14 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 6. DOT Test */                                                                              \
-    static int test_hal_dot_##S_IN(void) {                                                         \
+    static int test_hal_vdot_##S_IN(void) {                                                        \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};      \
         T_OUT c_hw = 0, c_sw = 0;                                                                  \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw += (T_OUT)a[i] * (T_OUT)b[i];                                                     \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_dot_##S_IN(&c_hw, a, b, 10);                                                           \
+        hal_vdot_##S_IN(&c_hw, a, b, 10);                                                          \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         if (hal_verify_array_##S_OUT(&c_sw, &c_hw, 1)) {                                           \
@@ -652,7 +652,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 7. MTRX MUL Test */                                                                         \
-    static int test_hal_mtrx_mul_##S_IN(void) {                                                    \
+    static int test_hal_mtrx_vmul_##S_IN(void) {                                                   \
         T_IN a[6] = {1, 2, 3, 4, 5, 6}, b[6] = {1, 2, 3, 4, 5, 6};                                 \
         T_OUT c_hw[4] = {0}, c_sw[4] = {0};                                                        \
         for (int i = 0; i < 2; i++) {                                                              \
@@ -665,7 +665,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        hal_matrix_mul_##S_IN(c_hw, a, b, 2, 2, 3);                                                \
+        hal_matrix_vmul_##S_IN(c_hw, a, b, 2, 2, 3);                                               \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 4)) {                                             \
@@ -675,7 +675,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
     }                                                                                              \
     /* 8. MTRX MUL Tiled Test */                                                                   \
-    static int test_hal_mtrx_mul_tiled_##S_IN(void) {                                              \
+    static int test_hal_mtrx_vmul_tiled_##S_IN(void) {                                             \
         int result = -1;                                                                           \
         int M = 131, N = 71, K = 79;                                                               \
         int tile_size = 64;                                                                        \
@@ -704,7 +704,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start_hal = get_mcycle();                                                         \
-        hal_matrix_mul_tiled_##S_IN(CH, A, B, M, N, K, tile_size);                                 \
+        hal_matrix_vmul_tiled_##S_IN(CH, A, B, M, N, K, tile_size);                                \
         uint64_t end_hal = get_mcycle();                                                           \
         /* --- Profiling End --- */                                                                \
         if (hal_verify_array_##S_OUT(CS, CH, M * N)) {                                             \
@@ -733,7 +733,7 @@ DEFINE_HAL_TESTS(float, double, f32, f64)
 // -----------------------------------------------------------------------------
 
 // add_i64
-static int test_hal_add_i64(void) {
+static int test_hal_vadd_i64(void) {
     int64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int64_t c_hw[10] = {0}, c_sw[10] = {0};
     for (int i = 0; i < 10; i++)
@@ -753,7 +753,7 @@ static int test_hal_add_i64(void) {
 }
 
 // add_u64
-static int test_hal_add_u64(void) {
+static int test_hal_vadd_u64(void) {
     uint64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     uint64_t c_hw[10] = {0}, c_sw[10] = {0};
     for (int i = 0; i < 10; i++)
@@ -773,7 +773,7 @@ static int test_hal_add_u64(void) {
 }
 
 // sub_i64
-static int test_hal_sub_i64(void) {
+static int test_hal_vsub_i64(void) {
     int64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int64_t c_hw[10] = {0}, c_sw[10] = {0};
     for (int i = 0; i < 10; i++)
@@ -793,7 +793,7 @@ static int test_hal_sub_i64(void) {
 }
 
 // sub_u64
-static int test_hal_sub_u64(void) {
+static int test_hal_vsub_u64(void) {
     uint64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     uint64_t c_hw[10] = {0}, c_sw[10] = {0};
     for (int i = 0; i < 10; i++)
@@ -836,7 +836,7 @@ static int test_hal_vmul_u64(void) {
     uint64_t a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     uint128_t c_hw[10] = {0}, c_sw[10] = {0};
     for (int i = 0; i < 10; i++)
-        c_sw[i] = _mul_u64(a[i], b[i]);
+        c_sw[i] = hal_mul_u64(a[i], b[i]);
     /* --- Profiling Start --- */
     uint64_t start = get_mcycle();
     hal_vmul_u64(c_hw, a, b, 10);
@@ -860,7 +860,7 @@ static int test_hal_vmac_i64(void) {
 
     for (int i = 0; i < 10; i++) {
         int128_t prod = hal_mul_i64(a[i], b[i]);
-        c_sw[i] = hal_mul_i64_add_i128(c_sw[i], prod);
+        c_sw[i] = hal_add_i128(c_sw[i], prod);
     }
     /* --- Profiling Start --- */
     uint64_t start = get_mcycle();
@@ -972,7 +972,7 @@ static int test_hal_vdot_i64(void) {
     int128_t c_hw = {0}, c_sw = {0};
     for (int i = 0; i < 10; i++) {
         int128_t prod = hal_mul_i64(a[i], b[i]);
-        c_sw = hal_mul_i64_add_i128(c_sw, prod);
+        c_sw = hal_add_i128(c_sw, prod);
     }
     /* --- Profiling Start --- */
     uint64_t start = get_mcycle();
@@ -1007,7 +1007,7 @@ static int test_hal_vdot_u64(void) {
 }
 
 // matrix_mul_i64
-static int test_hal_mtrx_mul_i64(void) {
+static int test_hal_mtrx_vmul_i64(void) {
     int64_t a[6] = {1, 2, 3, 4, 5, 6}, b[6] = {1, 2, 3, 4, 5, 6};
     int128_t c_hw[4] = {0}, c_sw[4] = {0};
     for (int i = 0; i < 2; i++) {
@@ -1032,7 +1032,7 @@ static int test_hal_mtrx_mul_i64(void) {
 }
 
 // matrix_mul_u64
-static int test_hal_mtrx_mul_u64(void) {
+static int test_hal_mtrx_vmul_u64(void) {
     uint64_t a[6] = {1, 2, 3, 4, 5, 6}, b[6] = {1, 2, 3, 4, 5, 6};
     uint128_t c_hw[4] = {0}, c_sw[4] = {0};
     for (int i = 0; i < 2; i++) {
@@ -1057,7 +1057,7 @@ static int test_hal_mtrx_mul_u64(void) {
 }
 
 // mtrx_mul_tile_i64
-static int test_hal_mtrx_mul_tiled_i64(void) {
+static int test_hal_mtrx_vmul_tiled_i64(void) {
     int result = -1;
     int M = 131, N = 71, K = 79;
     int tile_size = 64;
@@ -1119,7 +1119,7 @@ static int test_hal_mtrx_mul_tiled_i64(void) {
 }
 
 // mtrx_mul_tile_u64
-static int test_hal_mtrx_mul_tiled_u64(void) {
+static int test_hal_mtrx_vmul_tiled_u64(void) {
     int result = -1;
     int M = 131, N = 71, K = 79;
     int tile_size = 64;
@@ -1187,7 +1187,7 @@ static int test_hal_mtrx_mul_tiled_u64(void) {
 // -----------------------------------------------------------------------------
 
 // add_i128
-static int test_hal_add_i128(void) {
+static int test_hal_vadd_i128(void) {
     int128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
                       {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
              b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
@@ -1210,7 +1210,7 @@ static int test_hal_add_i128(void) {
 }
 
 // add_u128
-static int test_hal_add_u128(void) {
+static int test_hal_vadd_u128(void) {
     uint128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
                        {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
               b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
@@ -1233,7 +1233,7 @@ static int test_hal_add_u128(void) {
 }
 
 // sub_i128
-static int test_hal_sub_i128(void) {
+static int test_hal_vsub_i128(void) {
     int128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
                       {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
              b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
@@ -1256,7 +1256,7 @@ static int test_hal_sub_i128(void) {
 }
 
 // sub_u128
-static int test_hal_sub_u128(void) {
+static int test_hal_vsub_u128(void) {
     uint128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
                        {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
               b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
@@ -1501,7 +1501,7 @@ static int test_hal_vdot_u128(void) {
 }
 
 // matrix_mul_i128
-static int test_hal_mtrx_mul_i128(void) {
+static int test_hal_mtrx_vmul_i128(void) {
     int128_t a[6] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}},
              b[6] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}};
     int256_t c_hw[4] = {0}, c_sw[4] = {0};
@@ -1527,7 +1527,7 @@ static int test_hal_mtrx_mul_i128(void) {
 }
 
 // matrix_mul_u128
-static int test_hal_mtrx_mul_u128(void) {
+static int test_hal_mtrx_vmul_u128(void) {
     uint128_t a[6] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}},
               b[6] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}};
     uint256_t c_hw[4] = {0}, c_sw[4] = {0};
@@ -1553,7 +1553,7 @@ static int test_hal_mtrx_mul_u128(void) {
 }
 
 // mtrx_mul_tile_i128
-static int test_hal_mtrx_mul_tiled_i128(void) {
+static int test_hal_mtrx_vmul_tiled_i128(void) {
     int result = -1;
     int M = 131, N = 71, K = 79;
     int tile_size = 64;
@@ -1619,7 +1619,7 @@ static int test_hal_mtrx_mul_tiled_i128(void) {
 }
 
 // mtrx_mul_tile_u128
-static int test_hal_mtrx_mul_tiled_u128(void) {
+static int test_hal_mtrx_vmul_tiled_u128(void) {
     int result = -1;
     int M = 131, N = 71, K = 79;
     int tile_size = 64;
@@ -1691,10 +1691,10 @@ static int test_hal_mtrx_mul_tiled_u128(void) {
 #define DUMMY_TEST(NAME)                                                                           \
     static int NAME(void) { return 0; }
 
-// DUMMY_TEST(test_hal_add_i64)
-// DUMMY_TEST(test_hal_add_u64)
-// DUMMY_TEST(test_hal_sub_i64)
-// DUMMY_TEST(test_hal_sub_u64)
+// DUMMY_TEST(test_hal_vadd_i64)
+// DUMMY_TEST(test_hal_vadd_u64)
+// DUMMY_TEST(test_hal_vsub_i64)
+// DUMMY_TEST(test_hal_vsub_u64)
 // DUMMY_TEST(test_hal_vmul_i64)
 // DUMMY_TEST(test_hal_vmul_u64)
 // DUMMY_TEST(test_hal_vmac_i64)
@@ -1703,12 +1703,12 @@ static int test_hal_mtrx_mul_tiled_u128(void) {
 // DUMMY_TEST(test_hal_vdiv_u64)
 // DUMMY_TEST(test_hal_vdot_i64)
 // DUMMY_TEST(test_hal_vdot_u64)
-// DUMMY_TEST(test_hal_mtrx_mul_i64)
-// DUMMY_TEST(test_hal_mtrx_mul_u64)
-// DUMMY_TEST(test_hal_add_i128)
-// DUMMY_TEST(test_hal_add_u128)
-// DUMMY_TEST(test_hal_sub_i128)
-// DUMMY_TEST(test_hal_sub_u128)
+// DUMMY_TEST(test_hal_mtrx_vmul_i64)
+// DUMMY_TEST(test_hal_mtrx_vmul_u64)
+// DUMMY_TEST(test_hal_vadd_i128)
+// DUMMY_TEST(test_hal_vadd_u128)
+// DUMMY_TEST(test_hal_vsub_i128)
+// DUMMY_TEST(test_hal_vsub_u128)
 // DUMMY_TEST(test_hal_vmul_i128)
 // DUMMY_TEST(test_hal_vmul_u128)
 // DUMMY_TEST(test_hal_vmac_i128)
@@ -1717,13 +1717,13 @@ static int test_hal_mtrx_mul_tiled_u128(void) {
 // DUMMY_TEST(test_hal_vdiv_u128)
 // DUMMY_TEST(test_hal_vdot_i128)
 // DUMMY_TEST(test_hal_vdot_u128)
-// DUMMY_TEST(test_hal_mtrx_mul_i128)
-// DUMMY_TEST(test_hal_mtrx_mul_u128)
+// DUMMY_TEST(test_hal_mtrx_vmul_i128)
+// DUMMY_TEST(test_hal_mtrx_vmul_u128)
 
-// DUMMY_TEST(test_hal_mtrx_mul_tiled_i64)
-// DUMMY_TEST(test_hal_mtrx_mul_tiled_u64)
-// DUMMY_TEST(test_hal_mtrx_mul_tiled_i128)
-// DUMMY_TEST(test_hal_mtrx_mul_tiled_u128)
+// DUMMY_TEST(test_hal_mtrx_vmul_tiled_i64)
+// DUMMY_TEST(test_hal_mtrx_vmul_tiled_u64)
+// DUMMY_TEST(test_hal_mtrx_vmul_tiled_i128)
+// DUMMY_TEST(test_hal_mtrx_vmul_tiled_u128)
 // <---
 
 // ---> edge case start
@@ -1808,44 +1808,53 @@ static int test_hal_edge_unaligned_access(void) {
 // Safely map Enum values and array indices even if the order is mixed
 
 static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
-    [HAL_TEST_VADD_I8] = {HAL_TEST_VADD_I8, test_hal_add_i8, "VADD_I8", "Vector add (int8_t)"},
-    [HAL_TEST_VADD_I16] = {HAL_TEST_VADD_I16, test_hal_add_i16, "VADD_I16", "Vector add (int16_t)"},
-    [HAL_TEST_VADD_I32] = {HAL_TEST_VADD_I32, test_hal_add_i32, "VADD_I32", "Vector add (int32_t)"},
-    [HAL_TEST_VADD_I64] = {HAL_TEST_VADD_I64, test_hal_add_i64, "VADD_I64", "Vector add (int64_t)"},
-    [HAL_TEST_VADD_I128] = {HAL_TEST_VADD_I128, test_hal_add_i128, "VADD_I128",
+    [HAL_TEST_VADD_I8] = {HAL_TEST_VADD_I8, test_hal_vadd_i8, "VADD_I8", "Vector add (int8_t)"},
+    [HAL_TEST_VADD_I16] = {HAL_TEST_VADD_I16, test_hal_vadd_i16, "VADD_I16",
+                           "Vector add (int16_t)"},
+    [HAL_TEST_VADD_I32] = {HAL_TEST_VADD_I32, test_hal_vadd_i32, "VADD_I32",
+                           "Vector add (int32_t)"},
+    [HAL_TEST_VADD_I64] = {HAL_TEST_VADD_I64, test_hal_vadd_i64, "VADD_I64",
+                           "Vector add (int64_t)"},
+    [HAL_TEST_VADD_I128] = {HAL_TEST_VADD_I128, test_hal_vadd_i128, "VADD_I128",
                             "Vector add (int128_t)"},
 
-    [HAL_TEST_VADD_U8] = {HAL_TEST_VADD_U8, test_hal_add_u8, "VADD_U8", "Vector add (uint8_t)"},
-    [HAL_TEST_VADD_U16] = {HAL_TEST_VADD_U16, test_hal_add_u16, "VADD_U16",
+    [HAL_TEST_VADD_U8] = {HAL_TEST_VADD_U8, test_hal_vadd_u8, "VADD_U8", "Vector add (uint8_t)"},
+    [HAL_TEST_VADD_U16] = {HAL_TEST_VADD_U16, test_hal_vadd_u16, "VADD_U16",
                            "Vector add (uint16_t)"},
-    [HAL_TEST_VADD_U32] = {HAL_TEST_VADD_U32, test_hal_add_u32, "VADD_U32",
+    [HAL_TEST_VADD_U32] = {HAL_TEST_VADD_U32, test_hal_vadd_u32, "VADD_U32",
                            "Vector add (uint32_t)"},
-    [HAL_TEST_VADD_U64] = {HAL_TEST_VADD_U64, test_hal_add_u64, "VADD_U64",
+    [HAL_TEST_VADD_U64] = {HAL_TEST_VADD_U64, test_hal_vadd_u64, "VADD_U64",
                            "Vector add (uint64_t)"},
-    [HAL_TEST_VADD_U128] = {HAL_TEST_VADD_U128, test_hal_add_u128, "VADD_U128",
+    [HAL_TEST_VADD_U128] = {HAL_TEST_VADD_U128, test_hal_vadd_u128, "VADD_U128",
                             "Vector add (uint128_t)"},
 
-    [HAL_TEST_VSUB_I8] = {HAL_TEST_VSUB_I8, test_hal_sub_i8, "VSUB_I8", "Vector sub (int8_t)"},
-    [HAL_TEST_VSUB_I16] = {HAL_TEST_VSUB_I16, test_hal_sub_i16, "VSUB_I16", "Vector sub (int16_t)"},
-    [HAL_TEST_VSUB_I32] = {HAL_TEST_VSUB_I32, test_hal_sub_i32, "VSUB_I32", "Vector sub (int32_t)"},
-    [HAL_TEST_VSUB_I64] = {HAL_TEST_VSUB_I64, test_hal_sub_i64, "VSUB_I64", "Vector sub (int64_t)"},
-    [HAL_TEST_VSUB_I128] = {HAL_TEST_VSUB_I128, test_hal_sub_i128, "VSUB_I128",
+    [HAL_TEST_VSUB_I8] = {HAL_TEST_VSUB_I8, test_hal_vsub_i8, "VSUB_I8", "Vector sub (int8_t)"},
+    [HAL_TEST_VSUB_I16] = {HAL_TEST_VSUB_I16, test_hal_vsub_i16, "VSUB_I16",
+                           "Vector sub (int16_t)"},
+    [HAL_TEST_VSUB_I32] = {HAL_TEST_VSUB_I32, test_hal_vsub_i32, "VSUB_I32",
+                           "Vector sub (int32_t)"},
+    [HAL_TEST_VSUB_I64] = {HAL_TEST_VSUB_I64, test_hal_vsub_i64, "VSUB_I64",
+                           "Vector sub (int64_t)"},
+    [HAL_TEST_VSUB_I128] = {HAL_TEST_VSUB_I128, test_hal_vsub_i128, "VSUB_I128",
                             "Vector sub (int128_t)"},
 
-    [HAL_TEST_VSUB_U8] = {HAL_TEST_VSUB_U8, test_hal_sub_u8, "VSUB_U8", "Vector sub (uint8_t)"},
-    [HAL_TEST_VSUB_U16] = {HAL_TEST_VSUB_U16, test_hal_sub_u16, "VSUB_U16",
+    [HAL_TEST_VSUB_U8] = {HAL_TEST_VSUB_U8, test_hal_vsub_u8, "VSUB_U8", "Vector sub (uint8_t)"},
+    [HAL_TEST_VSUB_U16] = {HAL_TEST_VSUB_U16, test_hal_vsub_u16, "VSUB_U16",
                            "Vector sub (uint16_t)"},
-    [HAL_TEST_VSUB_U32] = {HAL_TEST_VSUB_U32, test_hal_sub_u32, "VSUB_U32",
+    [HAL_TEST_VSUB_U32] = {HAL_TEST_VSUB_U32, test_hal_vsub_u32, "VSUB_U32",
                            "Vector sub (uint32_t)"},
-    [HAL_TEST_VSUB_U64] = {HAL_TEST_VSUB_U64, test_hal_sub_u64, "VSUB_U64",
+    [HAL_TEST_VSUB_U64] = {HAL_TEST_VSUB_U64, test_hal_vsub_u64, "VSUB_U64",
                            "Vector sub (uint64_t)"},
-    [HAL_TEST_VSUB_U128] = {HAL_TEST_VSUB_U128, test_hal_sub_u128, "VSUB_U128",
+    [HAL_TEST_VSUB_U128] = {HAL_TEST_VSUB_U128, test_hal_vsub_u128, "VSUB_U128",
                             "Vector sub (uint128_t)"},
 
     [HAL_TEST_VMUL_I8] = {HAL_TEST_VMUL_I8, test_hal_vmul_i8, "VMUL_I8", "Vector mul (int8_t)"},
-    [HAL_TEST_VMUL_I16] = {HAL_TEST_VMUL_I16, test_hal_vmul_i16, "VMUL_I16", "Vector mul (int16_t)"},
-    [HAL_TEST_VMUL_I32] = {HAL_TEST_VMUL_I32, test_hal_vmul_i32, "VMUL_I32", "Vector mul (int32_t)"},
-    [HAL_TEST_VMUL_I64] = {HAL_TEST_VMUL_I64, test_hal_vmul_i64, "VMUL_I64", "Vector mul (int64_t)"},
+    [HAL_TEST_VMUL_I16] = {HAL_TEST_VMUL_I16, test_hal_vmul_i16, "VMUL_I16",
+                           "Vector mul (int16_t)"},
+    [HAL_TEST_VMUL_I32] = {HAL_TEST_VMUL_I32, test_hal_vmul_i32, "VMUL_I32",
+                           "Vector mul (int32_t)"},
+    [HAL_TEST_VMUL_I64] = {HAL_TEST_VMUL_I64, test_hal_vmul_i64, "VMUL_I64",
+                           "Vector mul (int64_t)"},
     [HAL_TEST_VMUL_I128] = {HAL_TEST_VMUL_I128, test_hal_vmul_i128, "VMUL_I128",
                             "Vector mul (int128_t)"},
 
@@ -1860,9 +1869,12 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
                             "Vector mul (uint128_t)"},
 
     [HAL_TEST_VMAC_I8] = {HAL_TEST_VMAC_I8, test_hal_vmac_i8, "VMAC_I8", "Vector mac (int8_t)"},
-    [HAL_TEST_VMAC_I16] = {HAL_TEST_VMAC_I16, test_hal_vmac_i16, "VMAC_I16", "Vector mac (int16_t)"},
-    [HAL_TEST_VMAC_I32] = {HAL_TEST_VMAC_I32, test_hal_vmac_i32, "VMAC_I32", "Vector mac (int32_t)"},
-    [HAL_TEST_VMAC_I64] = {HAL_TEST_VMAC_I64, test_hal_vmac_i64, "VMAC_I64", "Vector mac (int64_t)"},
+    [HAL_TEST_VMAC_I16] = {HAL_TEST_VMAC_I16, test_hal_vmac_i16, "VMAC_I16",
+                           "Vector mac (int16_t)"},
+    [HAL_TEST_VMAC_I32] = {HAL_TEST_VMAC_I32, test_hal_vmac_i32, "VMAC_I32",
+                           "Vector mac (int32_t)"},
+    [HAL_TEST_VMAC_I64] = {HAL_TEST_VMAC_I64, test_hal_vmac_i64, "VMAC_I64",
+                           "Vector mac (int64_t)"},
     [HAL_TEST_VMAC_I128] = {HAL_TEST_VMAC_I128, test_hal_vmac_i128, "VMAC_I128",
                             "Vector mac (int128_t)"},
 
@@ -1877,9 +1889,12 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
                             "Vector mac (uint128_t)"},
 
     [HAL_TEST_VDIV_I8] = {HAL_TEST_VDIV_I8, test_hal_vdiv_i8, "VDIV_I8", "Vector div (int8_t)"},
-    [HAL_TEST_VDIV_I16] = {HAL_TEST_VDIV_I16, test_hal_vdiv_i16, "VDIV_I16", "Vector div (int16_t)"},
-    [HAL_TEST_VDIV_I32] = {HAL_TEST_VDIV_I32, test_hal_vdiv_i32, "VDIV_I32", "Vector div (int32_t)"},
-    [HAL_TEST_VDIV_I64] = {HAL_TEST_VDIV_I64, test_hal_vdiv_i64, "VDIV_I64", "Vector div (int64_t)"},
+    [HAL_TEST_VDIV_I16] = {HAL_TEST_VDIV_I16, test_hal_vdiv_i16, "VDIV_I16",
+                           "Vector div (int16_t)"},
+    [HAL_TEST_VDIV_I32] = {HAL_TEST_VDIV_I32, test_hal_vdiv_i32, "VDIV_I32",
+                           "Vector div (int32_t)"},
+    [HAL_TEST_VDIV_I64] = {HAL_TEST_VDIV_I64, test_hal_vdiv_i64, "VDIV_I64",
+                           "Vector div (int64_t)"},
     [HAL_TEST_VDIV_I128] = {HAL_TEST_VDIV_I128, test_hal_vdiv_i128, "VDIV_I128",
                             "Vector div (int128_t)"},
 
@@ -1915,60 +1930,60 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
     [HAL_TEST_VDOT_U128] = {HAL_TEST_VDOT_U128, test_hal_vdot_u128, "VDOT_U128",
                             "Vector dot product (uint128_t)"},
 
-    [HAL_TEST_MTRX_MUL_I8] = {HAL_TEST_MTRX_MUL_I8, test_hal_mtrx_mul_i8, "MTRX_MUL_I8",
+    [HAL_TEST_MTRX_MUL_I8] = {HAL_TEST_MTRX_MUL_I8, test_hal_mtrx_vmul_i8, "MTRX_MUL_I8",
                               "Matrix Mul (int8_t)"},
-    [HAL_TEST_MTRX_MUL_I16] = {HAL_TEST_MTRX_MUL_I16, test_hal_mtrx_mul_i16, "MTRX_MUL_I16",
+    [HAL_TEST_MTRX_MUL_I16] = {HAL_TEST_MTRX_MUL_I16, test_hal_mtrx_vmul_i16, "MTRX_MUL_I16",
                                "Matrix Mul (int16_t)"},
-    [HAL_TEST_MTRX_MUL_I32] = {HAL_TEST_MTRX_MUL_I32, test_hal_mtrx_mul_i32, "MTRX_MUL_I32",
+    [HAL_TEST_MTRX_MUL_I32] = {HAL_TEST_MTRX_MUL_I32, test_hal_mtrx_vmul_i32, "MTRX_MUL_I32",
                                "Matrix Mul (int32_t)"},
-    [HAL_TEST_MTRX_MUL_I64] = {HAL_TEST_MTRX_MUL_I64, test_hal_mtrx_mul_i64, "MTRX_MUL_I64",
+    [HAL_TEST_MTRX_MUL_I64] = {HAL_TEST_MTRX_MUL_I64, test_hal_mtrx_vmul_i64, "MTRX_MUL_I64",
                                "Matrix Mul (int64_t)"},
-    [HAL_TEST_MTRX_MUL_I128] = {HAL_TEST_MTRX_MUL_I128, test_hal_mtrx_mul_i128, "MTRX_MUL_I128",
+    [HAL_TEST_MTRX_MUL_I128] = {HAL_TEST_MTRX_MUL_I128, test_hal_mtrx_vmul_i128, "MTRX_MUL_I128",
                                 "Matrix Mul (int128_t)"},
 
-    [HAL_TEST_MTRX_MUL_U8] = {HAL_TEST_MTRX_MUL_U8, test_hal_mtrx_mul_u8, "MTRX_MUL_U8",
+    [HAL_TEST_MTRX_MUL_U8] = {HAL_TEST_MTRX_MUL_U8, test_hal_mtrx_vmul_u8, "MTRX_MUL_U8",
                               "Matrix Mul (uint8_t)"},
-    [HAL_TEST_MTRX_MUL_U16] = {HAL_TEST_MTRX_MUL_U16, test_hal_mtrx_mul_u16, "MTRX_MUL_U16",
+    [HAL_TEST_MTRX_MUL_U16] = {HAL_TEST_MTRX_MUL_U16, test_hal_mtrx_vmul_u16, "MTRX_MUL_U16",
                                "Matrix Mul (uint16_t)"},
-    [HAL_TEST_MTRX_MUL_U32] = {HAL_TEST_MTRX_MUL_U32, test_hal_mtrx_mul_u32, "MTRX_MUL_U32",
+    [HAL_TEST_MTRX_MUL_U32] = {HAL_TEST_MTRX_MUL_U32, test_hal_mtrx_vmul_u32, "MTRX_MUL_U32",
                                "Matrix Mul (uint32_t)"},
-    [HAL_TEST_MTRX_MUL_U64] = {HAL_TEST_MTRX_MUL_U64, test_hal_mtrx_mul_u64, "MTRX_MUL_U64",
+    [HAL_TEST_MTRX_MUL_U64] = {HAL_TEST_MTRX_MUL_U64, test_hal_mtrx_vmul_u64, "MTRX_MUL_U64",
                                "Matrix Mul (uint64_t)"},
-    [HAL_TEST_MTRX_MUL_U128] = {HAL_TEST_MTRX_MUL_U128, test_hal_mtrx_mul_u128, "MTRX_MUL_U128",
+    [HAL_TEST_MTRX_MUL_U128] = {HAL_TEST_MTRX_MUL_U128, test_hal_mtrx_vmul_u128, "MTRX_MUL_U128",
                                 "Matrix Mul (uint128_t)"},
 
-    [HAL_TEST_MTRX_MUL_TILED_I8] = {HAL_TEST_MTRX_MUL_TILED_I8, test_hal_mtrx_mul_tiled_i8,
+    [HAL_TEST_MTRX_MUL_TILED_I8] = {HAL_TEST_MTRX_MUL_TILED_I8, test_hal_mtrx_vmul_tiled_i8,
                                     "MTRX_MUL_TILED_I8", "Matrix Mul tiled (int8_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_I16] = {HAL_TEST_MTRX_MUL_TILED_I16, test_hal_mtrx_mul_tiled_i16,
+    [HAL_TEST_MTRX_MUL_TILED_I16] = {HAL_TEST_MTRX_MUL_TILED_I16, test_hal_mtrx_vmul_tiled_i16,
                                      "MTRX_MUL_TILED_I16", "Matrix Mul tiled (int16_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_I32] = {HAL_TEST_MTRX_MUL_TILED_I32, test_hal_mtrx_mul_tiled_i32,
+    [HAL_TEST_MTRX_MUL_TILED_I32] = {HAL_TEST_MTRX_MUL_TILED_I32, test_hal_mtrx_vmul_tiled_i32,
                                      "MTRX_MUL_TILED_I32", "Matrix Mul tiled (int32_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_I64] = {HAL_TEST_MTRX_MUL_TILED_I64, test_hal_mtrx_mul_tiled_i64,
+    [HAL_TEST_MTRX_MUL_TILED_I64] = {HAL_TEST_MTRX_MUL_TILED_I64, test_hal_mtrx_vmul_tiled_i64,
                                      "MTRX_MUL_TILED_I64", "Matrix Mul tiled (int64_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_I128] = {HAL_TEST_MTRX_MUL_TILED_I128, test_hal_mtrx_mul_tiled_i128,
+    [HAL_TEST_MTRX_MUL_TILED_I128] = {HAL_TEST_MTRX_MUL_TILED_I128, test_hal_mtrx_vmul_tiled_i128,
                                       "MTRX_MUL_TILED_I128", "Matrix Mul tiled (int128_t)"},
 
-    [HAL_TEST_MTRX_MUL_TILED_U8] = {HAL_TEST_MTRX_MUL_TILED_U8, test_hal_mtrx_mul_tiled_u8,
+    [HAL_TEST_MTRX_MUL_TILED_U8] = {HAL_TEST_MTRX_MUL_TILED_U8, test_hal_mtrx_vmul_tiled_u8,
                                     "MTRX_MUL_TILED_U8", "Matrix Mul tiled (uint8_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_U16] = {HAL_TEST_MTRX_MUL_TILED_U16, test_hal_mtrx_mul_tiled_u16,
+    [HAL_TEST_MTRX_MUL_TILED_U16] = {HAL_TEST_MTRX_MUL_TILED_U16, test_hal_mtrx_vmul_tiled_u16,
                                      "MTRX_MUL_TILED_U16", "Matrix Mul tiled (uint16_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_U32] = {HAL_TEST_MTRX_MUL_TILED_U32, test_hal_mtrx_mul_tiled_u32,
+    [HAL_TEST_MTRX_MUL_TILED_U32] = {HAL_TEST_MTRX_MUL_TILED_U32, test_hal_mtrx_vmul_tiled_u32,
                                      "MTRX_MUL_TILED_U32", "Matrix Mul tiled (uint32_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_U64] = {HAL_TEST_MTRX_MUL_TILED_U64, test_hal_mtrx_mul_tiled_u64,
+    [HAL_TEST_MTRX_MUL_TILED_U64] = {HAL_TEST_MTRX_MUL_TILED_U64, test_hal_mtrx_vmul_tiled_u64,
                                      "MTRX_MUL_TILED_U64", "Matrix Mul tiled (uint64_t)"},
-    [HAL_TEST_MTRX_MUL_TILED_U128] = {HAL_TEST_MTRX_MUL_TILED_U128, test_hal_mtrx_mul_tiled_u128,
+    [HAL_TEST_MTRX_MUL_TILED_U128] = {HAL_TEST_MTRX_MUL_TILED_U128, test_hal_mtrx_vmul_tiled_u128,
                                       "MTRX_MUL_TILED_U128", "Matrix Mul tiled (uint128_t)"},
 
-    [HAL_TEST_ADD_F32] = {HAL_TEST_ADD_F32, test_hal_add_f32, "VADD_F32", "Vector add (float)"},
-    [HAL_TEST_SUB_F32] = {HAL_TEST_SUB_F32, test_hal_sub_f32, "VSUB_F32", "Vector sub (float)"},
+    [HAL_TEST_ADD_F32] = {HAL_TEST_ADD_F32, test_hal_vadd_f32, "VADD_F32", "Vector add (float)"},
+    [HAL_TEST_SUB_F32] = {HAL_TEST_SUB_F32, test_hal_vsub_f32, "VSUB_F32", "Vector sub (float)"},
     [HAL_TEST_MUL_F32] = {HAL_TEST_MUL_F32, test_hal_vmul_f32, "VMUL_F32", "Vector mul (float)"},
     [HAL_TEST_MAC_F32] = {HAL_TEST_MAC_F32, test_hal_vmac_f32, "VMAC_F32", "Vector mac (float)"},
     [HAL_TEST_DIV_F32] = {HAL_TEST_DIV_F32, test_hal_vdiv_f32, "VDIV_F32", "Vector div (float)"},
     [HAL_TEST_DOT_F32] = {HAL_TEST_DOT_F32, test_hal_vdot_f32, "VDOT_F32",
                           "Vector dot product (float)"},
-    [HAL_TEST_MTRX_MUL_F32] = {HAL_TEST_MTRX_MUL_F32, test_hal_mtrx_mul_f32, "MTRX_MUL_F32",
+    [HAL_TEST_MTRX_MUL_F32] = {HAL_TEST_MTRX_MUL_F32, test_hal_mtrx_vmul_f32, "MTRX_MUL_F32",
                                "Matrix Mul (float)"},
-    [HAL_TEST_MTRX_MUL_TILED_F32] = {HAL_TEST_MTRX_MUL_TILED_F32, test_hal_mtrx_mul_tiled_f32,
+    [HAL_TEST_MTRX_MUL_TILED_F32] = {HAL_TEST_MTRX_MUL_TILED_F32, test_hal_mtrx_vmul_tiled_f32,
                                      "MTRX_MUL_TILED_F32", "Matrix Mul tiled (float)"},
 };
 
@@ -1985,7 +2000,8 @@ int hal_do_all_test(void) {
 
         int ret = hal_test_lists[i].func();
 
-        if (ret == -1) { // <--- Modification: Treat as failure only when it is exactly -1, not just any negative number
+        if (ret == -1) { // <--- Modification: Treat as failure only when it is exactly -1, not just
+                         // any negative number
             printf("[FAIL] %-15s : %s\n", hal_test_lists[i].name, hal_test_lists[i].description);
             fail_count++;
         } else { // Unconditional success if not -1 & print cycle count

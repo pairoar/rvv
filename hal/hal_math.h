@@ -8,7 +8,6 @@
 #ifndef HAL_MATH_H
 #define HAL_MATH_H
 
-// #include "insn_api.h"
 #include <stddef.h>
 #include <stdint.h>
 
