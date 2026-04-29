@@ -63,6 +63,7 @@ elseif(TARGET_ARCH STREQUAL "cust_accel")
     target_sources(hal PRIVATE
         cust_accel/hal_ca_math.S
     )
+
     target_include_directories(hal PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cust_accel>
     )
@@ -79,7 +80,10 @@ endif()
 # 최상위 CMake에서 설정한 BUILD_HAL_TEST 옵션에 따라 동작합니다.
 if(BUILD_HAL_TEST)
     # 공통 진입점인 hal_test.c를 기반으로 실행 파일 생성 (이 파일 내부에 main()이 존재해야 함)
-    add_executable(hal_test hal_test.c)
+    add_executable(hal_test test/hal_test.c)
+    target_include_directories(hal PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test>
+    )
 
     # 아키텍처별로 특화된 테스트 코드가 있다면 추가로 엮어줍니다.
     if(TARGET_ARCH STREQUAL "host")

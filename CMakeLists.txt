@@ -14,7 +14,8 @@ if(NOT CMAKE_TOOLCHAIN_FILE)
         set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchain-ca.cmake")
     else()
         message(STATUS "No architecture specified, building for Host.")
-        set(TARGET_ARCH "host")
+        #set(TARGET_ARCH "host")
+        set(TARGET_ARCH "host" CACHE STRING "Target Architecture")
         set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchain-host.cmake")
     endif()
 endif()
@@ -26,20 +27,20 @@ project(RVV_APP
 
 
 # ==========================================
-# 글로벌 및 인터페이스 설정
+# Configure global and interface
 # ==========================================
 add_library(${CMAKE_PROJECT_NAME}_common_settings INTERFACE)
 target_compile_features(${CMAKE_PROJECT_NAME}_common_settings INTERFACE cxx_std_17)
 install(TARGETS ${CMAKE_PROJECT_NAME}_common_settings EXPORT HalTargets)
 
-# CMake 검색 경로 추가
+# Add CMake search path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-# 옵션 및 정의
+# Option and definition
 include(options OPTIONAL)
 include(cust_definition)
 
-# 아키텍처 특화 설정
+# Configure architecture specific settings
 if(TARGET_ARCH STREQUAL "host")
     if(BUILD_32)
         include(build32)
@@ -47,6 +48,9 @@ if(TARGET_ARCH STREQUAL "host")
         message(STATUS "Build 64bit")
         target_compile_definitions(${CMAKE_PROJECT_NAME}_common_settings INTERFACE CONFIG_SUPPORT_64)
     endif()
+elseif (TARGET_ARCH STREQUAL "cust_accel")
+    message(STATUS "Custom Accelerator")
+    target_compile_definitions(${CMAKE_PROJECT_NAME}_common_settings INTERFACE CONFIG_CUSTOM_ACCELERATOR)
 endif()
 
 # 코드 품질 및 분석 도구 모음

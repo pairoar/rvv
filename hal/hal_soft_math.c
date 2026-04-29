@@ -1,5 +1,5 @@
 #include "hal_soft_math.h"
-#include "hal_internal_math.h"
+#include "hal_basic_math.h"
 #include <string.h>
 
 #define HAL_FALLBACK __attribute__((weak))
@@ -9,26 +9,26 @@
 // -----------------------------------------------------------------------------
 
 /* --- 128-bit Addition --- */
-uint128_t _add_u128_u64(const uint128_t a, const uint64_t b) {
+uint128_t hal_add_u128_u64(const uint128_t a, const uint64_t b) {
     uint128_t res;
     res.l = a.l + b;
     res.u = a.u + ((res.l < a.l) ? 1 : 0); // Add 1 to u if a carry occurs
     return res;
 }
 
-uint128_t _add_u128(const uint128_t a, const uint128_t b) {
+uint128_t hal_add_u128(const uint128_t a, const uint128_t b) {
     uint128_t c;
     c.l = a.l + b.l;
     c.u = a.u + b.u + ((c.l < a.l) ? 1 : 0);
     return c;
 }
 
-int128_t _add_i128(const int128_t a, const int128_t b) {
-    uint128_t c = _add_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
+int128_t hal_add_i128(const int128_t a, const int128_t b) {
+    uint128_t c = hal_add_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     return *(int128_t *)&c;
 }
 
-uint256_t _add_u256(const uint256_t a, const uint256_t b) {
+uint256_t hal_add_u256(const uint256_t a, const uint256_t b) {
     uint256_t c = {0};
     uint64_t carry = 0;
 
@@ -42,12 +42,12 @@ uint256_t _add_u256(const uint256_t a, const uint256_t b) {
     return c;
 }
 
-int256_t _add_i256(const int256_t a, const int256_t b) {
-    uint256_t c = _add_u256(*(const uint256_t *)&a, *(const uint256_t *)&b);
+int256_t hal_add_i256(const int256_t a, const int256_t b) {
+    uint256_t c = hal_add_u256(*(const uint256_t *)&a, *(const uint256_t *)&b);
     return *(int256_t *)&c;
 }
 
-uint128_t _mul_u64(const uint64_t a, const uint64_t b) {
+uint128_t hal_mul_u64(const uint64_t a, const uint64_t b) {
     uint128_t res;
     uint64_t a_lo = (uint32_t)a, a_hi = a >> 32;
     uint64_t b_lo = (uint32_t)b, b_hi = b >> 32;
@@ -70,7 +70,7 @@ uint128_t _mul_u64(const uint64_t a, const uint64_t b) {
 /**
  * @brief unsigned 128bit subtracrtion (a - b)
  */
-uint128_t _sub_u128(const uint128_t a, const uint128_t b) {
+uint128_t hal_sub_u128(const uint128_t a, const uint128_t b) {
     uint128_t res;
 
     // low 64bit subtraction
@@ -91,14 +91,14 @@ uint128_t _sub_u128(const uint128_t a, const uint128_t b) {
 /**
  * @brief  signed 128 bit subtraction (a - b)
  */
-int128_t _sub_i128(const int128_t a, const int128_t b) {
+int128_t hal_sub_i128(const int128_t a, const int128_t b) {
     // In the two's complement system, the bit-level logic for subtraction is identical to that of unsigned arithmetic.
-    uint128_t res = _sub_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
+    uint128_t res = hal_sub_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     return *(int128_t *)&res;
 }
 
 /* --- 256-bit Subtraction (if required) --- */
-uint256_t _sub_u256(const uint256_t a, const uint256_t b) {
+uint256_t hal_sub_u256(const uint256_t a, const uint256_t b) {
     uint256_t c = {0};
     uint64_t borrow = 0;
 
@@ -117,8 +117,8 @@ uint256_t _sub_u256(const uint256_t a, const uint256_t b) {
     return c;
 }
 
-int128_t _mul_i64(const int64_t a, const int64_t b) {
-    uint128_t res_u = _mul_u64((uint64_t)a, (uint64_t)b);
+int128_t hal_mul_i64(const int64_t a, const int64_t b) {
+    uint128_t res_u = hal_mul_u64((uint64_t)a, (uint64_t)b);
 
     int128_t res;
     res.u = (int64_t)res_u.u;
@@ -134,14 +134,14 @@ int128_t _mul_i64(const int64_t a, const int64_t b) {
 }
 
 /* Single Large Multiplication: 128bit * 128bit -> 256bit */
-uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
+uint256_t hal_mul_u128(const uint128_t a, const uint128_t b) {
     uint256_t res = {{0, 0, 0, 0}};
 
     // 4 partial products (128 bits each)
-    uint128_t p00 = _mul_u64(a.l, b.l);
-    uint128_t p01 = _mul_u64(a.l, b.u);
-    uint128_t p10 = _mul_u64(a.u, b.l);
-    uint128_t p11 = _mul_u64(a.u, b.u);
+    uint128_t p00 = hal_mul_u64(a.l, b.l);
+    uint128_t p01 = hal_mul_u64(a.l, b.u);
+    uint128_t p10 = hal_mul_u64(a.u, b.l);
+    uint128_t p11 = hal_mul_u64(a.u, b.u);
 
     // [d0] lower 64 bit
     res.d[0] = p00.l;
@@ -173,9 +173,9 @@ uint256_t _mul_u128(const uint128_t a, const uint128_t b) {
     return res;
 }
 
-int256_t _mul_i128(const int128_t a, const int128_t b) {
+int256_t hal_mul_i128(const int128_t a, const int128_t b) {
     // 1. Unsigned 256-bit multiplication
-    uint256_t res_u = _mul_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
+    uint256_t res_u = hal_mul_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     int256_t res = *(int256_t *)&res_u;
 
     // 2. Sign extension correction for negative inputs
@@ -196,7 +196,7 @@ int256_t _mul_i128(const int128_t a, const int128_t b) {
 }
 
 /* Unsigned 128-bit comparison (returns 1 if a >= b, otherwise 0) */
-int _cmp_ge_u128(const uint128_t a, const uint128_t b) {
+static int _cmp_ge_u128(const uint128_t a, const uint128_t b) {
     if (a.u > b.u)
         return 1;
     if (a.u < b.u)
@@ -205,7 +205,7 @@ int _cmp_ge_u128(const uint128_t a, const uint128_t b) {
 }
 
 /* 128-bit Software Division (Unsigned) */
-uint128_t _div_u128(uint128_t n, uint128_t d) {
+uint128_t hal_div_u128(uint128_t n, uint128_t d) {
     uint128_t q = {0, 0}; // Quotient
     uint128_t r = {0, 0}; // Remainder
 
@@ -237,7 +237,7 @@ uint128_t _div_u128(uint128_t n, uint128_t d) {
 }
 
 /* 128-bit Software Division (Signed) */
-int128_t _div_i128(const int128_t n, const int128_t d) {
+int128_t hal_div_i128(const int128_t n, const int128_t d) {
     // 1. Determine sign
     int sign_n = (n.u < 0) ? -1 : 1;
     int sign_d = (d.u < 0) ? -1 : 1;
@@ -263,7 +263,7 @@ int128_t _div_i128(const int128_t n, const int128_t d) {
     }
 
     // 3. Perform unsigned division
-    uint128_t uq = _div_u128(un, ud);
+    uint128_t uq = hal_div_u128(un, ud);
 
     // 4. Apply sign to the result (take two's complement again if it should be negative)
     if (sign_res < 0) {
@@ -281,8 +281,8 @@ int128_t _div_i128(const int128_t n, const int128_t d) {
 // HAL Public C API
 // -----------------------------------------------------------------------------
 // Pure C O(N^3) matrix multiplication for benchmarking
-// void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
-void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
+// void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
+void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             float sum = 0.0f;
@@ -299,21 +299,21 @@ void hal_matrix_mul_c_f32(float *out, const float *A, const float *B, int M, int
 // -----------------------------------------------------------------------------
 
 /* i128/u128 */
-HAL_FALLBACK void hal_mul_i128(int256_t *c, const int128_t *a, const int128_t *b, const size_t n) {
+HAL_FALLBACK void hal_vmul_i128(int256_t *c, const int128_t *a, const int128_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _mul_i128(a[i], b[i]);
+        c[i] = hal_mul_i128(a[i], b[i]);
     }
 }
 
-HAL_FALLBACK void hal_mul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
+HAL_FALLBACK void hal_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
                                const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _mul_u128(a[i], b[i]);
+        c[i] = hal_mul_u128(a[i], b[i]);
     }
 }
 
 /* i128/u128 */
-HAL_FALLBACK void hal_div_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n,
+HAL_FALLBACK void hal_vdiv_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n,
                                int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
@@ -334,11 +334,11 @@ HAL_FALLBACK void hal_div_i128(int128_t *c, const int128_t *a, const int128_t *b
         }
 
         // Perform safe software division
-        c[i] = _div_i128(a[i], b[i]);
+        c[i] = hal_div_i128(a[i], b[i]);
     }
 }
 
-HAL_FALLBACK void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n,
+HAL_FALLBACK void hal_vdiv_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n,
                                int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
@@ -358,7 +358,7 @@ HAL_FALLBACK void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t
         }
 
         // Perform safe software division
-        c[i] = _div_u128(a[i], b[i]);
+        c[i] = hal_div_u128(a[i], b[i]);
     }
 }
 
@@ -366,7 +366,7 @@ HAL_FALLBACK void hal_div_u128(uint128_t *c, const uint128_t *a, const uint128_t
     matrix multiplication with tiled
 */
 /* i8/u8 */
-HAL_FALLBACK void hal_matrix_mul_tiled_i8(int16_t *c, const int8_t *a, const int8_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_i8(int16_t *c, const int8_t *a, const int8_t *b, int M,
                                           int N, int K, int tile_size) {
     // VLA Mapping
     int16_t (*pc)[N] = (int16_t (*)[N])c;
@@ -404,7 +404,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i8(int16_t *c, const int8_t *a, const int
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M,
                                           int N, int K, int tile_size) {
     // VLA Mapping
     uint16_t (*pc)[N] = (uint16_t (*)[N])c;
@@ -443,7 +443,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u8(uint16_t *c, const uint8_t *a, const u
 }
 
 /* i16/u16 */
-HAL_FALLBACK void hal_matrix_mul_tiled_i16(int32_t *c, const int16_t *a, const int16_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_i16(int32_t *c, const int16_t *a, const int16_t *b, int M,
                                            int N, int K, int tile_size) {
     // VLA Mapping
     int32_t (*pc)[N] = (int32_t (*)[N])c;
@@ -481,7 +481,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i16(int32_t *c, const int16_t *a, const i
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M,
                                            int N, int K, int tile_size) {
     // VLA Mapping
     uint32_t (*pc)[N] = (uint32_t (*)[N])c;
@@ -520,7 +520,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u16(uint32_t *c, const uint16_t *a, const
 }
 
 /* i32/u32 */
-HAL_FALLBACK void hal_matrix_mul_tiled_i32(int64_t *c, const int32_t *a, const int32_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_i32(int64_t *c, const int32_t *a, const int32_t *b, int M,
                                            int N, int K, int tile_size) {
     // VLA Mapping
     int64_t (*pc)[N] = (int64_t (*)[N])c;
@@ -558,7 +558,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i32(int64_t *c, const int32_t *a, const i
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M,
                                            int N, int K, int tile_size) {
     // VLA Mapping
     uint64_t (*pc)[N] = (uint64_t (*)[N])c;
@@ -597,7 +597,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u32(uint64_t *c, const uint32_t *a, const
 }
 
 /* 64 */
-HAL_FALLBACK void hal_matrix_mul_tiled_i64(int128_t *c, const int64_t *a, const int64_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_tiled_i64(int128_t *c, const int64_t *a, const int64_t *b, int M,
                                            int N, int K, int tile_size) {
     int128_t(*pc)[N] = (int128_t(*)[N])c;
     const int64_t (*pa)[K] = (const int64_t (*)[K])a;
@@ -615,7 +615,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i64(int128_t *c, const int64_t *a, const 
                     for (int kk = k; kk < k_end; kk++) {
                         int64_t prod = pa[ii][kk];
                         for (int jj = j; jj < j_end; jj++) {
-                            pc[ii][jj] = _add_i128(pc[ii][jj], _mul_i64(prod, pb[kk][jj]));
+                            pc[ii][jj] = hal_add_i128(pc[ii][jj], hal_mul_i64(prod, pb[kk][jj]));
                         }
                     }
                 }
@@ -624,7 +624,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i64(int128_t *c, const int64_t *a, const 
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_u64(uint128_t *c, const uint64_t *a, const uint64_t *b,
+HAL_FALLBACK void hal_matrix_vmul_tiled_u64(uint128_t *c, const uint64_t *a, const uint64_t *b,
                                            int M, int N, int K, int tile_size) {
     uint128_t(*pc)[N] = (uint128_t(*)[N])c;
     const uint64_t (*pa)[K] = (const uint64_t (*)[K])a;
@@ -642,7 +642,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u64(uint128_t *c, const uint64_t *a, cons
                     for (int kk = k; kk < k_end; kk++) {
                         uint64_t prod = pa[ii][kk];
                         for (int jj = j; jj < j_end; jj++) {
-                            pc[ii][jj] = _add_u128(pc[ii][jj], _mul_u64(prod, pb[kk][jj]));
+                            pc[ii][jj] = hal_add_u128(pc[ii][jj], hal_mul_u64(prod, pb[kk][jj]));
                         }
                     }
                 }
@@ -651,7 +651,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u64(uint128_t *c, const uint64_t *a, cons
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_i128(int256_t *c, const int128_t *a, const int128_t *b,
+HAL_FALLBACK void hal_matrix_vmul_tiled_i128(int256_t *c, const int128_t *a, const int128_t *b,
                                             int M, int N, int K, int tile_size) {
     int256_t(*pc)[N] = (int256_t(*)[N])c;
     const int128_t(*pa)[K] = (const int128_t(*)[K])a;
@@ -669,7 +669,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i128(int256_t *c, const int128_t *a, cons
                     for (int kk = k; kk < k_end; kk++) {
                         int128_t prod = pa[ii][kk];
                         for (int jj = j; jj < j_end; jj++) {
-                            pc[ii][jj] = _add_i256(pc[ii][jj], _mul_i128(prod, pb[kk][jj]));
+                            pc[ii][jj] = hal_add_i256(pc[ii][jj], hal_mul_i128(prod, pb[kk][jj]));
                         }
                     }
                 }
@@ -678,7 +678,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_i128(int256_t *c, const int128_t *a, cons
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
+HAL_FALLBACK void hal_matrix_vmul_tiled_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
                                             int M, int N, int K, int tile_size) {
     uint256_t(*pc)[N] = (uint256_t(*)[N])c;
     const uint128_t(*pa)[K] = (const uint128_t(*)[K])a;
@@ -696,7 +696,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u128(uint256_t *c, const uint128_t *a, co
                     for (int kk = k; kk < k_end; kk++) {
                         uint128_t prod = pa[ii][kk];
                         for (int jj = j; jj < j_end; jj++) {
-                            pc[ii][jj] = _add_u256(pc[ii][jj], _mul_u128(prod, pb[kk][jj]));
+                            pc[ii][jj] = hal_add_u256(pc[ii][jj], hal_mul_u128(prod, pb[kk][jj]));
                         }
                     }
                 }
@@ -705,7 +705,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_u128(uint256_t *c, const uint128_t *a, co
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const float *b, int M, int N,
+HAL_FALLBACK void hal_matrix_vmul_tiled_f32(double *c, const float *a, const float *b, int M, int N,
                                            int K, int tile_size) {
     // VLA Mapping
     double (*pc)[N] = (double (*)[N])c;
@@ -745,7 +745,7 @@ HAL_FALLBACK void hal_matrix_mul_tiled_f32(double *c, const float *a, const floa
 }
 
 /* i64/u64 */
-HAL_FALLBACK void hal_dot_i64(int128_t *result, const int64_t *a, const int64_t *b,
+HAL_FALLBACK void hal_vdot_i64(int128_t *result, const int64_t *a, const int64_t *b,
                               const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
@@ -753,13 +753,13 @@ HAL_FALLBACK void hal_dot_i64(int128_t *result, const int64_t *a, const int64_t 
     for (size_t i = 0; i < n; i++) {
         if (a[i] == 0 || b[i] == 0)
             continue; // 0-Skip optimization
-        int128_t prod = _mul_i64(a[i], b[i]);
-        sum = _add_i128(sum, prod);
+        int128_t prod = hal_mul_i64(a[i], b[i]);
+        sum = hal_add_i128(sum, prod);
     }
     *result = sum;
 }
 
-HAL_FALLBACK void hal_dot_u64(uint128_t *result, const uint64_t *a, const uint64_t *b,
+HAL_FALLBACK void hal_vdot_u64(uint128_t *result, const uint64_t *a, const uint64_t *b,
                               const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
@@ -767,14 +767,14 @@ HAL_FALLBACK void hal_dot_u64(uint128_t *result, const uint64_t *a, const uint64
     for (size_t i = 0; i < n; i++) {
         if (a[i] == 0 || b[i] == 0)
             continue;
-        uint128_t prod = _mul_u64(a[i], b[i]);
-        sum = _add_u128(sum, prod);
+        uint128_t prod = hal_mul_u64(a[i], b[i]);
+        sum = hal_add_u128(sum, prod);
     }
     *result = sum;
 }
 
 /* i128/u128 */
-HAL_FALLBACK void hal_dot_i128(int256_t *result, const int128_t *a, const int128_t *b,
+HAL_FALLBACK void hal_vdot_i128(int256_t *result, const int128_t *a, const int128_t *b,
                                const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
@@ -785,13 +785,13 @@ HAL_FALLBACK void hal_dot_i128(int256_t *result, const int128_t *a, const int128
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0))
             continue;
 
-        int256_t prod = _mul_i128(a[i], b[i]);
-        sum = _add_i256(sum, prod);
+        int256_t prod = hal_mul_i128(a[i], b[i]);
+        sum = hal_add_i256(sum, prod);
     }
     *result = sum;
 }
 
-HAL_FALLBACK void hal_dot_u128(uint256_t *result, const uint128_t *a, const uint128_t *b,
+HAL_FALLBACK void hal_vdot_u128(uint256_t *result, const uint128_t *a, const uint128_t *b,
                                const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
@@ -802,58 +802,58 @@ HAL_FALLBACK void hal_dot_u128(uint256_t *result, const uint128_t *a, const uint
         if ((a[i].l == 0 && a[i].u == 0) || (b[i].l == 0 && b[i].u == 0))
             continue;
 
-        uint256_t prod = _mul_u128(a[i], b[i]);
-        sum = _add_u256(sum, prod);
+        uint256_t prod = hal_mul_u128(a[i], b[i]);
+        sum = hal_add_u256(sum, prod);
     }
     *result = sum;
 }
 
 /* i64/u64 */
-HAL_FALLBACK void hal_mac_i64(int128_t *c, const int64_t *a, const int64_t *b, const size_t n) {
+HAL_FALLBACK void hal_vmac_i64(int128_t *c, const int64_t *a, const int64_t *b, const size_t n) {
     if (a == NULL || b == NULL || n == 0)
         return;
     for (size_t i = 0; i < n; i++) {
-        int128_t prod = _mul_i64(a[i], b[i]);
-        c[i] = _add_i128(c[i], prod);
+        int128_t prod = hal_mul_i64(a[i], b[i]);
+        c[i] = hal_add_i128(c[i], prod);
     }
 }
 
-HAL_FALLBACK void hal_mac_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
+HAL_FALLBACK void hal_vmac_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
     if (a == NULL || b == NULL || n == 0)
         return;
     for (size_t i = 0; i < n; i++) {
-        uint128_t prod = _mul_u64(a[i], b[i]);
-        c[i] = _add_u128(c[i], prod);
+        uint128_t prod = hal_mul_u64(a[i], b[i]);
+        c[i] = hal_add_u128(c[i], prod);
     }
 }
 
 /* i128/u128 */
-HAL_FALLBACK void hal_mac_i128(int256_t *c, const int128_t *a, const int128_t *b, const size_t n) {
+HAL_FALLBACK void hal_vmac_i128(int256_t *c, const int128_t *a, const int128_t *b, const size_t n) {
     if (a == NULL || b == NULL || n == 0)
         return;
 
     for (uint32_t i = 0; i < n; i++) {
         // 1. 128bit x 128bit -> 256bit single multiplication (negative sign extension logic applied automatically)
-        int256_t prod = _mul_i128(a[i], b[i]);
+        int256_t prod = hal_mul_i128(a[i], b[i]);
 
         // 2. 256bit addition accumulation (bit-level addition is safe regardless of sign)
-        c[i] = _add_i256(c[i], prod);
+        c[i] = hal_add_i256(c[i], prod);
     }
 }
 
-HAL_FALLBACK void hal_mac_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
+HAL_FALLBACK void hal_vmac_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
                                const size_t n) {
     if (a == NULL || b == NULL || n == 0)
         return;
 
     for (uint32_t i = 0; i < n; i++) {
-        uint256_t prod = _mul_u128(a[i], b[i]);
-        c[i] = _add_u256(c[i], prod);
+        uint256_t prod = hal_mul_u128(a[i], b[i]);
+        c[i] = hal_add_u256(c[i], prod);
     }
 }
 
 /* i64/u64 */
-HAL_FALLBACK void hal_matrix_mul_i64(int128_t *c, const int64_t *a, const int64_t *b, int M, int N,
+HAL_FALLBACK void hal_matrix_vmul_i64(int128_t *c, const int64_t *a, const int64_t *b, int M, int N,
                                      int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
@@ -871,15 +871,15 @@ HAL_FALLBACK void hal_matrix_mul_i64(int128_t *c, const int64_t *a, const int64_
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
                 for (int j = 0; j < N; j++) {
-                    int128_t prod = _mul_i64(pa[i][k], pb[k][j]);
-                    pc[i][j] = _add_i128(pc[i][j], prod);
+                    int128_t prod = hal_mul_i64(pa[i][k], pb[k][j]);
+                    pc[i][j] = hal_add_i128(pc[i][j], prod);
                 }
             }
         }
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, int M,
                                      int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
@@ -897,8 +897,8 @@ HAL_FALLBACK void hal_matrix_mul_u64(uint128_t *c, const uint64_t *a, const uint
         for (int k = 0; k < K; k++) {
             if (pa[i][k] != 0) {
                 for (int j = 0; j < N; j++) {
-                    uint128_t prod = _mul_u64(pa[i][k], pb[k][j]);
-                    pc[i][j] = _add_u128(pc[i][j], prod);
+                    uint128_t prod = hal_mul_u64(pa[i][k], pb[k][j]);
+                    pc[i][j] = hal_add_u128(pc[i][j], prod);
                 }
             }
         }
@@ -906,7 +906,7 @@ HAL_FALLBACK void hal_matrix_mul_u64(uint128_t *c, const uint64_t *a, const uint
 }
 
 /* i128/u128 */
-HAL_FALLBACK void hal_matrix_mul_i128(int256_t *c, const int128_t *a, const int128_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_i128(int256_t *c, const int128_t *a, const int128_t *b, int M,
                                       int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
@@ -925,15 +925,15 @@ HAL_FALLBACK void hal_matrix_mul_i128(int256_t *c, const int128_t *a, const int1
             // if (pa[i][k] != 0) {
             if ((pa[i][k].u != 0) || (pa[i][k].l != 0)) {
                 for (int j = 0; j < N; j++) {
-                    int256_t prod = _mul_i128(pa[i][k], pb[k][j]);
-                    pc[i][j] = _add_i256(pc[i][j], prod);
+                    int256_t prod = hal_mul_i128(pa[i][k], pb[k][j]);
+                    pc[i][j] = hal_add_i256(pc[i][j], prod);
                 }
             }
         }
     }
 }
 
-HAL_FALLBACK void hal_matrix_mul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M,
+HAL_FALLBACK void hal_matrix_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M,
                                       int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
@@ -951,8 +951,8 @@ HAL_FALLBACK void hal_matrix_mul_u128(uint256_t *c, const uint128_t *a, const ui
         for (int k = 0; k < K; k++) {
             if ((pa[i][k].u != 0) || (pa[i][k].l != 0)) {
                 for (int j = 0; j < N; j++) {
-                    uint256_t prod = _mul_u128(pa[i][k], pb[k][j]);
-                    pc[i][j] = _add_u256(pc[i][j], prod);
+                    uint256_t prod = hal_mul_u128(pa[i][k], pb[k][j]);
+                    pc[i][j] = hal_add_u256(pc[i][j], prod);
                 }
             }
         }

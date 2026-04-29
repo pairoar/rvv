@@ -1,4 +1,4 @@
-#include "hal_internal_math.h"
+#include "hal_basic_math.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -6,67 +6,67 @@
     addition
 */
 /* i8/u8 */
-void hal_add_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n) {
+void hal_vadd_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
-void hal_add_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
+void hal_vadd_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
 /* i16/u16 */
-void hal_add_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n) {
+void hal_vadd_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
-void hal_add_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
+void hal_vadd_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
 /* i32/u32 */
-void hal_add_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n) {
+void hal_vadd_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
-void hal_add_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
+void hal_vadd_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
 /* i64/u64 */
-void hal_add_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n) {
+void hal_vadd_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
-void hal_add_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
+void hal_vadd_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
 }
 
 /* i128/u128 */
-void hal_add_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n) {
+void hal_vadd_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _add_i128(a[i], b[i]);
+        c[i] = hal_add_i128(a[i], b[i]);
     }
 }
 
-void hal_add_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n) {
+void hal_vadd_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _add_u128(a[i], b[i]);
+        c[i] = hal_add_u128(a[i], b[i]);
     }
 }
 
@@ -74,67 +74,67 @@ void hal_add_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const si
     subtraction
 */
 /* i8/u8 */
-void hal_sub_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n) {
+void hal_vsub_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
-void hal_sub_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
+void hal_vsub_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
 /* i16/u16 */
-void hal_sub_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n) {
+void hal_vsub_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
-void hal_sub_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
+void hal_vsub_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
 /* i32/u32 */
-void hal_sub_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n) {
+void hal_vsub_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
-void hal_sub_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
+void hal_vsub_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
 /* i64/u64 */
-void hal_sub_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n) {
+void hal_vsub_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
-void hal_sub_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
+void hal_vsub_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
 }
 
 /* i128/u128 */
-void hal_sub_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n) {
+void hal_vsub_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _sub_i128(a[i], b[i]);
+        c[i] = hal_sub_i128(a[i], b[i]);
     }
 }
 
-void hal_sub_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n) {
+void hal_vsub_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _sub_u128(a[i], b[i]);
+        c[i] = hal_sub_u128(a[i], b[i]);
     }
 }
 
@@ -142,54 +142,54 @@ void hal_sub_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const si
     multiplication
 */
 /* i8/u8 */
-void hal_mul_i8(int16_t *c, const int8_t *a, const int8_t *b, const size_t n) {
+void hal_vmul_i8(int16_t *c, const int8_t *a, const int8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (int16_t)a[i] * b[i];
     }
 }
 
-void hal_mul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
+void hal_vmul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (uint16_t)a[i] * b[i];
     }
 }
 
 /* i16/u16 */
-void hal_mul_i16(int32_t *c, const int16_t *a, const int16_t *b, const size_t n) {
+void hal_vmul_i16(int32_t *c, const int16_t *a, const int16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (int32_t)a[i] * b[i];
     }
 }
 
-void hal_mul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
+void hal_vmul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (uint32_t)a[i] * b[i];
     }
 }
 
 /* i32/u32 */
-void hal_mul_i32(int64_t *c, const int32_t *a, const int32_t *b, const size_t n) {
+void hal_vmul_i32(int64_t *c, const int32_t *a, const int32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (int64_t)a[i] * b[i];
     }
 }
 
-void hal_mul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
+void hal_vmul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (uint64_t)a[i] * b[i];
     }
 }
 
 /* i64/u64 */
-void hal_mul_i64(int128_t *c, const int64_t *a, const int64_t *b, const size_t n) {
+void hal_vmul_i64(int128_t *c, const int64_t *a, const int64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _mul_i64(a[i], b[i]);
+        c[i] = hal_mul_i64(a[i], b[i]);
     }
 }
 
-void hal_mul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
+void hal_vmul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
-        c[i] = _mul_u64(a[i], b[i]);
+        c[i] = hal_mul_u64(a[i], b[i]);
     }
 }
 
@@ -197,39 +197,39 @@ void hal_mul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, const size_
     multiplication and accumulation
 */
 /* i8/u8 */
-void hal_mac_i8(int16_t *c, const int8_t *a, const int8_t *b, const size_t n) {
+void hal_vmac_i8(int16_t *c, const int8_t *a, const int8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (int16_t)a[i] * b[i];
     }
 }
 
-void hal_mac_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
+void hal_vmac_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (uint16_t)a[i] * b[i];
     }
 }
 
 /* i16/u16 */
-void hal_mac_i16(int32_t *c, const int16_t *a, const int16_t *b, const size_t n) {
+void hal_vmac_i16(int32_t *c, const int16_t *a, const int16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (int32_t)a[i] * b[i];
     }
 }
 
-void hal_mac_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
+void hal_vmac_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (uint32_t)a[i] * b[i];
     }
 }
 
 /* i32/u32 */
-void hal_mac_i32(int64_t *c, const int32_t *a, const int32_t *b, const size_t n) {
+void hal_vmac_i32(int64_t *c, const int32_t *a, const int32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (int64_t)a[i] * b[i];
     }
 }
 
-void hal_mac_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
+void hal_vmac_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (uint64_t)a[i] * b[i];
     }
@@ -239,7 +239,7 @@ void hal_mac_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, const size_t
     division
 */
 /* i8/u8 */
-void hal_div_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n, int *ret) {
+void hal_vdiv_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -257,7 +257,7 @@ void hal_div_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n, int
     }
 }
 
-void hal_div_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n, int *ret) {
+void hal_vdiv_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -276,7 +276,7 @@ void hal_div_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n, 
 }
 
 /* i16/u16 */
-void hal_div_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n, int *ret) {
+void hal_vdiv_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -294,7 +294,7 @@ void hal_div_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n,
     }
 }
 
-void hal_div_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n, int *ret) {
+void hal_vdiv_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -313,7 +313,7 @@ void hal_div_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t
 }
 
 /* i32/u32 */
-void hal_div_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n, int *ret) {
+void hal_vdiv_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -331,7 +331,7 @@ void hal_div_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n,
     }
 }
 
-void hal_div_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n, int *ret) {
+void hal_vdiv_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -350,7 +350,7 @@ void hal_div_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t
 }
 
 /* i64/u64 */
-void hal_div_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n, int *ret) {
+void hal_vdiv_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -368,7 +368,7 @@ void hal_div_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n,
     }
 }
 
-void hal_div_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n, int *ret) {
+void hal_vdiv_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
     if (ret)
@@ -390,7 +390,7 @@ void hal_div_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t
     dot product
 */
 /* i8/u8 */
-void hal_dot_i8(int16_t *result, const int8_t *a, const int8_t *b, const size_t n) {
+void hal_vdot_i8(int16_t *result, const int8_t *a, const int8_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     int16_t sum = 0;
@@ -400,7 +400,7 @@ void hal_dot_i8(int16_t *result, const int8_t *a, const int8_t *b, const size_t 
     *result = sum;
 }
 
-void hal_dot_u8(uint16_t *result, const uint8_t *a, const uint8_t *b, const size_t n) {
+void hal_vdot_u8(uint16_t *result, const uint8_t *a, const uint8_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     uint16_t sum = 0;
@@ -411,7 +411,7 @@ void hal_dot_u8(uint16_t *result, const uint8_t *a, const uint8_t *b, const size
 }
 
 /* i16/u16 */
-void hal_dot_i16(int32_t *result, const int16_t *a, const int16_t *b, const size_t n) {
+void hal_vdot_i16(int32_t *result, const int16_t *a, const int16_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     int32_t sum = 0;
@@ -421,7 +421,7 @@ void hal_dot_i16(int32_t *result, const int16_t *a, const int16_t *b, const size
     *result = sum;
 }
 
-void hal_dot_u16(uint32_t *result, const uint16_t *a, const uint16_t *b, const size_t n) {
+void hal_vdot_u16(uint32_t *result, const uint16_t *a, const uint16_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     uint32_t sum = 0;
@@ -432,7 +432,7 @@ void hal_dot_u16(uint32_t *result, const uint16_t *a, const uint16_t *b, const s
 }
 
 /* i32/u32 */
-void hal_dot_i32(int64_t *result, const int32_t *a, const int32_t *b, const size_t n) {
+void hal_vdot_i32(int64_t *result, const int32_t *a, const int32_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     int64_t sum = 0;
@@ -442,7 +442,7 @@ void hal_dot_i32(int64_t *result, const int32_t *a, const int32_t *b, const size
     *result = sum;
 }
 
-void hal_dot_u32(uint64_t *result, const uint32_t *a, const uint32_t *b, const size_t n) {
+void hal_vdot_u32(uint64_t *result, const uint32_t *a, const uint32_t *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     uint64_t sum = 0;
@@ -456,7 +456,7 @@ void hal_dot_u32(uint64_t *result, const uint32_t *a, const uint32_t *b, const s
     matrix multiplication
 */
 /* i8/u8 */
-void hal_matrix_mul_i8(int16_t *c, const int8_t *a, const int8_t *b, int M, int N, int K) {
+void hal_matrix_vmul_i8(int16_t *c, const int8_t *a, const int8_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -480,7 +480,7 @@ void hal_matrix_mul_i8(int16_t *c, const int8_t *a, const int8_t *b, int M, int 
     }
 }
 
-void hal_matrix_mul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M, int N, int K) {
+void hal_matrix_vmul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -505,7 +505,7 @@ void hal_matrix_mul_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M, i
 }
 
 /* i16/u16 */
-void hal_matrix_mul_i16(int32_t *c, const int16_t *a, const int16_t *b, int M, int N, int K) {
+void hal_matrix_vmul_i16(int32_t *c, const int16_t *a, const int16_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -529,7 +529,7 @@ void hal_matrix_mul_i16(int32_t *c, const int16_t *a, const int16_t *b, int M, i
     }
 }
 
-void hal_matrix_mul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M, int N, int K) {
+void hal_matrix_vmul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -554,7 +554,7 @@ void hal_matrix_mul_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M
 }
 
 /* i32/u32 */
-void hal_matrix_mul_i32(int64_t *c, const int32_t *a, const int32_t *b, int M, int N, int K) {
+void hal_matrix_vmul_i32(int64_t *c, const int32_t *a, const int32_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -580,7 +580,7 @@ void hal_matrix_mul_i32(int64_t *c, const int32_t *a, const int32_t *b, int M, i
 
 // a_row : M, a_col = K
 // b_row : K , b_col = N
-void hal_matrix_mul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M, int N, int K) {
+void hal_matrix_vmul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -610,7 +610,7 @@ void hal_matrix_mul_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M
 /*
     addition
 */
-void hal_add_f32(float *c, const float *a, const float *b, const size_t n) {
+void hal_vadd_f32(float *c, const float *a, const float *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] + b[i];
     }
@@ -619,7 +619,7 @@ void hal_add_f32(float *c, const float *a, const float *b, const size_t n) {
 /*
     subtraction
 */
-void hal_sub_f32(float *c, const float *a, const float *b, const size_t n) {
+void hal_vsub_f32(float *c, const float *a, const float *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = a[i] - b[i];
     }
@@ -628,7 +628,7 @@ void hal_sub_f32(float *c, const float *a, const float *b, const size_t n) {
 /*
     multiplication
 */
-void hal_mul_f32(double *c, const float *a, const float *b, const size_t n) {
+void hal_vmul_f32(double *c, const float *a, const float *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = (double)a[i] * b[i];
     }
@@ -637,7 +637,7 @@ void hal_mul_f32(double *c, const float *a, const float *b, const size_t n) {
 /*
     multiplication and accumulation
 */
-void hal_mac_f32(double *c, const float *a, const float *b, const size_t n) {
+void hal_vmac_f32(double *c, const float *a, const float *b, const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] += (double)a[i] * b[i];
     }
@@ -646,7 +646,7 @@ void hal_mac_f32(double *c, const float *a, const float *b, const size_t n) {
 /*
     division
 */
-void hal_div_f32(float *c, const float *a, const float *b, const size_t n, int *ret) {
+void hal_vdiv_f32(float *c, const float *a, const float *b, const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
 
@@ -668,7 +668,7 @@ void hal_div_f32(float *c, const float *a, const float *b, const size_t n, int *
 /*
     dot product
 */
-void hal_dot_f32(double *result, const float *a, const float *b, const size_t n) {
+void hal_vdot_f32(double *result, const float *a, const float *b, const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     double sum = 0.0;
@@ -684,7 +684,7 @@ void hal_dot_f32(double *result, const float *a, const float *b, const size_t n)
 /*
     matrix multiplication
 */
-void hal_matrix_mul_f32(double *c, const float *a, const float *b, int M, int N, int K) {
+void hal_matrix_vmul_f32(double *c, const float *a, const float *b, int M, int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;

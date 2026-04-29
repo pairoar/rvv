@@ -1,49 +1,49 @@
 #
 # declare int32_t/uint32_t operation
 #
-.global hal_add_i32
-.global hal_add_u32
+.global hal_vadd_i32
+.global hal_vadd_u32
 
-.global hal_sub_i32
-.global hal_sub_u32
+.global hal_vsub_i32
+.global hal_vsub_u32
 
-.global hal_mul_i32
-.global hal_mul_u32
+.global hal_vmul_i32
+.global hal_vmul_u32
 
-.global hal_mac_i32
-.global hal_mac_u32
+.global hal_vmac_i32
+.global hal_vmac_u32
 
-.global hal_div_i32
-.global hal_div_u32
+.global hal_vdiv_i32
+.global hal_vdiv_u32
 
-.global hal_dot_i32
-.global hal_dot_u32
+.global hal_vdot_i32
+.global hal_vdot_u32
 
-.global hal_matrix_mul_i32
-.global hal_matrix_mul_u32
+.global hal_matrix_vmul_i32
+.global hal_matrix_vmul_u32
 
 #
 # declare float 32 operation
 #
-.global hal_add_f32
-.global hal_sub_f32
-.global hal_mul_f32
-.global hal_mac_f32
-.global hal_div_f32
-.global hal_dot_f32
-.global hal_matrix_mul_f32
+.global hal_vadd_f32
+.global hal_vsub_f32
+.global hal_vmul_f32
+.global hal_vmac_f32
+.global hal_vdiv_f32
+.global hal_vdot_f32
+.global hal_matrix_vmul_f32
 
 
 #
 # int32_t/uint32_t
 #
 
-# void hal_add_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
-# void hal_add_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
+# void hal_vadd_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
+# void hal_vadd_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
 #  Vector Add: C[i] = A[i] + B[i]
-hal_add_i32:
-hal_add_u32:
+hal_vadd_i32:
+hal_vadd_u32:
     beqz a3, end_i32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -59,12 +59,12 @@ hal_add_u32:
 end_i32:
     ret
 
-# void hal_add_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
-# void hal_add_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
+# void hal_vadd_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
+# void hal_vadd_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
 #  Vector Add: C[i] = A[i] + B[i]
-hal_sub_i32:
-hal_sub_u32:
+hal_vsub_i32:
+hal_vsub_u32:
     beqz a3, end_i32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -80,12 +80,12 @@ hal_sub_u32:
 end_sub_i32:
     ret
 
-# void hal_mul_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
-# void hal_mul_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
+# void hal_vmul_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
+# void hal_vmul_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
 # Vector Mul: C[i] = A[i] * B[i]
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_mul_i32:
-hal_mul_u32:
+hal_vmul_i32:
+hal_vmul_u32:
     beqz a3, end_mul_i32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -101,12 +101,12 @@ hal_mul_u32:
 end_mul_i32:
     ret
 
-# void hal_mac_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
-# void hal_mac_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
+# void hal_vmac_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n)
+# void hal_vmac_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n)
 # Vector MAC: C[i] = C[i] + (A[i] * B[i])
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_mac_i32:
-hal_mac_u32:
+hal_vmac_i32:
+hal_vmac_u32:
     beqz a3, end_mac_i32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)        # A 로드
@@ -123,12 +123,12 @@ hal_mac_u32:
 end_mac_i32:
     ret
 
-# void hal_div_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
-# void hal_div_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
+# void hal_vdiv_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
+# void hal_vdiv_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
 # Vector Mul: C[i] = A[i] / B[i]
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_div_i32:
-hal_div_u32:
+hal_vdiv_i32:
+hal_vdiv_u32:
     beqz a3, end_div_i32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -145,15 +145,15 @@ end_div_i32:
     ret
 
 
-# void hal_dot_i32(int32_t *result, const int32_t *a, const int32_t *b, const size_t n)
-# void hal_dot_u32(uint32_t *result, const uint32_t *a, const uint32_t *b, const size_t n)
+# void hal_vdot_i32(int32_t *result, const int32_t *a, const int32_t *b, const size_t n)
+# void hal_vdot_u32(uint32_t *result, const uint32_t *a, const uint32_t *b, const size_t n)
 # a0: 결과값을 저장할 스칼라(float) 포인터
 # a1: 배열 A 포인터
 # a2: 배열 B 포인터
 # a3: 배열 길이 (n)
 # a0 = *result, a1 = *a, a2 = *b, a3 = n
-hal_dot_i32:
-hal_dot_u32:
+hal_vdot_i32:
+hal_vdot_u32:
     # 1. 누산기로 사용할 벡터 레지스터(v8)를 0로 초기화
     vsetvli t0, zero, e32, m1, ta, ma
     vmv.v.i v8, 0
@@ -192,11 +192,11 @@ hal_dot_u32:
     ret
 
 
-# void hal_matrix_mul_i32(int32_t *C, const int32_t *A, const int32_t *B,
+# void hal_matrix_vmul_i32(int32_t *C, const int32_t *A, const int32_t *B,
 #                              int M, int N, int K)
 # a0: C, a1: A, a2: B, a3: M, a4: N, a5: K
-hal_matrix_mul_i32:
-hal_matrix_mul_u32:
+hal_matrix_vmul_i32:
+hal_matrix_vmul_u32:
     mv t0, zero              # i = 0
 
 row_loop_i32:
@@ -258,7 +258,7 @@ end_mat_mul_i32:
 #
 # float
 #
-# void hal_add_f32(float *c, const float *a, const float *b, const size_t n)
+# void hal_vadd_f32(float *c, const float *a, const float *b, const size_t n)
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
 # Vector Add: C[i] = A[i] + B[i]
 # vsetvli a4, a3, e32, m1, ta, ma
@@ -267,7 +267,7 @@ end_mat_mul_i32:
 # ta : tail agnostic
 # ma : mask agnostic
 # 
-hal_add_f32:
+hal_vadd_f32:
     beqz a3, end_add
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -284,10 +284,10 @@ end_add:
     ret
 
 
-# void hal_sub_f32(float *c, const float *a, const float *b, const size_t n)
+# void hal_vsub_f32(float *c, const float *a, const float *b, const size_t n)
 # Vector Sub: C[i] = A[i] - B[i]
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_sub_f32:
+hal_vsub_f32:
     beqz a3, end_sub
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -304,10 +304,10 @@ end_sub:
     ret
 
 
-# void hal_mul_f32(float *c, const float *a, const float *b, const size_t n);
+# void hal_vmul_f32(float *c, const float *a, const float *b, const size_t n);
 # Vector Mul: C[i] = A[i] * B[i]
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_mul_f32:
+hal_vmul_f32:
     beqz a3, end_mul
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -323,10 +323,10 @@ hal_mul_f32:
 end_mul:
     ret
 
-# void hal_mac_f32(float *c, const float *a, const float *b, const size_t n)
+# void hal_vmac_f32(float *c, const float *a, const float *b, const size_t n)
 # Vector MAC: C[i] = C[i] + (A[i] * B[i])
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_mac_f32:
+hal_vmac_f32:
     beqz a3, end_mac
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)        # A 로드
@@ -343,10 +343,10 @@ hal_mac_f32:
 end_mac:
     ret
 
-# void hal_div_f32(float *c, const float *a, const float *b, const size_t n)
+# void hal_vdiv_f32(float *c, const float *a, const float *b, const size_t n)
 # Vector DIV:  C[i] = A[i] / B[i]
 # a0 = *c, a1 = *a, a2 = *b, a3 = n
-hal_div_f32:
+hal_vdiv_f32:
     beqz a3, end_div_f32
 1:  vsetvli a4, a3, e32, m1, ta, ma
     vle32.v v0, (a1)
@@ -363,13 +363,13 @@ end_div_f32:
     ret
 
 
-# void hal_dot_f32(float *result, const float *a, const float *b, const size_t n)
+# void hal_vdot_f32(float *result, const float *a, const float *b, const size_t n)
 # a0: 결과값을 저장할 스칼라(float) 포인터
 # a1: 배열 A 포인터
 # a2: 배열 B 포인터
 # a3: 배열 길이 (n)
 # a0 = *result, a1 = *a, a2 = *b, a3 = n
-hal_dot_f32:
+hal_vdot_f32:
     # 1. 누산기로 사용할 벡터 레지스터(v8)를 0.0f로 초기화
     # float 0.0f는 정수 0과 비트 패턴이 동일하므로 vmv.v.i (정수 초기화) 사용 가능
     vsetvli t0, zero, e32, m1, ta, ma
@@ -408,14 +408,14 @@ hal_dot_f32:
     fsw fa0, 0(a0)
     ret
 
-# hal_matrix_mul_f32
+# hal_matrix_vmul_f32
 
 
-# void hal_matrix_mul_f32(float *C, const float *A, const float *B,
+# void hal_matrix_vmul_f32(float *C, const float *A, const float *B,
 #                              int M, int N, int K)
 # before - a0: A, a1: B, a2: C, a3: M, a4: N, a5: K
 # after - a0: C, a1: A, a2: B, a3: M, a4: N, a5: K
-hal_matrix_mul_f32:
+hal_matrix_vmul_f32:
     mv t0, zero              # i = 0
 
 row_loop_f32:

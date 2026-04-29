@@ -247,45 +247,45 @@
 # =============================================================================
 
 # --- 1. 일반 ADD / SUB / DIV ---
-DEF_OP_SAME hal_add_i8, hal_add_u8, vadd.vv, vadd.vv, e8, 0
-DEF_OP_SAME hal_add_i16, hal_add_u16, vadd.vv, vadd.vv, e16, 1
-DEF_OP_SAME hal_add_i32, hal_add_u32, vadd.vv, vadd.vv, e32, 2
-DEF_OP_SAME hal_add_i64, hal_add_u64, vadd.vv, vadd.vv, e64, 3
+DEF_OP_SAME hal_vadd_i8, hal_vadd_u8, vadd.vv, vadd.vv, e8, 0
+DEF_OP_SAME hal_vadd_i16, hal_vadd_u16, vadd.vv, vadd.vv, e16, 1
+DEF_OP_SAME hal_vadd_i32, hal_vadd_u32, vadd.vv, vadd.vv, e32, 2
+DEF_OP_SAME hal_vadd_i64, hal_vadd_u64, vadd.vv, vadd.vv, e64, 3
 
-DEF_OP_SAME hal_sub_i8, hal_sub_u8, vsub.vv, vsub.vv, e8, 0
-DEF_OP_SAME hal_sub_i16, hal_sub_u16, vsub.vv, vsub.vv, e16, 1
-DEF_OP_SAME hal_sub_i32, hal_sub_u32, vsub.vv, vsub.vv, e32, 2
-DEF_OP_SAME hal_sub_i64, hal_sub_u64, vsub.vv, vsub.vv, e64, 3
+DEF_OP_SAME hal_vsub_i8, hal_vsub_u8, vsub.vv, vsub.vv, e8, 0
+DEF_OP_SAME hal_vsub_i16, hal_vsub_u16, vsub.vv, vsub.vv, e16, 1
+DEF_OP_SAME hal_vsub_i32, hal_vsub_u32, vsub.vv, vsub.vv, e32, 2
+DEF_OP_SAME hal_vsub_i64, hal_vsub_u64, vsub.vv, vsub.vv, e64, 3
 
-DEF_OP_SAME hal_div_i8, hal_div_u8, vdiv.vv, vdivu.vv, e8, 0
-DEF_OP_SAME hal_div_i16, hal_div_u16, vdiv.vv, vdivu.vv, e16, 1
-DEF_OP_SAME hal_div_i32, hal_div_u32, vdiv.vv, vdivu.vv, e32, 2
-DEF_OP_SAME hal_div_i64, hal_div_u64, vdiv.vv, vdivu.vv, e64, 3
+DEF_OP_SAME hal_vdiv_i8, hal_vdiv_u8, vdiv.vv, vdivu.vv, e8, 0
+DEF_OP_SAME hal_vdiv_i16, hal_vdiv_u16, vdiv.vv, vdivu.vv, e16, 1
+DEF_OP_SAME hal_vdiv_i32, hal_vdiv_u32, vdiv.vv, vdivu.vv, e32, 2
+DEF_OP_SAME hal_vdiv_i64, hal_vdiv_u64, vdiv.vv, vdivu.vv, e64, 3
 
-DEF_OP_SAME hal_add_f32, hal_dummy_add_f32, vfadd.vv, vfadd.vv, e32, 2
-DEF_OP_SAME hal_sub_f32, hal_dummy_sub_f32, vfsub.vv, vfsub.vv, e32, 2
-DEF_OP_SAME hal_div_f32, hal_dummy_div_f32, vfdiv.vv, vfdiv.vv, e32, 2
+DEF_OP_SAME hal_vadd_f32, hal_dummy_add_f32, vfadd.vv, vfadd.vv, e32, 2
+DEF_OP_SAME hal_vsub_f32, hal_dummy_sub_f32, vfsub.vv, vfsub.vv, e32, 2
+DEF_OP_SAME hal_vdiv_f32, hal_dummy_div_f32, vfdiv.vv, vfdiv.vv, e32, 2
 
 # --- 2. Widening MUL ---
-DEF_WMUL hal_mul_i8, hal_mul_u8, vwmul.vv, vwmulu.vv, e8, e16, 0, 1
-DEF_WMUL hal_mul_i16, hal_mul_u16, vwmul.vv, vwmulu.vv, e16, e32, 1, 2
-DEF_WMUL hal_mul_i32, hal_mul_u32, vwmul.vv, vwmulu.vv, e32, e64, 2, 3
-DEF_WMUL hal_mul_f32, hal_dummy_mul_f32, vfwmul.vv, vfwmul.vv, e32, e64, 2, 3
+DEF_WMUL hal_vmul_i8, hal_vmul_u8, vwmul.vv, vwmulu.vv, e8, e16, 0, 1
+DEF_WMUL hal_vmul_i16, hal_vmul_u16, vwmul.vv, vwmulu.vv, e16, e32, 1, 2
+DEF_WMUL hal_vmul_i32, hal_vmul_u32, vwmul.vv, vwmulu.vv, e32, e64, 2, 3
+DEF_WMUL hal_vmul_f32, hal_dummy_mul_f32, vfwmul.vv, vfwmul.vv, e32, e64, 2, 3
 
 # --- 3. Widening MAC ---
-DEF_WMAC hal_mac_i8, hal_mac_u8, vwmacc.vv, vwmaccu.vv, e8, e16, 0, 1
-DEF_WMAC hal_mac_i16, hal_mac_u16, vwmacc.vv, vwmaccu.vv, e16, e32, 1, 2
-DEF_WMAC hal_mac_i32, hal_mac_u32, vwmacc.vv, vwmaccu.vv, e32, e64, 2, 3
-DEF_WMAC hal_mac_f32, hal_dummy_mac_f32, vfwmacc.vv, vfwmacc.vv, e32, e64, 2, 3
+DEF_WMAC hal_vmac_i8, hal_vmac_u8, vwmacc.vv, vwmaccu.vv, e8, e16, 0, 1
+DEF_WMAC hal_vmac_i16, hal_vmac_u16, vwmacc.vv, vwmaccu.vv, e16, e32, 1, 2
+DEF_WMAC hal_vmac_i32, hal_vmac_u32, vwmacc.vv, vwmaccu.vv, e32, e64, 2, 3
+DEF_WMAC hal_vmac_f32, hal_dummy_mac_f32, vfwmacc.vv, vfwmacc.vv, e32, e64, 2, 3
 
 # --- 4. Widening DOT ---
 # [수정] 메모리 저장 명령어 매개변수(STR_INSN) 제거
-DEF_WDOT hal_dot_i8, hal_dot_u8, vwmul.vv, vwmulu.vv, e8, e16, 0
-DEF_WDOT hal_dot_i16, hal_dot_u16, vwmul.vv, vwmulu.vv, e16, e32, 1
-DEF_WDOT hal_dot_i32, hal_dot_u32, vwmul.vv, vwmulu.vv, e32, e64, 2
+DEF_WDOT hal_vdot_i8, hal_vdot_u8, vwmul.vv, vwmulu.vv, e8, e16, 0
+DEF_WDOT hal_vdot_i16, hal_vdot_u16, vwmul.vv, vwmulu.vv, e16, e32, 1
+DEF_WDOT hal_vdot_i32, hal_vdot_u32, vwmul.vv, vwmulu.vv, e32, e64, 2
 
-.global hal_dot_f32
-hal_dot_f32:
+.global hal_vdot_f32
+hal_vdot_f32:
     vsetvli t0, zero, e64, m1, ta, ma
     vmv.v.i v8, 0
     beqz a3, 2f
@@ -307,12 +307,12 @@ hal_dot_f32:
 
 # --- 5. Widening MATRIX MUL ---
 # [수정] 32비트용이므로 lwu a7 대신 일반 lw a7 사용
-DEF_WMATRIX hal_matrix_mul_i8, hal_matrix_mul_u8, "lb a7, 0(t2)", "lbu a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e8, e16, 0, 1
-DEF_WMATRIX hal_matrix_mul_i16, hal_matrix_mul_u16, "lh a7, 0(t2)", "lhu a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e16, e32, 1, 2
-DEF_WMATRIX hal_matrix_mul_i32, hal_matrix_mul_u32, "lw a7, 0(t2)", "lw a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e32, e64, 2, 3
+DEF_WMATRIX hal_matrix_vmul_i8, hal_matrix_vmul_u8, "lb a7, 0(t2)", "lbu a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e8, e16, 0, 1
+DEF_WMATRIX hal_matrix_vmul_i16, hal_matrix_vmul_u16, "lh a7, 0(t2)", "lhu a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e16, e32, 1, 2
+DEF_WMATRIX hal_matrix_vmul_i32, hal_matrix_vmul_u32, "lw a7, 0(t2)", "lw a7, 0(t2)", "vwmacc.vx v2, a7, v0", "vwmaccu.vx v2, a7, v0", e32, e64, 2, 3
 
-.global hal_matrix_mul_f32
-hal_matrix_mul_f32:
+.global hal_matrix_vmul_f32
+hal_matrix_vmul_f32:
     mv t0, zero
 1:  bge t0, a3, 9f
     mv t1, zero
