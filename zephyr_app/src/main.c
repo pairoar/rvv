@@ -1,19 +1,32 @@
 // --- zephyr_app/src/main.c ---
+#include "dsp_fft.h"
 #include "hal_math.h"
 #include "hal_soft_math.h" // C버전 함수가 있는 헤더
 #include "image_filter.h"
 #include "mnist_data.h" // [추가] 실제 데이터 및 가중치 헤더
 #include "nn_layers.h"
 #include "vmath_driver.h"
+#include <math.h>
 #include <stdio.h>
 #include <zephyr/kernel.h>
 
 #define MATRIX_SIZE 128 // 256x256 행렬 곱셈 테스트
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 // 기존 애플리케이션 계층 함수들 선언
 extern void test_mlp_xor(void);
 extern void test_dsp_iir(void);
 extern void test_image_conv2d(void);
+
+// ========================================================
+// [신규 추가] FFT 파이프라인 버퍼 (BSS 영역)
+// ========================================================
+#define N_FFT 64
+static dsp_complex_f32_t fft_data[N_FFT];
+static dsp_complex_f32_t twiddles[N_FFT / 2];
 
 // ========================================================
 // TinyML 파이프라인 버퍼 (BSS 영역 할당 - 스택 오버플로우 방지)
@@ -81,8 +94,8 @@ void run_performance_benchmark(void) {
     // 256x256 테스트 데이터 할당
     static float A[MATRIX_SIZE * MATRIX_SIZE];
     static float B[MATRIX_SIZE * MATRIX_SIZE];
-    static float Out_C[MATRIX_SIZE * MATRIX_SIZE];
-    static float Out_RVV[MATRIX_SIZE * MATRIX_SIZE];
+    static double Out_C[MATRIX_SIZE * MATRIX_SIZE];
+    static double Out_RVV[MATRIX_SIZE * MATRIX_SIZE];
 
     // 데이터 초기화 (1.0으로 통일)
     for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++) {
@@ -95,7 +108,7 @@ void run_performance_benchmark(void) {
 
     // 1. C버전 (시간이 좀 걸릴 수 있습니다)
     start_cycles = k_cycle_get_32();
-    hal_matrix_mul_c_f32(Out_C, A, B, MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE);
+    hal_matrix_vmul_c_f32(Out_C, A, B, MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE);
     end_cycles = k_cycle_get_32();
     cycles_c = end_cycles - start_cycles;
     printf("[Scalar C] Execution Cycles: %u\n", cycles_c);
@@ -103,7 +116,7 @@ void run_performance_benchmark(void) {
     // 2. RVV버전
     vmath_drv_lock();
     start_cycles = k_cycle_get_32();
-    hal_matrix_mul_tiled_f32(Out_RVV, A, B, MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE, 16);
+    hal_matrix_vmul_tiled_f32(Out_RVV, A, B, MATRIX_SIZE, MATRIX_SIZE, MATRIX_SIZE, 16);
     end_cycles = k_cycle_get_32();
     vmath_drv_unlock();
 
@@ -113,6 +126,51 @@ void run_performance_benchmark(void) {
     double speedup = (double)cycles_c / (double)cycles_rvv;
     printf("\n🚀 Total Speedup: %.2f x Faster!\n", speedup);
     printf("-----------------------------------------------\n");
+}
+
+// ========================================================
+// [신규 추가] FFT 테스트 함수
+// ========================================================
+void run_fft_pipeline(void) {
+    printf("\n🚀 --- RVV Accelerated FFT (64-Point) Started --- 🚀\n");
+
+    // VMath 드라이버 초기화
+    vmath_drv_init();
+
+    // 1. Twiddle Factor (회전 인자) 가속 생성
+    vmath_drv_lock();
+    // hal_fft_init_twiddles_f32(twiddles, N_FFT);
+    dsp_fft_init_twiddles_c(twiddles, N_FFT);
+    vmath_drv_unlock();
+    // printf("[1/3] Twiddle Factors Generated via RVV.\n");
+    printf("[1/3] High-Precision Twiddle Factors Generated via math.h\n");
+
+    // 2. 가상 신호 생성 (4Hz와 10Hz가 섞인 복합 사인파)
+    for (int i = 0; i < N_FFT; i++) {
+        float t = (float)i / N_FFT;
+        fft_data[i].real = cosf(2.0f * M_PI * 4.0f * t) + 0.5f * cosf(2.0f * M_PI * 10.0f * t);
+        fft_data[i].imag = 0.0f;
+    }
+    printf("[2/3] Time Domain Signal Generated (4Hz + 10Hz).\n");
+
+    // 3. 대망의 RVV FFT 수행!
+    printf("[3/3] Running Radix-2 FFT via RVV Butterfly Engine...\n");
+    vmath_drv_lock();
+    dsp_fft_radix2_f32(fft_data, twiddles, N_FFT);
+    vmath_drv_unlock();
+
+    // 4. 결과 출력 (크기 계산: sqrt(re^2 + im^2))
+    printf("\n--- Frequency Domain (Magnitude) ---\n");
+    for (int k = 0; k <= N_FFT / 2; k++) { // 나이퀴스트 주파수(절반)까지만 출력
+        float magnitude =
+            sqrtf(fft_data[k].real * fft_data[k].real + fft_data[k].imag * fft_data[k].imag);
+
+        // 튀는 피크(Peak) 값만 필터링해서 출력
+        if (magnitude > 10.0f) {
+            printf("🔥 Frequency Bin [%2d] -> Magnitude: %6.2f\n", k, magnitude);
+        }
+    }
+    printf("--------------------------------------------\n");
 }
 
 void test_app(void) {
@@ -154,7 +212,8 @@ int main(void) {
 
     // test_app();
     // run_performance_benchmark();
-    run_mnist_cnn_pipeline();
+    // run_mnist_cnn_pipeline();
+    run_fft_pipeline();
 
     return 0;
 }

@@ -220,7 +220,8 @@ void hal_matrix_vmul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, int
 
 /* i128/u128 */
 void hal_matrix_vmul_i128(int256_t *c, const int128_t *a, const int128_t *b, int M, int N, int K);
-void hal_matrix_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M, int N, int K);
+void hal_matrix_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M, int N,
+                          int K);
 
 /*
     float 32
@@ -262,8 +263,8 @@ void hal_vdot_f32(double *result, const float *a, const float *b, const size_t n
 void hal_matrix_vmul_f32(double *c, const float *a, const float *b, int M, int N, int K);
 
 // pure C language Multiplication(Benchmark Control Group)
-// void hal_matrix_vmul_c_f32(double *out, const float *A, const float *B, int M, int N, int K);
-void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K);
+void hal_matrix_vmul_c_f32(double *out, const float *A, const float *B, int M, int N, int K);
+// void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K);
 /* ======================================================================== */
 /*    Close C++ Block                                                       */
 /* ======================================================================== */

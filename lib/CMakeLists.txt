@@ -1,5 +1,5 @@
 # lib/CMakeLists.txt
-add_library(vmath STATIC vmath.c nn_layers.c dsp_fir.c dsp_iir.c image_filter.c)
+add_library(vmath STATIC vmath.c nn_layers.c dsp_fir.c dsp_iir.c image_filter.c dsp_fft.c)
 
 if(TARGET_ARCH STREQUAL "host")
     target_sources(vmath PRIVATE vmath_driver_host.c)

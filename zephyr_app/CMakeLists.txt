@@ -27,15 +27,15 @@ zephyr_library_sources(
 
     # HAL 계층
     ${HAL_DIR}/riscv32/hal_riscv32_math.S
-    #${HAL_DIR}/riscv64/hal_riscv64_math.S
+    ${HAL_DIR}/riscv32/hal_riscv32_array.S
     ${HAL_DIR}/hal_soft_math.c
 
     # Middleware (lib) 계층 소스 추가 <--- [추가]
-    ${LIB_DIR}/hal_math.S
     ${LIB_DIR}/nn_layers.c
     ${LIB_DIR}/dsp_fir.c
     ${LIB_DIR}/dsp_iir.c
     ${LIB_DIR}/image_filter.c
+    ${LIB_DIR}/dsp_fft.c
 
     # Application 계층
     ${ZEPHYR_APP_DIR}/test_nn_dense.c
@@ -45,11 +45,8 @@ zephyr_library_sources(
     ${ZEPHYR_APP_DIR}/test_conv2d.c
 )
 
-# RISC-V Vector 컴파일러 플래그 강제 주입
-#zephyr_cc_option(-march=rv32gcv)
-#zephyr_cc_option(-mabi=ilp32d)
 
 # Zephyr 앱 타겟에만(PRIVATE) 벡터 컴파일 옵션을 격리해서 적용합니다.
 target_compile_options(app PRIVATE -march=rv32gcv -mabi=ilp32d)
-#target_compile_options(app PRIVATE -march=rv64gcv -mabi=lp64d)
+
 

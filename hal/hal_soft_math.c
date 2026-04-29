@@ -77,7 +77,8 @@ uint128_t hal_sub_u128(const uint128_t a, const uint128_t b) {
     res.l = a.l - b.l;
 
     // 2. check for the occurrence of a borrow
-    //  If a.l is less than b.l, the subtraction operation must borrow the value of the high bit from the higher-order operation.
+    //  If a.l is less than b.l, the subtraction operation must borrow the value of the high bit
+    //  from the higher-order operation.
     uint64_t borrow = (a.l > a.l + b.l) ? 1 : 0; // or (a.l < b.l) ? 1 : 0;
     // More Precise Borrow Determination : (a.l < b.l)
     borrow = (a.l < b.l) ? 1 : 0;
@@ -92,7 +93,8 @@ uint128_t hal_sub_u128(const uint128_t a, const uint128_t b) {
  * @brief  signed 128 bit subtraction (a - b)
  */
 int128_t hal_sub_i128(const int128_t a, const int128_t b) {
-    // In the two's complement system, the bit-level logic for subtraction is identical to that of unsigned arithmetic.
+    // In the two's complement system, the bit-level logic for subtraction is identical to that of
+    // unsigned arithmetic.
     uint128_t res = hal_sub_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
     return *(int128_t *)&res;
 }
@@ -106,7 +108,8 @@ uint256_t hal_sub_u256(const uint256_t a, const uint256_t b) {
         uint64_t sub = a.d[i] - b.d[i] - borrow;
         // Condition for Borrowing:
         // 1. a.d[i] < b.d[i]
-        // 2. A borrow operation occurred, but as a result, `a.d[i]` and `b.d[i]` became equal, necessitating a further borrow.
+        // 2. A borrow operation occurred, but as a result, `a.d[i]` and `b.d[i]` became equal,
+        // necessitating a further borrow.
         if (borrow) {
             borrow = (a.d[i] <= b.d[i]) ? 1 : 0;
         } else {
@@ -124,7 +127,8 @@ int128_t hal_mul_i64(const int64_t a, const int64_t b) {
     res.u = (int64_t)res_u.u;
     res.l = res_u.l;
 
-    // If the value is negative, correct the high-order bit (u) in accordance with the two's complement system.
+    // If the value is negative, correct the high-order bit (u) in accordance with the two's
+    // complement system.
     if (a < 0)
         res.u -= b;
     if (b < 0)
@@ -179,8 +183,8 @@ int256_t hal_mul_i128(const int128_t a, const int128_t b) {
     int256_t res = *(int256_t *)&res_u;
 
     // 2. Sign extension correction for negative inputs
-    // In 128-bit signed integer multiplication, the two's complement correction logic is similarly handled
-    // by subtracting from the upper bits.
+    // In 128-bit signed integer multiplication, the two's complement correction logic is similarly
+    // handled by subtracting from the upper bits.
     if (a.u < 0) {
         res.d[2] -= b.l;
         int64_t borrow = (res.d[2] > (uint64_t)(res.d[2] + b.l)) ? 1 : 0;
@@ -281,11 +285,12 @@ int128_t hal_div_i128(const int128_t n, const int128_t d) {
 // HAL Public C API
 // -----------------------------------------------------------------------------
 // Pure C O(N^3) matrix multiplication for benchmarking
-// void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
-void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
+void hal_matrix_vmul_c_f32(double *out, const float *A, const float *B, int M, int N, int K) {
+    // void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K) {
     for (int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
-            float sum = 0.0f;
+            double sum = 0.0; // Use double for accumulation to reduce precision loss
+            // float sum = 0.0f; --- IGNORE ---
             for (int k = 0; k < K; k++) {
                 sum += A[i * K + k] * B[k * N + j];
             }
@@ -306,7 +311,7 @@ HAL_FALLBACK void hal_vmul_i128(int256_t *c, const int128_t *a, const int128_t *
 }
 
 HAL_FALLBACK void hal_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
-                               const size_t n) {
+                                const size_t n) {
     for (size_t i = 0; i < n; i++) {
         c[i] = hal_mul_u128(a[i], b[i]);
     }
@@ -314,7 +319,7 @@ HAL_FALLBACK void hal_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_
 
 /* i128/u128 */
 HAL_FALLBACK void hal_vdiv_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n,
-                               int *ret) {
+                                int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
 
@@ -338,8 +343,8 @@ HAL_FALLBACK void hal_vdiv_i128(int128_t *c, const int128_t *a, const int128_t *
     }
 }
 
-HAL_FALLBACK void hal_vdiv_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n,
-                               int *ret) {
+HAL_FALLBACK void hal_vdiv_u128(uint128_t *c, const uint128_t *a, const uint128_t *b,
+                                const size_t n, int *ret) {
     if (a == NULL || b == NULL || c == NULL)
         return;
 
@@ -367,7 +372,7 @@ HAL_FALLBACK void hal_vdiv_u128(uint128_t *c, const uint128_t *a, const uint128_
 */
 /* i8/u8 */
 HAL_FALLBACK void hal_matrix_vmul_tiled_i8(int16_t *c, const int8_t *a, const int8_t *b, int M,
-                                          int N, int K, int tile_size) {
+                                           int N, int K, int tile_size) {
     // VLA Mapping
     int16_t (*pc)[N] = (int16_t (*)[N])c;
     const int8_t (*pa)[K] = (const int8_t (*)[K])a;
@@ -405,7 +410,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_i8(int16_t *c, const int8_t *a, const in
 }
 
 HAL_FALLBACK void hal_matrix_vmul_tiled_u8(uint16_t *c, const uint8_t *a, const uint8_t *b, int M,
-                                          int N, int K, int tile_size) {
+                                           int N, int K, int tile_size) {
     // VLA Mapping
     uint16_t (*pc)[N] = (uint16_t (*)[N])c;
     const uint8_t (*pa)[K] = (const uint8_t (*)[K])a;
@@ -444,7 +449,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_u8(uint16_t *c, const uint8_t *a, const 
 
 /* i16/u16 */
 HAL_FALLBACK void hal_matrix_vmul_tiled_i16(int32_t *c, const int16_t *a, const int16_t *b, int M,
-                                           int N, int K, int tile_size) {
+                                            int N, int K, int tile_size) {
     // VLA Mapping
     int32_t (*pc)[N] = (int32_t (*)[N])c;
     const int16_t (*pa)[K] = (const int16_t (*)[K])a;
@@ -481,8 +486,8 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_i16(int32_t *c, const int16_t *a, const 
     }
 }
 
-HAL_FALLBACK void hal_matrix_vmul_tiled_u16(uint32_t *c, const uint16_t *a, const uint16_t *b, int M,
-                                           int N, int K, int tile_size) {
+HAL_FALLBACK void hal_matrix_vmul_tiled_u16(uint32_t *c, const uint16_t *a, const uint16_t *b,
+                                            int M, int N, int K, int tile_size) {
     // VLA Mapping
     uint32_t (*pc)[N] = (uint32_t (*)[N])c;
     const uint16_t (*pa)[K] = (const uint16_t (*)[K])a;
@@ -521,7 +526,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_u16(uint32_t *c, const uint16_t *a, cons
 
 /* i32/u32 */
 HAL_FALLBACK void hal_matrix_vmul_tiled_i32(int64_t *c, const int32_t *a, const int32_t *b, int M,
-                                           int N, int K, int tile_size) {
+                                            int N, int K, int tile_size) {
     // VLA Mapping
     int64_t (*pc)[N] = (int64_t (*)[N])c;
     const int32_t (*pa)[K] = (const int32_t (*)[K])a;
@@ -558,8 +563,8 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_i32(int64_t *c, const int32_t *a, const 
     }
 }
 
-HAL_FALLBACK void hal_matrix_vmul_tiled_u32(uint64_t *c, const uint32_t *a, const uint32_t *b, int M,
-                                           int N, int K, int tile_size) {
+HAL_FALLBACK void hal_matrix_vmul_tiled_u32(uint64_t *c, const uint32_t *a, const uint32_t *b,
+                                            int M, int N, int K, int tile_size) {
     // VLA Mapping
     uint64_t (*pc)[N] = (uint64_t (*)[N])c;
     const uint32_t (*pa)[K] = (const uint32_t (*)[K])a;
@@ -598,7 +603,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_u32(uint64_t *c, const uint32_t *a, cons
 
 /* 64 */
 HAL_FALLBACK void hal_matrix_vmul_tiled_i64(int128_t *c, const int64_t *a, const int64_t *b, int M,
-                                           int N, int K, int tile_size) {
+                                            int N, int K, int tile_size) {
     int128_t(*pc)[N] = (int128_t(*)[N])c;
     const int64_t (*pa)[K] = (const int64_t (*)[K])a;
     const int64_t (*pb)[N] = (const int64_t (*)[N])b;
@@ -625,7 +630,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_i64(int128_t *c, const int64_t *a, const
 }
 
 HAL_FALLBACK void hal_matrix_vmul_tiled_u64(uint128_t *c, const uint64_t *a, const uint64_t *b,
-                                           int M, int N, int K, int tile_size) {
+                                            int M, int N, int K, int tile_size) {
     uint128_t(*pc)[N] = (uint128_t(*)[N])c;
     const uint64_t (*pa)[K] = (const uint64_t (*)[K])a;
     const uint64_t (*pb)[N] = (const uint64_t (*)[N])b;
@@ -652,7 +657,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_u64(uint128_t *c, const uint64_t *a, con
 }
 
 HAL_FALLBACK void hal_matrix_vmul_tiled_i128(int256_t *c, const int128_t *a, const int128_t *b,
-                                            int M, int N, int K, int tile_size) {
+                                             int M, int N, int K, int tile_size) {
     int256_t(*pc)[N] = (int256_t(*)[N])c;
     const int128_t(*pa)[K] = (const int128_t(*)[K])a;
     const int128_t(*pb)[N] = (const int128_t(*)[N])b;
@@ -679,7 +684,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_i128(int256_t *c, const int128_t *a, con
 }
 
 HAL_FALLBACK void hal_matrix_vmul_tiled_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
-                                            int M, int N, int K, int tile_size) {
+                                             int M, int N, int K, int tile_size) {
     uint256_t(*pc)[N] = (uint256_t(*)[N])c;
     const uint128_t(*pa)[K] = (const uint128_t(*)[K])a;
     const uint128_t(*pb)[N] = (const uint128_t(*)[N])b;
@@ -706,7 +711,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_u128(uint256_t *c, const uint128_t *a, c
 }
 
 HAL_FALLBACK void hal_matrix_vmul_tiled_f32(double *c, const float *a, const float *b, int M, int N,
-                                           int K, int tile_size) {
+                                            int K, int tile_size) {
     // VLA Mapping
     double (*pc)[N] = (double (*)[N])c;
     const float (*pa)[K] = (const float (*)[K])a;
@@ -746,7 +751,7 @@ HAL_FALLBACK void hal_matrix_vmul_tiled_f32(double *c, const float *a, const flo
 
 /* i64/u64 */
 HAL_FALLBACK void hal_vdot_i64(int128_t *result, const int64_t *a, const int64_t *b,
-                              const size_t n) {
+                               const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     int128_t sum = {0, 0};
@@ -760,7 +765,7 @@ HAL_FALLBACK void hal_vdot_i64(int128_t *result, const int64_t *a, const int64_t
 }
 
 HAL_FALLBACK void hal_vdot_u64(uint128_t *result, const uint64_t *a, const uint64_t *b,
-                              const size_t n) {
+                               const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     uint128_t sum = {0, 0};
@@ -775,7 +780,7 @@ HAL_FALLBACK void hal_vdot_u64(uint128_t *result, const uint64_t *a, const uint6
 
 /* i128/u128 */
 HAL_FALLBACK void hal_vdot_i128(int256_t *result, const int128_t *a, const int128_t *b,
-                               const size_t n) {
+                                const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     int256_t sum = {0};
@@ -792,7 +797,7 @@ HAL_FALLBACK void hal_vdot_i128(int256_t *result, const int128_t *a, const int12
 }
 
 HAL_FALLBACK void hal_vdot_u128(uint256_t *result, const uint128_t *a, const uint128_t *b,
-                               const size_t n) {
+                                const size_t n) {
     if (a == NULL || b == NULL || result == NULL)
         return;
     uint256_t sum = {{0, 0, 0, 0}};
@@ -833,7 +838,8 @@ HAL_FALLBACK void hal_vmac_i128(int256_t *c, const int128_t *a, const int128_t *
         return;
 
     for (uint32_t i = 0; i < n; i++) {
-        // 1. 128bit x 128bit -> 256bit single multiplication (negative sign extension logic applied automatically)
+        // 1. 128bit x 128bit -> 256bit single multiplication (negative sign extension logic applied
+        // automatically)
         int256_t prod = hal_mul_i128(a[i], b[i]);
 
         // 2. 256bit addition accumulation (bit-level addition is safe regardless of sign)
@@ -842,7 +848,7 @@ HAL_FALLBACK void hal_vmac_i128(int256_t *c, const int128_t *a, const int128_t *
 }
 
 HAL_FALLBACK void hal_vmac_u128(uint256_t *c, const uint128_t *a, const uint128_t *b,
-                               const size_t n) {
+                                const size_t n) {
     if (a == NULL || b == NULL || n == 0)
         return;
 
@@ -854,7 +860,7 @@ HAL_FALLBACK void hal_vmac_u128(uint256_t *c, const uint128_t *a, const uint128_
 
 /* i64/u64 */
 HAL_FALLBACK void hal_matrix_vmul_i64(int128_t *c, const int64_t *a, const int64_t *b, int M, int N,
-                                     int K) {
+                                      int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -880,7 +886,7 @@ HAL_FALLBACK void hal_matrix_vmul_i64(int128_t *c, const int64_t *a, const int64
 }
 
 HAL_FALLBACK void hal_matrix_vmul_u64(uint128_t *c, const uint64_t *a, const uint64_t *b, int M,
-                                     int N, int K) {
+                                      int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -907,7 +913,7 @@ HAL_FALLBACK void hal_matrix_vmul_u64(uint128_t *c, const uint64_t *a, const uin
 
 /* i128/u128 */
 HAL_FALLBACK void hal_matrix_vmul_i128(int256_t *c, const int128_t *a, const int128_t *b, int M,
-                                      int N, int K) {
+                                       int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -934,7 +940,7 @@ HAL_FALLBACK void hal_matrix_vmul_i128(int256_t *c, const int128_t *a, const int
 }
 
 HAL_FALLBACK void hal_matrix_vmul_u128(uint256_t *c, const uint128_t *a, const uint128_t *b, int M,
-                                      int N, int K) {
+                                       int N, int K) {
     // Exception Handling
     if (a == NULL || b == NULL) {
         return;
@@ -958,5 +964,3 @@ HAL_FALLBACK void hal_matrix_vmul_u128(uint256_t *c, const uint128_t *a, const u
         }
     }
 }
-
-

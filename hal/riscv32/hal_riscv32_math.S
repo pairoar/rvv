@@ -50,7 +50,7 @@
 .global \NAME_I
 .global \NAME_U
 \NAME_I:
-    bnez a4, 1f          # if a4(ret) is not a NULL, jump to 1f 
+    bnez a4, 1f          # if a4(ret) is not a NULL, jump to 1f
     j 2f
 1:  sw zero, 0(a4)       # *ret = 0 (initialize)
 2:  beqz a3, 9f
@@ -739,3 +739,133 @@ DEF_MUL64 hal_vmul_u64, vmulhu.vv
 DEF_WMATRIX_TILED hal_matrix_vmul_tiled_i8, hal_matrix_vmul_tiled_u8, lb, lbu, vwmacc.vx, vwmaccu.vx, e8, e16, 0, 1, 1
 DEF_WMATRIX_TILED hal_matrix_vmul_tiled_i16, hal_matrix_vmul_tiled_u16, lh, lhu, vwmacc.vx, vwmaccu.vx, e16, e32, 1, 2, 2
 DEF_WMATRIX_TILED hal_matrix_vmul_tiled_i32, hal_matrix_vmul_tiled_u32, lw, lw, vwmacc.vx, vwmaccu.vx, e32, e64, 2, 3, 4
+
+# ==============================================================================
+# 함수명: hal_fft_init_twiddles_f32
+# 설명  : FFT 회전 인자 테이블 가속 생성 (W_N^k = cos(2pi*k/N) - j*sin(2pi*k/N))
+# C 형태: void hal_fft_init_twiddles_f32(dsp_complex_f32_t *w_table, int n_fft);
+# a0 = w_table 주소, a1 = n_fft (포인트 수)
+# ==============================================================================
+.global hal_fft_init_twiddles_f32
+hal_fft_init_twiddles_f32:
+    li t0, 0                # k_start = 0
+    srli a2, a1, 1          # loop_count = n_fft / 2 (보통 N/2개 필요)
+
+    # 2*pi / N 상수 계산
+    fcvt.s.w fa0, a1        # fa0 = (float)n_fft
+    li t1, 0x40c90fdb       # t1 = 2 * pi (float bit pattern)
+    fmv.w.x fa1, t1
+    fdiv.s fa2, fa1, fa0    # fa2 = step = 2*pi / N
+
+1:
+    vsetvli t1, a2, e32, m1, ta, ma
+
+    # 1. 인덱스 벡터 k 생성: [0, 1, 2, ...]
+    vid.v v0
+    vfmv.v.f v1, fa2        # step 벡터 복사
+
+    # 현재 시작 인덱스 t0를 더해줌
+    fcvt.s.w fa3, t0
+    vfadd.vf v0, v0, fa3    # v0 = [k, k+1, ...]
+
+    # 2. 각도 theta = k * step 계산
+    vfmul.vv v1, v0, v1     # v1 = theta 벡터
+
+    # 3. cos(theta) 및 sin(theta) 계산 (단순화를 위해 Taylor 근사 3차항 사용)
+    # sin(x) ~ x - x^3/6
+    # cos(x) ~ 1 - x^2/2
+    vfmul.vv v2, v1, v1     # v2 = x^2
+
+    # =================================================================
+    # [수정된 부분] 상수를 float 레지스터(fa4, fa5)를 거쳐서 벡터로 로드
+    # =================================================================
+    # cos 계산: v3 = 1.0 - x^2 * 0.5
+    li t3, 0x3f000000       # 0.5f
+    fmv.w.x fa4, t3
+    vfmv.v.f v3, fa4        # v3 = 0.5f
+
+    li t4, 0x3f800000       # 1.0f
+    fmv.w.x fa5, t4
+    vfmv.v.f v4, fa5        # v4 = 1.0f
+
+    vfnmsac.vv v4, v2, v3   # v4 = 1.0 - (x^2 * 0.5) -> Real (cos)
+
+    # sin 계산: v5 = x - (x^2 * x * 0.1666...)
+    vfmul.vv v3, v2, v1     # v3 = x^3
+    li t2, 0x3e2aaaab       # 1/6 (0.1666...)
+    fmv.w.x fa4, t2
+
+    vmv.v.v v5, v1          # [수정] 벡터 간 복사는 vmv.v.v 사용 (v5 = x)
+    vfnmsac.vf v5, fa4, v3  # v5 = x - (x^3 * 1/6) -> Imag (sin)
+    # =================================================================
+
+    # FFT Twiddle은 exp(-j*theta) 이므로 허수부에 -1을 곱함
+    vfsgnjn.vv v5, v5, v5
+
+    # 4. 인터리브 저장 (실수, 허수 쌍으로 저장)
+    # vsseg2e32.v: v4(Real), v5(Imag)를 {Re, Im, Re, Im...} 순서로 저장
+    vsseg2e32.v v4, (a0)
+
+    # 포인터 및 인덱스 갱신
+    slli t2, t1, 3          # 처리한 개수 * 8바이트 (float 2개)
+    add a0, a0, t2
+    add t0, t0, t1
+    sub a2, a2, t1
+    bnez a2, 1b
+
+    ret
+
+
+# ==============================================================================
+# 함수명: hal_fft_butterfly_f32
+# 설명  : RVV 가속 복소수 버터플라이 연산 코어
+# C 형태: void hal_fft_butterfly_f32(float *top, float *bot, const float *w_table, int count, int w_stride_bytes);
+# a0 = top_ptr, a1 = bot_ptr, a2 = twiddle_ptr, a3 = count, a4 = w_stride_bytes
+# ==============================================================================
+.global hal_fft_butterfly_f32
+.type hal_fft_butterfly_f32, @function
+hal_fft_butterfly_f32:
+    beqz a3, 2f
+1:
+    vsetvli t0, a3, e32, m1, ta, ma
+
+    # 1. Segmented Load: [Re, Im] 교차 배열을 두 개의 독립된 벡터로 분리 로드!
+    vlseg2e32.v v0, (a0)      # v0 = A_real, v1 = A_imag
+    vlseg2e32.v v2, (a1)      # v2 = B_real, v3 = B_imag
+
+    # 2. Strided Segmented Load: Twiddle Factor를 stride만큼 건너뛰며 분리 로드!
+    vlsseg2e32.v v4, (a2), a4 # v4 = W_real, v5 = W_imag
+
+    # 3. 복소수 곱셈: Temp = W * B
+    # temp_real = W_real * B_real - W_imag * B_imag
+    vfmul.vv v6, v4, v2       # v6 = W_re * B_re
+    vfnmsac.vv v6, v5, v3     # v6 = v6 - (W_im * B_im)
+
+    # temp_imag = W_real * B_imag + W_imag * B_real
+    vfmul.vv v7, v4, v3       # v7 = W_re * B_im
+    vfmacc.vv v7, v5, v2      # v7 = v7 + (W_im * B_re)
+
+    # 4. 버터플라이 덧셈/뺄셈 (X 교차 연산)
+    # X_bot = A - Temp
+    vfsub.vv v8, v0, v6       # bot_real = A_re - temp_re
+    vfsub.vv v9, v1, v7       # bot_imag = A_im - temp_im
+
+    # X_top = A + Temp
+    vfadd.vv v0, v0, v6       # top_real = A_re + temp_re
+    vfadd.vv v1, v1, v7       # top_imag = A_im + temp_im
+
+    # 5. Segmented Store: 다시 [Re, Im] 교차 배열로 묶어서 메모리에 저장!
+    vsseg2e32.v v0, (a0)
+    vsseg2e32.v v8, (a1)
+
+    # 6. 포인터 전진
+    slli t1, t0, 3            # 처리 개수 * 8 바이트 (float 2개)
+    add a0, a0, t1            # top_ptr 이동
+    add a1, a1, t1            # bot_ptr 이동
+
+    mul t2, t0, a4            # Twiddle은 stride 크기만큼 이동
+    add a2, a2, t2
+
+    sub a3, a3, t0            # 남은 개수 감소
+    bnez a3, 1b
+2:  ret
