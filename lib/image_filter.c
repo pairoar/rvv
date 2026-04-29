@@ -43,7 +43,7 @@ void image_conv2d_f32(float *output, const float *input, int width, int height, 
             // 3x3 커널이면 길이 9짜리 벡터 내적이 한 방에 수행됩니다.
             double dot_result = 0.0;
 
-            hal_dot_f32(&dot_result, window, kernel, k_len);
+            hal_vdot_f32(&dot_result, window, kernel, k_len);
 
             // 결과 저장 (중앙 픽셀 위치에 덮어쓰기)
             output[y * width + x] = (float)dot_result;

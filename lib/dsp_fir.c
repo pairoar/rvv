@@ -35,7 +35,7 @@ void dsp_fir_f32(float *output, const float *input, const float *coeffs, int num
         // 그리고 num_taps 길이만큼 RVV 가속기가 한 방에 내적(Dot Product)을 수행합니다!
         const float *current_window = &input[i - num_taps + 1];
 
-        hal_dot_f32(&dot_result, current_window, coeffs, num_taps);
+        hal_vdot_f32(&dot_result, current_window, coeffs, num_taps);
 
         // double로 정밀하게 계산된 결과를 float로 다운캐스팅하여 저장
         output[i] = (float)dot_result;

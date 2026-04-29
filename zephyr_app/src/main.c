@@ -110,7 +110,7 @@ void run_performance_benchmark(void) {
     cycles_rvv = end_cycles - start_cycles;
     printf("[RVV 128b] Execution Cycles: %u\n", cycles_rvv);
 
-    float speedup = (float)cycles_c / (float)cycles_rvv;
+    double speedup = (double)cycles_c / (double)cycles_rvv;
     printf("\n🚀 Total Speedup: %.2f x Faster!\n", speedup);
     printf("-----------------------------------------------\n");
 }

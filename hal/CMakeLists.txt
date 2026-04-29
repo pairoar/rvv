@@ -46,7 +46,9 @@ if(TARGET_ARCH STREQUAL "host")
 elseif(TARGET_ARCH STREQUAL "riscv32")
     target_sources(hal PRIVATE
         riscv32/hal_riscv32_math.S
+        riscv32/hal_riscv32_array.S
     )
+
     target_include_directories(hal PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/riscv32>
     )
@@ -54,7 +56,9 @@ elseif(TARGET_ARCH STREQUAL "riscv32")
 elseif(TARGET_ARCH STREQUAL "riscv64")
     target_sources(hal PRIVATE
         riscv64/hal_riscv64_math.S
+        riscv64/hal_riscv64_array.S
     )
+
     target_include_directories(hal PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/riscv64>
     )

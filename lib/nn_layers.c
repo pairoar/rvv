@@ -1,4 +1,4 @@
-#include "hal_math.h"
+#include "hal_math_array.h"
 #include "hal_soft_math.h"
 #include "vmath_driver.h"
 #include <float.h>
@@ -20,23 +20,20 @@ void nn_dense_layer_f32(float *output, const float *input, const float *weight, 
     // 하드웨어 가속기 점유 (멀티스레드 충돌 방지!)
     vmath_drv_lock();
 
-    // [수정된 부분] RVV MAC 연산을 위해 메모리를 명시적으로 0.0으로 초기화!
-    // double temp_mac[out_features];
-    // for (int i = 0; i < out_features; i++) {
-    //     temp_mac[i] = 0.0;
-    // }
-    float temp_mac[out_features];
+    // [해결 방안] temp_mac을 double 타입으로 선언 (HAL API 시그니처와 일치)
+    // Zephyr 스택 크기에 여유가 있는지 확인이 필요할 수 있습니다.
+    double temp_mac[out_features];
     for (int i = 0; i < out_features; i++) {
-        temp_mac[i] = 0.0f;
+        temp_mac[i] = 0.0;
     }
 
     // M=1, N=out_features, K=in_features
-    // hal_matrix_mul_f32(temp_mac, input, weight, 1, out_features, in_features);
-    hal_matrix_mul_tiled_f32(temp_mac, input, weight, 1, out_features, in_features,
-                             VMATH_TILE_SIZE);
+    hal_matrix_vmul_tiled_f32(temp_mac, input, weight, 1, out_features, in_features,
+                              VMATH_TILE_SIZE);
 
     // Bias 덧셈 (B) 및 ReLU 활성화 함수 적용
     for (int i = 0; i < out_features; i++) {
+        // 여기서 다시 float으로 안전하게 캐스팅하여 연산
         float val = (float)temp_mac[i] + bias[i];
         output[i] = (val > 0.0f) ? val : 0.0f;
     }

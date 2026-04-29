@@ -14,8 +14,7 @@ extern void test_mlp_xor(void);
 extern void test_cpp_wrapper(void);
 extern int test_do_all_test(void);
 
-int main(void)
-{
+int main(void) {
     printf("\n==================================\n");
     printf("VMath Simulator Version: %s\n", PROJECT_VERSION_STRING);
     printf("==================================\n");

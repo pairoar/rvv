@@ -10,7 +10,7 @@
     - num_samples는 전체 샘플의 개수, num_taps는 필터의 길이(계수의 개수)를 나타냅니다.
     - FIR 필터의 경우, 각 출력 샘플은 현재 입력 샘플과 과거 num_taps-1개의 입력 샘플에 대한 가중
    합으로 계산됩니다.
-    - 이때, hal_dot_f32 함수를 활용하여 RVV 가속기로 내적 연산을 수행하면, 매우 효율적으로 FIR
+    - 이때, hal_vdot_f32 함수를 활용하여 RVV 가속기로 내적 연산을 수행하면, 매우 효율적으로 FIR
    필터링을 구현할 수 있습니다.
 */
 /**
@@ -50,13 +50,13 @@ void dsp_iir_f32(float *output, const float *input, const float *a_coeffs, const
         // [피드포워드 계산] b_coeffs 내적 (x[n - num_b + 1] ~ x[n])
         if (num_b > 0) {
             const float *current_input_window = &input[i - num_b + 1];
-            hal_dot_f32(&feedforward_sum, current_input_window, b_coeffs, num_b);
+            hal_vdot_f32(&feedforward_sum, current_input_window, b_coeffs, num_b);
         }
 
         // [피드백 계산] a_coeffs 내적 (y[n - num_a] ~ y[n - 1])
         if (num_a > 0) {
             const float *current_output_window = &output[i - num_a];
-            hal_dot_f32(&feedback_sum, current_output_window, a_coeffs, num_a);
+            hal_vdot_f32(&feedback_sum, current_output_window, a_coeffs, num_a);
         }
 
         // 최종 출력 계산 (피드포워드 - 피드백)
