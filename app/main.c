@@ -11,9 +11,11 @@ extern void test_dsp_fir(void);
 extern void test_dsp_iir(void);
 extern void test_image_conv2d(void);
 extern void test_mlp_xor(void);
+extern void test_cpp_wrapper(void);
 extern int test_do_all_test(void);
 
-int main(void) {
+int main(void)
+{
     printf("\n==================================\n");
     printf("VMath Simulator Version: %s\n", PROJECT_VERSION_STRING);
     printf("==================================\n");
@@ -22,8 +24,9 @@ int main(void) {
     // test_dsp_fir();
     // test_dsp_iir();
     // test_image_conv2d();
-    test_mlp_xor();
-    //test_do_all_test();
+    // test_mlp_xor();
+    // test_cpp_wrapper();
+    test_do_all_test();
 
     return 0;
 }

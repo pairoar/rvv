@@ -7,8 +7,8 @@ add_executable(vmath_app
     #test_iir.c
     #test_conv2d.c
     #test_mlp_xor.c
-    test_cpp_wrapper.cpp
-    #test.c
+    #test_cpp_wrapper.cpp
+    test.c
 )
 
 # set to use the C++ linker for the final linking stage

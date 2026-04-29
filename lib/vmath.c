@@ -13,9 +13,9 @@
 /* ======================================================================== */
 /* User-Defined Headers                                                     */
 /* ======================================================================== */
-#include "hal_math.h"
-#include "hal_soft_math.h"
 #include "vmath_types.h"
+#include "hal_soft_math.h"
+#include "hal_math.h"
 
 /* ======================================================================== */
 /*  Macros (#define)                                                        */
@@ -44,7 +44,9 @@
 // --> new start
 
 /* addition */
-vmath_status_t vmath_add_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b, const size_t len) {
+vmath_status_t vmath_add_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -54,7 +56,9 @@ vmath_status_t vmath_add_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_add_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b, const size_t len) {
+vmath_status_t vmath_add_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -64,7 +68,9 @@ vmath_status_t vmath_add_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *s
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_add_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b, const size_t len) {
+vmath_status_t vmath_add_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b,
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -74,7 +80,9 @@ vmath_status_t vmath_add_i16(int16_t *dst, const int16_t *src_a, const int16_t *
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_add_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b, const size_t len) {
+vmath_status_t vmath_add_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b,
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -85,7 +93,8 @@ vmath_status_t vmath_add_u16(uint16_t *dst, const uint16_t *src_a, const uint16_
 }
 
 vmath_status_t vmath_add_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -96,7 +105,8 @@ vmath_status_t vmath_add_i32(int32_t *dst, const int32_t *src_a, const int32_t *
 }
 
 vmath_status_t vmath_add_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -107,7 +117,8 @@ vmath_status_t vmath_add_u32(uint32_t *dst, const uint32_t *src_a, const uint32_
 }
 
 vmath_status_t vmath_add_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -118,7 +129,8 @@ vmath_status_t vmath_add_i64(int64_t *dst, const int64_t *src_a, const int64_t *
 }
 
 vmath_status_t vmath_add_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -129,7 +141,8 @@ vmath_status_t vmath_add_u64(uint64_t *dst, const uint64_t *src_a, const uint64_
 }
 
 vmath_status_t vmath_add_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -140,7 +153,8 @@ vmath_status_t vmath_add_i128(int128_t *dst, const int128_t *src_a, const int128
 }
 
 vmath_status_t vmath_add_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -152,7 +166,8 @@ vmath_status_t vmath_add_u128(uint128_t *dst, const uint128_t *src_a, const uint
 
 /* subtraction */
 vmath_status_t vmath_sub_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -162,9 +177,9 @@ vmath_status_t vmath_sub_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -175,7 +190,8 @@ vmath_status_t vmath_sub_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *s
 }
 
 vmath_status_t vmath_sub_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -185,9 +201,9 @@ vmath_status_t vmath_sub_i16(int16_t *dst, const int16_t *src_a, const int16_t *
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -197,9 +213,9 @@ vmath_status_t vmath_sub_u16(uint16_t *dst, const uint16_t *src_a, const uint16_
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -209,9 +225,9 @@ vmath_status_t vmath_sub_i32(int32_t *dst, const int32_t *src_a, const int32_t *
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -222,7 +238,8 @@ vmath_status_t vmath_sub_u32(uint32_t *dst, const uint32_t *src_a, const uint32_
 }
 
 vmath_status_t vmath_sub_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -232,9 +249,9 @@ vmath_status_t vmath_sub_i64(int64_t *dst, const int64_t *src_a, const int64_t *
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -244,9 +261,9 @@ vmath_status_t vmath_sub_u64(uint64_t *dst, const uint64_t *src_a, const uint64_
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -256,9 +273,9 @@ vmath_status_t vmath_sub_i128(int128_t *dst, const int128_t *src_a, const int128
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_sub_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -268,10 +285,10 @@ vmath_status_t vmath_sub_u128(uint128_t *dst, const uint128_t *src_a, const uint
     return VMATH_SUCCESS;
 }
 
-
 /* multiplication */
 vmath_status_t vmath_mul_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -282,7 +299,8 @@ vmath_status_t vmath_mul_i8(int16_t *dst, const int8_t *src_a, const int8_t *src
 }
 
 vmath_status_t vmath_mul_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -293,7 +311,8 @@ vmath_status_t vmath_mul_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *
 }
 
 vmath_status_t vmath_mul_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -304,7 +323,8 @@ vmath_status_t vmath_mul_i16(int32_t *dst, const int16_t *src_a, const int16_t *
 }
 
 vmath_status_t vmath_mul_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -314,9 +334,9 @@ vmath_status_t vmath_mul_u16(uint32_t *dst, const uint16_t *src_a, const uint16_
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_mul_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -327,7 +347,8 @@ vmath_status_t vmath_mul_i32(int64_t *dst, const int32_t *src_a, const int32_t *
 }
 
 vmath_status_t vmath_mul_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -338,7 +359,8 @@ vmath_status_t vmath_mul_u32(uint64_t *dst, const uint32_t *src_a, const uint32_
 }
 
 vmath_status_t vmath_mul_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -349,7 +371,8 @@ vmath_status_t vmath_mul_i64(int128_t *dst, const int64_t *src_a, const int64_t 
 }
 
 vmath_status_t vmath_mul_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -360,7 +383,8 @@ vmath_status_t vmath_mul_u64(uint128_t *dst, const uint64_t *src_a, const uint64
 }
 
 vmath_status_t vmath_mul_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -371,7 +395,8 @@ vmath_status_t vmath_mul_i128(int256_t *dst, const int128_t *src_a, const int128
 }
 
 vmath_status_t vmath_mul_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -383,12 +408,15 @@ vmath_status_t vmath_mul_u128(uint256_t *dst, const uint128_t *src_a, const uint
 
 /* mac */
 vmath_status_t vmath_mac_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -399,12 +427,15 @@ vmath_status_t vmath_mac_i8(int16_t *dst, const int8_t *src_a, const int8_t *src
 }
 
 vmath_status_t vmath_mac_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -415,12 +446,15 @@ vmath_status_t vmath_mac_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *
 }
 
 vmath_status_t vmath_mac_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -431,12 +465,15 @@ vmath_status_t vmath_mac_i16(int32_t *dst, const int16_t *src_a, const int16_t *
 }
 
 vmath_status_t vmath_mac_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -446,14 +483,16 @@ vmath_status_t vmath_mac_u16(uint32_t *dst, const uint16_t *src_a, const uint16_
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_mac_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -464,12 +503,15 @@ vmath_status_t vmath_mac_i32(int64_t *dst, const int32_t *src_a, const int32_t *
 }
 
 vmath_status_t vmath_mac_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -480,12 +522,15 @@ vmath_status_t vmath_mac_u32(uint64_t *dst, const uint32_t *src_a, const uint32_
 }
 
 vmath_status_t vmath_mac_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -496,12 +541,15 @@ vmath_status_t vmath_mac_i64(int128_t *dst, const int64_t *src_a, const int64_t 
 }
 
 vmath_status_t vmath_mac_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -512,12 +560,15 @@ vmath_status_t vmath_mac_u64(uint128_t *dst, const uint64_t *src_a, const uint64
 }
 
 vmath_status_t vmath_mac_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -528,12 +579,15 @@ vmath_status_t vmath_mac_i128(int256_t *dst, const int128_t *src_a, const int128
 }
 
 vmath_status_t vmath_mac_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -545,14 +599,16 @@ vmath_status_t vmath_mac_u128(uint256_t *dst, const uint128_t *src_a, const uint
 
 /* division */
 vmath_status_t vmath_div_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_i8(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -560,14 +616,16 @@ vmath_status_t vmath_div_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_
 }
 
 vmath_status_t vmath_div_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                             const size_t len) {
+                            const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_u8(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -575,14 +633,16 @@ vmath_status_t vmath_div_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *s
 }
 
 vmath_status_t vmath_div_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_i16(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -590,30 +650,33 @@ vmath_status_t vmath_div_i16(int16_t *dst, const int16_t *src_a, const int16_t *
 }
 
 vmath_status_t vmath_div_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_u16(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_div_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_i32(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -621,14 +684,16 @@ vmath_status_t vmath_div_i32(int32_t *dst, const int32_t *src_a, const int32_t *
 }
 
 vmath_status_t vmath_div_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_u32(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -636,14 +701,16 @@ vmath_status_t vmath_div_u32(uint32_t *dst, const uint32_t *src_a, const uint32_
 }
 
 vmath_status_t vmath_div_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_i64(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -651,30 +718,33 @@ vmath_status_t vmath_div_i64(int64_t *dst, const int64_t *src_a, const int64_t *
 }
 
 vmath_status_t vmath_div_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_u64(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_div_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_i128(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -682,14 +752,16 @@ vmath_status_t vmath_div_i128(int128_t *dst, const int128_t *src_a, const int128
 }
 
 vmath_status_t vmath_div_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                             const size_t len) {
+                              const size_t len)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
         return VMATH_ERR_INVALID_SIZE;
     int ret_code = 0;
     hal_vdiv_u128(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -698,7 +770,8 @@ vmath_status_t vmath_div_u128(uint128_t *dst, const uint128_t *src_a, const uint
 
 /* dot prodcut */
 vmath_status_t vmath_matrix_dot_i8(int16_t *result, const int8_t *src_a, const int8_t *src_b,
-                                    size_t len) {
+                                   size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -713,7 +786,8 @@ vmath_status_t vmath_matrix_dot_i8(int16_t *result, const int8_t *src_a, const i
 }
 
 vmath_status_t vmath_matrix_dot_u8(uint16_t *result, const uint8_t *src_a, const uint8_t *src_b,
-                                    size_t len) {
+                                   size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -728,7 +802,8 @@ vmath_status_t vmath_matrix_dot_u8(uint16_t *result, const uint8_t *src_a, const
 }
 
 vmath_status_t vmath_matrix_dot_i16(int32_t *result, const int16_t *src_a, const int16_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -743,7 +818,8 @@ vmath_status_t vmath_matrix_dot_i16(int32_t *result, const int16_t *src_a, const
 }
 
 vmath_status_t vmath_matrix_dot_u16(uint32_t *result, const uint16_t *src_a, const uint16_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -758,7 +834,8 @@ vmath_status_t vmath_matrix_dot_u16(uint32_t *result, const uint16_t *src_a, con
 }
 
 vmath_status_t vmath_matrix_dot_i32(int64_t *result, const int32_t *src_a, const int32_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -773,7 +850,8 @@ vmath_status_t vmath_matrix_dot_i32(int64_t *result, const int32_t *src_a, const
 }
 
 vmath_status_t vmath_matrix_dot_u32(uint64_t *result, const uint32_t *src_a, const uint32_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -788,7 +866,8 @@ vmath_status_t vmath_matrix_dot_u32(uint64_t *result, const uint32_t *src_a, con
 }
 
 vmath_status_t vmath_matrix_dot_i64(int128_t *result, const int64_t *src_a, const int64_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -803,7 +882,8 @@ vmath_status_t vmath_matrix_dot_i64(int128_t *result, const int64_t *src_a, cons
 }
 
 vmath_status_t vmath_matrix_dot_u64(uint128_t *result, const uint64_t *src_a, const uint64_t *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -817,9 +897,9 @@ vmath_status_t vmath_matrix_dot_u64(uint128_t *result, const uint64_t *src_a, co
     return VMATH_SUCCESS;
 }
 
-
 vmath_status_t vmath_matrix_dot_i128(int256_t *result, const int128_t *src_a, const int128_t *src_b,
-                                    size_t len) {
+                                     size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -833,8 +913,9 @@ vmath_status_t vmath_matrix_dot_i128(int256_t *result, const int128_t *src_a, co
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_dot_u128(uint256_t *result, const uint128_t *src_a, const uint128_t *src_b,
-                                    size_t len) {
+vmath_status_t vmath_matrix_dot_u128(uint256_t *result, const uint128_t *src_a,
+                                     const uint128_t *src_b, size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -848,17 +929,18 @@ vmath_status_t vmath_matrix_dot_u128(uint256_t *result, const uint128_t *src_a, 
     return VMATH_SUCCESS;
 }
 
-
 /* matrix multiplication */
 vmath_status_t vmath_matrix_mul_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+                                   size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -867,15 +949,17 @@ vmath_status_t vmath_matrix_mul_i8(int16_t *dst, const int8_t *src_a, const int8
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
+                                   size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -884,15 +968,17 @@ vmath_status_t vmath_matrix_mul_u8(uint16_t *dst, const uint8_t *src_a, const ui
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -901,15 +987,17 @@ vmath_status_t vmath_matrix_mul_i16(int32_t *dst, const int16_t *src_a, const in
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -918,15 +1006,17 @@ vmath_status_t vmath_matrix_mul_u16(uint32_t *dst, const uint16_t *src_a, const 
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -935,15 +1025,17 @@ vmath_status_t vmath_matrix_mul_i32(int64_t *dst, const int32_t *src_a, const in
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -952,15 +1044,17 @@ vmath_status_t vmath_matrix_mul_u32(uint64_t *dst, const uint32_t *src_a, const 
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = (int128_t){0};
     }
 
@@ -969,15 +1063,17 @@ vmath_status_t vmath_matrix_mul_i64(int128_t *dst, const int64_t *src_a, const i
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b,
+                                    size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = (uint128_t){0};
     }
 
@@ -986,15 +1082,17 @@ vmath_status_t vmath_matrix_mul_u64(uint128_t *dst, const uint64_t *src_a, const
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b,
+                                     size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = (int256_t){0};
     }
 
@@ -1003,15 +1101,17 @@ vmath_status_t vmath_matrix_mul_i128(int256_t *dst, const int128_t *src_a, const
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b,
+                                     size_t M, size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = (uint256_t){0};
     }
 
@@ -1023,12 +1123,15 @@ vmath_status_t vmath_matrix_mul_u128(uint256_t *dst, const uint128_t *src_a, con
 /*
     float addtion
 */
-vmath_status_t vmath_add_f32(float *dst, const float *src_a, const float *src_b, const size_t len) {
+vmath_status_t vmath_add_f32(float *dst, const float *src_a, const float *src_b, const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -1039,12 +1142,15 @@ vmath_status_t vmath_add_f32(float *dst, const float *src_a, const float *src_b,
 }
 
 /* float subtraction */
-vmath_status_t vmath_sub_f32(float *dst, const float *src_a, const float *src_b, const size_t len) {
+vmath_status_t vmath_sub_f32(float *dst, const float *src_a, const float *src_b, const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -1056,12 +1162,15 @@ vmath_status_t vmath_sub_f32(float *dst, const float *src_a, const float *src_b,
 
 /* float multiplicaton */
 vmath_status_t vmath_mul_f32(double *dst, const float *src_a, const float *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -1073,12 +1182,15 @@ vmath_status_t vmath_mul_f32(double *dst, const float *src_a, const float *src_b
 
 /* float mac */
 vmath_status_t vmath_mac_f32(double *dst, const float *src_a, const float *src_b,
-                             const size_t len) {
+                             const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
 
@@ -1089,17 +1201,21 @@ vmath_status_t vmath_mac_f32(double *dst, const float *src_a, const float *src_b
 }
 
 /* float division */
-vmath_status_t vmath_div_f32(float *dst, const float *src_a, const float *src_b, const size_t len) {
+vmath_status_t vmath_div_f32(float *dst, const float *src_a, const float *src_b, const size_t len)
+{
     // 1. 파라미터 유효성 검사 (안전성 확보)
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
+    if (src_a == NULL || src_b == NULL || dst == NULL)
+    {
         return VMATH_ERR_NULL_PTR;
     }
-    if (len == 0) {
+    if (len == 0)
+    {
         return VMATH_ERR_INVALID_SIZE;
     }
     int ret_code = 0;
     hal_vdiv_f32(dst, src_a, src_b, len, &ret_code);
-    if (ret_code != 0) {
+    if (ret_code != 0)
+    {
         // 하드웨어에서 나누기 연산 중 오류 발생 (예: 0으로 나누기)
         return VMATH_ERR_HW_FAULT;
     }
@@ -1109,7 +1225,8 @@ vmath_status_t vmath_div_f32(float *dst, const float *src_a, const float *src_b,
 
 /* float dot product */
 vmath_status_t vmath_matrix_dot_f32(double *result, const float *src_a, const float *src_b,
-                                    size_t len) {
+                                    size_t len)
+{
     if (src_a == NULL || src_b == NULL || result == NULL)
         return VMATH_ERR_NULL_PTR;
     if (len == 0)
@@ -1124,15 +1241,17 @@ vmath_status_t vmath_matrix_dot_f32(double *result, const float *src_a, const fl
 }
 
 /* float matrix multilication */
-vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float *src_b, size_t M, size_t N,
-                                    size_t K) {
+vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float *src_b, size_t M,
+                                    size_t N, size_t K)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (size_t i = 0; i < M * N; i++) {
+    for (size_t i = 0; i < M * N; i++)
+    {
         dst[i] = 0.0f;
     }
 
@@ -1145,14 +1264,17 @@ vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float
 
 // --> tiled start
 /* Tiled Matrix Multiplication (Signed) */
-vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b,
+                                         int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1161,14 +1283,17 @@ vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, cons
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
+                                          int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1177,14 +1302,17 @@ vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, co
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
+                                          int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1193,14 +1321,17 @@ vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, co
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
+                                          int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = (int128_t){0};
     }
 
@@ -1209,14 +1340,18 @@ vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, c
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a,
+                                           const int128_t *src_b, int M, int N, int K,
+                                           int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = (int256_t){0};
     }
 
@@ -1225,16 +1360,18 @@ vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a,
     return VMATH_SUCCESS;
 }
 
-
 /* Tiled Matrix Multiplication (Unsigned) */
-vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
+                                         int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1243,14 +1380,18 @@ vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, co
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a,
+                                          const uint16_t *src_b, int M, int N, int K,
+                                          int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1259,14 +1400,18 @@ vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a, 
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a,
+                                          const uint32_t *src_b, int M, int N, int K,
+                                          int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0;
     }
 
@@ -1275,14 +1420,18 @@ vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a, 
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a,
+                                          const uint64_t *src_b, int M, int N, int K,
+                                          int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = (uint128_t){0};
     }
 
@@ -1291,14 +1440,18 @@ vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a,
     return VMATH_SUCCESS;
 }
 
-vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_a,
+                                           const uint128_t *src_b, int M, int N, int K,
+                                           int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = (uint256_t){0};
     }
 
@@ -1308,14 +1461,17 @@ vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_
 }
 
 /* Tiled Matrix Multiplication (Float) */
-vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const float *src_b, int M, int N, int K, int tile_size) {
+vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const float *src_b,
+                                          int M, int N, int K, int tile_size)
+{
     if (src_a == NULL || src_b == NULL || dst == NULL)
         return VMATH_ERR_NULL_PTR;
     if (M == 0 || N == 0 || K == 0)
         return VMATH_ERR_INVALID_SIZE;
 
     // 결과 행렬 dst 초기화 (누산을 위해 필요)
-    for (int i = 0; i < M * N; i++) {
+    for (int i = 0; i < M * N; i++)
+    {
         dst[i] = 0.0;
     }
 
@@ -1324,7 +1480,6 @@ vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const
     return VMATH_SUCCESS;
 }
 // --> tile end
-
 
 /* ======================================================================== */
 /* Static Functions (Internal implementations)                              */
