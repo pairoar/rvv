@@ -7,6 +7,7 @@
 // -----------------------------------------------------------------------------
 // HAL Internal Math: 128/256-bit Software Emulation
 // -----------------------------------------------------------------------------
+int hal_is_zero_u128(const uint128_t a) { return (a.l == 0) && (a.u == 0); }
 
 /* --- 128-bit Addition --- */
 uint128_t hal_add_u128_u64(const uint128_t a, const uint64_t b) {
@@ -47,19 +48,48 @@ int256_t hal_add_i256(const int256_t a, const int256_t b) {
     return *(int256_t *)&c;
 }
 
+uint256_t hal_add_u256_u128(const uint256_t a, const uint128_t b) {
+    uint256_t res = {0};
+    uint64_t carry = 0;
+
+    // 1. add lower 64 bits (d[0])
+    res.d[0] = a.d[0] + b.l;
+    carry = (res.d[0] < a.d[0]) ? 1 : 0;
+
+    // 2. add the second 64 bit (d[1]) (b's top 64 bit + previous carry)
+    res.d[1] = a.d[1] + b.u + carry;
+    // calculate new caries with and without caries
+    if (carry) {
+        carry = (res.d[1] <= a.d[1]) ? 1 : 0;
+    } else {
+        carry = (res.d[1] < a.d[1]) ? 1 : 0;
+    }
+
+    // 3. 3rd 64bit (d[2]) - b is 0 so only carry propagates
+    res.d[2] = a.d[2] + carry;
+    carry = (res.d[2] < a.d[2]) ? 1 : 0;
+
+    // 4. 네 번째 64비트 (d[3]) - 최종 carry 전파
+    res.d[3] = a.d[3] + carry;
+
+    return res;
+}
+
 uint128_t hal_mul_u64(const uint64_t a, const uint64_t b) {
     uint128_t res;
-    uint64_t a_lo = (uint32_t)a, a_hi = a >> 32;
-    uint64_t b_lo = (uint32_t)b, b_hi = b >> 32;
+    uint64_t a_lo = a & 0xFFFFFFFF;
+    uint64_t a_hi = a >> 32;
+    uint64_t b_lo = b & 0xFFFFFFFF;
+    uint64_t b_hi = b >> 32;
 
     uint64_t p0 = a_lo * b_lo;
     uint64_t p1 = a_lo * b_hi;
     uint64_t p2 = a_hi * b_lo;
     uint64_t p3 = a_hi * b_hi;
 
-    uint64_t mid = (p0 >> 32) + (uint32_t)p1 + (uint32_t)p2;
+    uint64_t mid = (p0 >> 32) + (p1 & 0xFFFFFFFF) + (p2 & 0xFFFFFFFF);
 
-    res.l = (p0 & 0xFFFFFFFFULL) | (mid << 32);
+    res.l = (p0 & 0xFFFFFFFF) | (mid << 32);
     res.u = p3 + (p1 >> 32) + (p2 >> 32) + (mid >> 32);
 
     return res;
@@ -141,59 +171,71 @@ int128_t hal_mul_i64(const int64_t a, const int64_t b) {
 uint256_t hal_mul_u128(const uint128_t a, const uint128_t b) {
     uint256_t res = {{0, 0, 0, 0}};
 
-    // 4 partial products (128 bits each)
+    // 4개의 부분 곱 (Partial products)
     uint128_t p00 = hal_mul_u64(a.l, b.l);
     uint128_t p01 = hal_mul_u64(a.l, b.u);
     uint128_t p10 = hal_mul_u64(a.u, b.l);
     uint128_t p11 = hal_mul_u64(a.u, b.u);
 
-    // [d0] lower 64 bit
+    // [0] 하위 64비트 확정
     res.d[0] = p00.l;
 
-    // [d1] Carry management and calculation
+    // [1] 계산 및 Carry 관리
     uint64_t carry = 0;
-    uint64_t sum = p00.u + p01.l;
-    carry = (sum < p00.u) ? 1 : 0;
+    res.d[1] = p00.u;
 
-    sum += p10.l;
-    carry += (sum < p10.l) ? 1 : 0;
-    res.d[1] = sum;
+    res.d[1] += p01.l;
+    if (res.d[1] < p01.l)
+        carry++;
 
-    // [d2] Carry management and calculation
-    uint64_t carry2 = 0;
-    sum = p11.l + p01.u;
-    carry2 = (sum < p11.l) ? 1 : 0;
+    res.d[1] += p10.l;
+    if (res.d[1] < p10.l)
+        carry++;
 
-    sum += p10.u;
-    carry2 += (sum < p10.u) ? 1 : 0;
+    // [2] 계산 및 Carry 관리
+    uint64_t c1 = 0;
+    res.d[2] = p11.l;
 
-    sum += carry; // Add carry from previous d[1]
-    carry2 += (sum < carry) ? 1 : 0;
-    res.d[2] = sum;
+    res.d[2] += p01.u;
+    if (res.d[2] < p01.u)
+        c1++;
 
-    // [d3] Calculate the highest 64 bits
-    res.d[3] = p11.u + carry2;
+    res.d[2] += p10.u;
+    if (res.d[2] < p10.u)
+        c1++;
+
+    res.d[2] += carry;
+    if (res.d[2] < carry)
+        c1++;
+
+    // [3] 최상위 64비트 계산 (Carry 포함)
+    res.d[3] = p11.u + c1;
 
     return res;
 }
 
-int256_t hal_mul_i128(const int128_t a, const int128_t b) {
-    // 1. Unsigned 256-bit multiplication
-    uint256_t res_u = hal_mul_u128(*(const uint128_t *)&a, *(const uint128_t *)&b);
+/* 128-bit x 128-bit -> 256-bit signed multiplication */
+int256_t hal_mul_i128(int128_t a, int128_t b) {
+    // 1. 먼저 부호를 무시하고 Unsigned 256비트 곱셈을 수행합니다.
+    uint256_t res_u = hal_mul_u128(*(uint128_t *)&a, *(uint128_t *)&b);
     int256_t res = *(int256_t *)&res_u;
 
-    // 2. Sign extension correction for negative inputs
-    // In 128-bit signed integer multiplication, the two's complement correction logic is similarly
-    // handled by subtracting from the upper bits.
+    // 2. 2의 보수 수학적 특성에 따른 상위 128비트 보정(Correction)
+
+    // a가 음수일 경우: 256비트 결과의 상위 128비트(d[2], d[3])에서 b를 빼줍니다.
     if (a.u < 0) {
-        res.d[2] -= b.l;
-        int64_t borrow = (res.d[2] > (uint64_t)(res.d[2] + b.l)) ? 1 : 0;
-        res.d[3] -= (b.u + borrow);
+        uint64_t prev_d2 = res.d[2];
+        res.d[2] -= (uint64_t)b.l;
+        uint64_t borrow = (res.d[2] > prev_d2) ? 1 : 0; // 언더플로우 발생 시 빌림수 1
+        res.d[3] -= (uint64_t)b.u + borrow;
     }
+
+    // b가 음수일 경우: 256비트 결과의 상위 128비트(d[2], d[3])에서 a를 빼줍니다.
     if (b.u < 0) {
-        res.d[2] -= a.l;
-        int64_t borrow = (res.d[2] > (uint64_t)(res.d[2] + a.l)) ? 1 : 0;
-        res.d[3] -= (a.u + borrow);
+        uint64_t prev_d2 = res.d[2];
+        res.d[2] -= (uint64_t)a.l;
+        uint64_t borrow = (res.d[2] > prev_d2) ? 1 : 0; // 언더플로우 발생 시 빌림수 1
+        res.d[3] -= (uint64_t)a.u + borrow;
     }
 
     return res;

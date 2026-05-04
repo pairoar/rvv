@@ -10,10 +10,13 @@ extern "C" {
 #endif
 
 /* 128/256-bit Arithmetic Helpers */
+int hal_is_zero_u128(const uint128_t a);
+
 int128_t hal_add_i128(const int128_t a, const int128_t b);
 uint128_t hal_add_u128(const uint128_t a, const uint128_t b);
 uint256_t hal_add_u256(const uint256_t a, const uint256_t b);
 int256_t hal_add_i256(const int256_t a, const int256_t b);
+uint256_t hal_add_u256_u128(const uint256_t a, const uint128_t b);
 
 int128_t hal_sub_i128(const int128_t a, const int128_t b);
 uint128_t hal_sub_u128(const uint128_t a, const uint128_t b);
