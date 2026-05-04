@@ -538,16 +538,17 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
                                                                                                    \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        result = vmath_add_##S_IN(c_hw, a, b, 10);                                                    \
+        result = vmath_add_##S_IN(c_hw, a, b, 10);                                                 \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);   \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                           \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);   \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -558,7 +559,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 2. SUB Test */                                                                              \
-    static int test_vmath_sub_##S_IN(void) {                                                        \
+    static int test_vmath_sub_##S_IN(void) {                                                       \
         T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
              b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
@@ -568,16 +569,17 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
                                                                                                    \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        result = vmath_sub_##S_IN(c_hw, a, b, 10);                                                           \
+        result = vmath_sub_##S_IN(c_hw, a, b, 10);                                                 \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -588,7 +590,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 3. MUL Test */                                                                              \
-    static int test_vmath_mul_##S_IN(void) {                                                        \
+    static int test_vmath_mul_##S_IN(void) {                                                       \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};    \
         T_OUT c_hw[10] = {0}, c_sw[10] = {0};                                                      \
         int result = VMATH_SUCCESS;                                                                \
@@ -596,16 +598,17 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
             c_sw[i] = (T_OUT)a[i] * (T_OUT)b[i];                                                   \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        vmath_mul_##S_IN(c_hw, a, b, 10);                                                           \
+        vmath_mul_##S_IN(c_hw, a, b, 10);                                                          \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -616,7 +619,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 4. MAC Test */                                                                              \
-    static int test_vmath_mac_##S_IN(void) {                                                        \
+    static int test_vmath_mac_##S_IN(void) {                                                       \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};    \
         T_OUT c_hw[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};                                 \
         T_OUT c_sw[10] = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};                                 \
@@ -625,16 +628,17 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
             c_sw[i] += (T_OUT)a[i] * (T_OUT)b[i];                                                  \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        vmath_mac_##S_IN(c_hw, a, b, 10);                                                           \
+        vmath_mac_##S_IN(c_hw, a, b, 10);                                                          \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -645,7 +649,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 5. DIV Test (Enhanced exception handling and ret output) */                                 \
-    static int test_vmath_div_##S_IN(void) {                                                        \
+    static int test_vmath_div_##S_IN(void) {                                                       \
         T_IN a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};                                    \
         /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */                \
         T_IN b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};                                               \
@@ -660,11 +664,11 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        result = vmath_div_##S_IN(c_hw, a, b, 10);                                                    \
+        result = vmath_div_##S_IN(c_hw, a, b, 10);                                                 \
         uint64_t end = get_mcycle();                                                               \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {                                     \
+        if (result != 0) {                                                                         \
+            if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {                               \
                 printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);       \
             } else {                                                                               \
                 printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);      \

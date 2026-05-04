@@ -49,6 +49,7 @@ if(TARGET_ARCH STREQUAL "host")
     endif()
 elseif (TARGET_ARCH STREQUAL "cust_accel")
     message(STATUS "Custom Accelerator")
+    target_compile_definitions(${CMAKE_PROJECT_NAME}_common_settings INTERFACE CONFIG_SUPPORT_64)
     target_compile_definitions(${CMAKE_PROJECT_NAME}_common_settings INTERFACE CONFIG_CUSTOM_ACCELERATOR)
 endif()
 

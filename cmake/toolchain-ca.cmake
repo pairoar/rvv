@@ -1,4 +1,4 @@
-# toolchain-host.cmake
+# toolchain-ca.cmake
 
 # -g: include debug symbols
 # -Og: optimize for debugging
