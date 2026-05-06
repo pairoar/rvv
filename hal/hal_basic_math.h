@@ -11,6 +11,7 @@ extern "C" {
 
 /* 128/256-bit Arithmetic Helpers */
 int hal_is_zero_u128(const uint128_t a);
+int hal_is_zero_i128(const int128_t a);
 
 int128_t hal_add_i128(const int128_t a, const int128_t b);
 uint128_t hal_add_u128(const uint128_t a, const uint128_t b);

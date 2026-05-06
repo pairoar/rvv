@@ -26,7 +26,7 @@ else()
 endif()
 
 # Dynamic allocation of source and header paths based on architecture
-#target_include_directories(hal PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(hal PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Common source files for all architectures
 target_sources(hal PRIVATE
@@ -175,7 +175,8 @@ if(BUILD_HAL_TEST)
 endif()
 
 ###
-target_link_libraries(hal PRIVATE project_inc ${CMAKE_PROJECT_NAME}_common_settings)
+#target_link_libraries(hal PRIVATE project_inc ${CMAKE_PROJECT_NAME}_common_settings)
+target_link_libraries(hal PUBLIC project_inc ${CMAKE_PROJECT_NAME}_common_settings)
 
 if(USE_COVERAGE)
     target_link_libraries(hal PRIVATE coverage_config)
@@ -190,7 +191,9 @@ target_include_directories(hal PUBLIC
 
 # Specify the public headers for this target. (list multiple headers separated by spaces.)
 set_target_properties(hal PROPERTIES
-    PUBLIC_HEADER "hal_math.h")
+    PUBLIC_HEADER "hal_math.h hal_types.h")
+
+#set_target_properties(hal PROPERTIES PUBLIC_HEADER "hal_types.h")
 
 # add the destination for PUBLIC_HEADER to the installation rules.
 install(TARGETS hal
