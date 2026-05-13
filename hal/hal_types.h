@@ -1,6 +1,8 @@
 #ifndef HAL_TYPES_H
 #define HAL_TYPES_H
 
+#include <stdint.h>
+
 // hal_types.h (또는 hal_math.h 상단)
 typedef enum {
     HAL_OK                          = 0,    // 성공 (항상 0으로 두는 것이 표준)
@@ -16,15 +18,36 @@ typedef enum {
     // system/hw
     HAL_ERR_UNSUPPORTED             = -20,  // 해당 하드웨어에서 미지원 (예: RV32에서 특정 연산)    
     HAL_ERR_HW_FAULT                = -21,  // FPU/Vecot
-    HAL_ERR_TIMEOUT                 = -21,  // 가속기 응답 지연 (HW 가속기 연동 시 필요)
-    HAL_ERR_OUT_OF_RESOURCE         = -22,
+    HAL_ERR_TIMEOUT                 = -22,  // 가속기 응답 지연 (HW 가속기 연동 시 필요)
+    HAL_ERR_OUT_OF_RESOURCE         = -23,
 
 
     // operation
     HAL_ERR_DIV_BY_ZERO             = -30,  // 0으로 나누기
-    HAL_ERR_VALUES_DO_NOT_MATCH    = -31,  //    
+    HAL_ERR_VALUES_DO_NOT_MATCH     = -31,  //    
 
 } hal_status_t;
 
+// 128-bit signed integer type definition
+typedef struct {
+    int64_t u;
+    uint64_t l;
+} int128_t;
+
+// 256-bit signed integer type definition
+typedef struct {
+    uint64_t d[4];
+} int256_t;
+
+// 128-bit signed integer type definition
+typedef struct {
+    uint64_t u;
+    uint64_t l;
+} uint128_t;
+
+// 256-bit unsigned integer type definition
+typedef struct {
+    uint64_t d[4]; // d[0]: LSB, d[3]: MSB
+} uint256_t;
 
 #endif

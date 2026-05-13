@@ -191,7 +191,7 @@ target_include_directories(hal PUBLIC
 
 # Specify the public headers for this target. (list multiple headers separated by spaces.)
 set_target_properties(hal PROPERTIES
-    PUBLIC_HEADER "hal_math.h hal_types.h")
+    PUBLIC_HEADER "hal_math.h hal_types.h hal_internal.math")
 
 #set_target_properties(hal PROPERTIES PUBLIC_HEADER "hal_types.h")
 

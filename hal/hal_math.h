@@ -16,31 +16,10 @@
 /*    Public Macros & Types                                                 */
 /* ======================================================================== */
 
-// 128-bit signed integer type definition
-typedef struct {
-    int64_t u;
-    uint64_t l;
-} int128_t;
-
-// 256-bit signed integer type definition
-typedef struct {
-    uint64_t d[4];
-} int256_t;
-
-// 128-bit signed integer type definition
-typedef struct {
-    uint64_t u;
-    uint64_t l;
-} uint128_t;
-
-// 256-bit unsigned integer type definition
-typedef struct {
-    uint64_t d[4]; // d[0]: LSB, d[3]: MSB
-} uint256_t;
-
 /* ======================================================================== */
 /*    Inline Functions                                                      */
 /* ======================================================================== */
+
 
 /* ======================================================================== */
 /*    C++ Name Mangling Prevention (Crucial for C/C++ interop)              */
@@ -257,7 +236,40 @@ hal_status_t hal_matrix_vmul_f32(double *c, const float *a, const float *b, int 
 
 // pure C language Multiplication(Benchmark Control Group)
 hal_status_t hal_matrix_vmul_c_f32(double *out, const float *A, const float *B, int M, int N, int K);
-// void hal_matrix_vmul_c_f32(float *out, const float *A, const float *B, int M, int N, int K);
+
+
+/*
+    min/max
+*/
+hal_status_t hal_vmin_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n);
+hal_status_t hal_vmin_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n);
+hal_status_t hal_vmin_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n);
+hal_status_t hal_vmin_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n);
+hal_status_t hal_vmin_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
+hal_status_t hal_vmin_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
+hal_status_t hal_vmin_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n);
+hal_status_t hal_vmin_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n);
+hal_status_t hal_vmin_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n);
+hal_status_t hal_vmin_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n);
+
+hal_status_t hal_vmax_u8(uint8_t *c, const uint8_t *a, const uint8_t *b, const size_t n);
+hal_status_t hal_vmax_i8(int8_t *c, const int8_t *a, const int8_t *b, const size_t n);
+hal_status_t hal_vmax_u16(uint16_t *c, const uint16_t *a, const uint16_t *b, const size_t n);
+hal_status_t hal_vmax_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n);
+hal_status_t hal_vmax_u32(uint32_t *c, const uint32_t *a, const uint32_t *b, const size_t n);
+hal_status_t hal_vmax_i32(int32_t *c, const int32_t *a, const int32_t *b, const size_t n);
+hal_status_t hal_vmax_u64(uint64_t *c, const uint64_t *a, const uint64_t *b, const size_t n);
+hal_status_t hal_vmax_i64(int64_t *c, const int64_t *a, const int64_t *b, const size_t n);
+hal_status_t hal_vmax_u128(uint128_t *c, const uint128_t *a, const uint128_t *b, const size_t n);
+hal_status_t hal_vmax_i128(int128_t *c, const int128_t *a, const int128_t *b, const size_t n);
+
+hal_status_t hal_vmin_f32(float *c, const float *a, const float *b, const size_t n);
+hal_status_t hal_vmax_f32(float *c, const float *a, const float *b, const size_t n);
+
+/* square root */
+hal_status_t hal_vsqrt_f32(float *b, const float *a, const size_t n);
+hal_status_t hal_vrsqrt7_f32(float *b, const float *a, const size_t n);
+
 /* ======================================================================== */
 /*    Close C++ Block                                                       */
 /* ======================================================================== */

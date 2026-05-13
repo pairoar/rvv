@@ -1,4 +1,4 @@
-#include "hal_basic_math.h"
+#include "hal_internal_math.h"
 #include "hal_soft_math.h"
 #include "hal_test_mat_data.h"
 #include <float.h>
@@ -125,6 +125,34 @@ typedef enum {
     HAL_TEST_DOT_F32,
     HAL_TEST_MTRX_MUL_F32,
     HAL_TEST_MTRX_MUL_TILED_F32,
+
+    /* min/max */
+    HAL_TEST_VMIN_I8,
+    HAL_TEST_VMIN_U8,
+    HAL_TEST_VMIN_I16,
+    HAL_TEST_VMIN_U16,
+    HAL_TEST_VMIN_I32,
+    HAL_TEST_VMIN_U32,
+    HAL_TEST_VMIN_I64,
+    HAL_TEST_VMIN_U64,
+    HAL_TEST_VMIN_I128,
+    HAL_TEST_VMIN_U128,
+    HAL_TEST_VMIN_F32,
+
+    HAL_TEST_VMAX_I8,
+    HAL_TEST_VMAX_U8,
+    HAL_TEST_VMAX_I16,
+    HAL_TEST_VMAX_U16,
+    HAL_TEST_VMAX_I32,
+    HAL_TEST_VMAX_U32,
+    HAL_TEST_VMAX_I64,
+    HAL_TEST_VMAX_U64,
+    HAL_TEST_VMAX_I128,
+    HAL_TEST_VMAX_U128,
+    HAL_TEST_VMAX_F32,
+
+    HAL_TEST_VSQRT_F32,
+    HAL_TEST_VRSQRT7_F32,
 
     HAL_TEST_MAX,
 } HAL_TEST_LIST_E;
@@ -491,7 +519,7 @@ static int hal_verify_array_f32(const float *a, const float *b, const size_t n) 
         // 3. Comparison within typical error margin
         if (fabsf(a[i] - b[i]) > EPSILON) {
             // Print mismatch index for debugging on failure (Optional)
-            // printf("    [Mismatch] idx %zu: SW=%f, HW=%f\n", i, a[i], b[i]);
+            printf("    [Mismatch] idx %zu: SW=%f, HW=%f\n", i, a[i], b[i]);
             return 0;
         }
     }
@@ -516,7 +544,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         // 3. Comparison within typical error margin
         if (fabs(a[i] - b[i]) > EPSILON) {
             // Print mismatch index for debugging on failure (Optional)
-            // printf("    [Mismatch] idx %zu: SW=%f, HW=%f\n", i, a[i], b[i]);
+            printf("    [Mismatch] idx %zu: SW=%f, HW=%f\n", i, a[i], b[i]);
             return 0;
         }
     }
@@ -591,7 +619,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         if (ret != HAL_OK) {                                                                       \
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);          \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
         }                                                                                          \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 10)) {                                            \
             return (int)(end - start); /* Return elapsed clock cycles on success */                \
@@ -613,7 +641,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         if (ret != HAL_OK) {                                                                       \
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);          \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
         }                                                                                          \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 10)) {                                            \
             return (int)(end - start); /* Return elapsed clock cycles on success */                \
@@ -624,7 +652,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
     /* 5. DIV Test (Enhanced exception handling and ret output) */                                 \
     static int test_hal_vdiv_##S_IN(void) {                                                        \
         hal_status_t ret = HAL_OK;                                                                 \
-        T_IN a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};                                    \
+        T_IN a[10] = {20, 20, 30, 40, 50, 60, 70, 80, 90, 100};                                    \
         /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */                \
         T_IN b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};                                               \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
@@ -644,7 +672,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
             if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {                                          \
                 printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);       \
             } else {                                                                               \
-                printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);      \
+                printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);          \
             }                                                                                      \
         }                                                                                          \
         if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
@@ -666,7 +694,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         if (ret != HAL_OK) {                                                                       \
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);          \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
         }                                                                                          \
         if (hal_verify_array_##S_OUT(&c_sw, &c_hw, 1)) {                                           \
             return (int)(end - start); /* Return elapsed clock cycles on success */                \
@@ -694,7 +722,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         /* --- Profiling End --- */                                                                \
                                                                                                    \
         if (ret != HAL_OK) {                                                                       \
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);          \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
         }                                                                                          \
         if (hal_verify_array_##S_OUT(c_sw, c_hw, 4)) {                                             \
             return (int)(end - start); /* Return elapsed clock cycles on success */                \
@@ -737,7 +765,7 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         uint64_t end_hal = get_mcycle();                                                           \
         /* --- Profiling End --- */                                                                \
         if (ret != HAL_OK) {                                                                       \
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);          \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
         }                                                                                          \
         if (hal_verify_array_##S_OUT(CS, CH, M * N)) {                                             \
             result = (int)(end_hal - start_hal); /* Return elapsed clock cycles on success */      \
@@ -747,10 +775,60 @@ static int hal_verify_array_f64(const double *a, const double *b, const size_t n
         SAFE_FREE(CS);                                                                             \
         SAFE_FREE(CH);                                                                             \
         return result;                                                                             \
+    }                                                                                              \
+    /* 9. min Test */                                                                              \
+    static int test_hal_vmin_##S_IN(void) {                                                        \
+        hal_status_t ret = HAL_OK;                                                                 \
+        T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
+             b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
+        T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
+        for (int i = 0; i < 10; i++)                                                               \
+            c_sw[i] = MIN(a[i], b[i]);                                                             \
+                                                                                                   \
+        hal_init();                                                                                \
+        /* --- Profiling Start --- */                                                              \
+        uint64_t start = get_mcycle();                                                             \
+        ret = hal_vmin_##S_IN(c_hw, a, b, 10);                                                     \
+        uint64_t end = get_mcycle();                                                               \
+        /* --- Profiling End --- */                                                                \
+                                                                                                   \
+        if (ret != HAL_OK) {                                                                       \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
+        }                                                                                          \
+        if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
+            return (int)(end - start); /* Return elapsed clock cycles on success */                \
+        } else {                                                                                   \
+            return -1; /* Return -1 on failure */                                                  \
+        }                                                                                          \
+    }                                                                                              \
+    /* 10. max Test */                                                                              \
+    static int test_hal_vmax_##S_IN(void) {                                                        \
+        hal_status_t ret = HAL_OK;                                                                 \
+        T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
+             b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
+        T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
+        for (int i = 0; i < 10; i++)                                                               \
+            c_sw[i] = MAX(a[i], b[i]);                                                             \
+                                                                                                   \
+        hal_init();                                                                                \
+        /* --- Profiling Start --- */                                                              \
+        uint64_t start = get_mcycle();                                                             \
+        ret = hal_vmax_##S_IN(c_hw, a, b, 10);                                                     \
+        uint64_t end = get_mcycle();                                                               \
+        /* --- Profiling End --- */                                                                \
+                                                                                                   \
+        if (ret != HAL_OK) {                                                                       \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
+        }                                                                                          \
+        if (hal_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
+            return (int)(end - start); /* Return elapsed clock cycles on success */                \
+        } else {                                                                                   \
+            return -1; /* Return -1 on failure */                                                  \
+        }                                                                                          \
     }
 
 // -----------------------------------------------------------------------------
-// Generate 49 test functions at once using macros!
+// Generate test functions at once using macros!
 // -----------------------------------------------------------------------------
 DEFINE_HAL_TESTS(int8_t, int16_t, i8, i16)
 DEFINE_HAL_TESTS(uint8_t, uint16_t, u8, u16)
@@ -778,7 +856,7 @@ static int test_hal_vadd_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i64(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -801,7 +879,7 @@ static int test_hal_vadd_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u64(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -824,7 +902,7 @@ static int test_hal_vsub_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i64(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -847,7 +925,7 @@ static int test_hal_vsub_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u64(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -869,7 +947,7 @@ static int test_hal_vmul_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -891,7 +969,7 @@ static int test_hal_vmul_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -919,7 +997,7 @@ static int test_hal_vmac_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -947,7 +1025,7 @@ static int test_hal_vmac_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -979,7 +1057,7 @@ static int test_hal_vdiv_i64(void) {
         if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
         }
     }
     if (hal_verify_array_i64(c_sw, c_hw, 10)) {
@@ -1012,7 +1090,7 @@ static int test_hal_vdiv_u64(void) {
         if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
         }
     }
     if (hal_verify_array_u64(c_sw, c_hw, 10)) {
@@ -1037,7 +1115,7 @@ static int test_hal_vdot_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(&c_sw, &c_hw, 1)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1061,7 +1139,7 @@ static int test_hal_vdot_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(&c_sw, &c_hw, 1)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1090,7 +1168,7 @@ static int test_hal_mtrx_vmul_i64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(c_sw, c_hw, 4)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1119,7 +1197,7 @@ static int test_hal_mtrx_vmul_u64(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(c_sw, c_hw, 4)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1182,7 +1260,7 @@ static int test_hal_mtrx_vmul_tiled_i64(void) {
     uint64_t end_hal = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(CS, CH, M * N)) {
         result = (int)(end_hal - start_hal); /* Return elapsed clock cycles on success */
@@ -1248,7 +1326,7 @@ static int test_hal_mtrx_vmul_tiled_u64(void) {
     uint64_t end_hal = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(CS, CH, M * N)) {
         result = (int)(end_hal - start_hal); /* Return elapsed clock cycles on success */
@@ -1261,6 +1339,104 @@ static int test_hal_mtrx_vmul_tiled_u64(void) {
 
     return result;
 }
+
+
+// vmin_u64
+static int test_hal_vmin_u64(void) {
+    hal_status_t ret = HAL_OK;
+    uint64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    uint64_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = MIN(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmin_u64(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_u64(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+// vmin_i64
+static int test_hal_vmin_i64(void) {
+    hal_status_t ret = HAL_OK;
+    int64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int64_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = MIN(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmin_i64(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_i64(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+// vmax_u64
+static int test_hal_vmax_u64(void) {
+    hal_status_t ret = HAL_OK;
+    uint64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    uint64_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = MAX(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmax_u64(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_u64(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+// vmax_i64
+static int test_hal_vmax_i64(void) {
+    hal_status_t ret = HAL_OK;
+    int64_t a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int64_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = MAX(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmax_i64(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_i64(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // i128/u128 operations
@@ -1283,7 +1459,7 @@ static int test_hal_vadd_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1309,7 +1485,7 @@ static int test_hal_vadd_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1335,7 +1511,7 @@ static int test_hal_vsub_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1361,7 +1537,7 @@ static int test_hal_vsub_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u128(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1386,7 +1562,7 @@ static int test_hal_vmul_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i256(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1411,7 +1587,7 @@ static int test_hal_vmul_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u256(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1444,7 +1620,7 @@ static int test_hal_vmac_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i256(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1477,7 +1653,7 @@ static int test_hal_vmac_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u256(c_sw, c_hw, 10)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1512,7 +1688,7 @@ static int test_hal_vdiv_i128(void) {
         if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
         }
     }
     if (hal_verify_array_i128(c_sw, c_hw, 10)) {
@@ -1548,7 +1724,7 @@ static int test_hal_vdiv_u128(void) {
         if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
         }
     }
     if (hal_verify_array_u128(c_sw, c_hw, 10)) {
@@ -1576,7 +1752,7 @@ static int test_hal_vdot_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_result_i256(c_sw, c_hw)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1603,7 +1779,7 @@ static int test_hal_vdot_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_result_u256(c_sw, c_hw)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1633,7 +1809,7 @@ static int test_hal_mtrx_vmul_i128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i256(c_sw, c_hw, 4)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1663,7 +1839,7 @@ static int test_hal_mtrx_vmul_u128(void) {
     uint64_t end = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u256(c_sw, c_hw, 4)) {
         return (int)(end - start); /* Return elapsed clock cycles on success */
@@ -1728,7 +1904,7 @@ static int test_hal_mtrx_vmul_tiled_i128(void) {
     uint64_t end_hal = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_i256(CS, CH, M * N)) {
         result = (int)(end_hal - start_hal); /* Return elapsed clock cycles on success */
@@ -1797,7 +1973,7 @@ static int test_hal_mtrx_vmul_tiled_u128(void) {
     uint64_t end_hal = get_mcycle();
     /* --- Profiling End --- */
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     if (hal_verify_array_u256(CS, CH, M * N)) {
         result = (int)(end_hal - start_hal); /* Return elapsed clock cycles on success */
@@ -1810,6 +1986,162 @@ static int test_hal_mtrx_vmul_tiled_u128(void) {
 
     return result;
 }
+
+// vmin_u128
+static int test_hal_vmin_u128(void) {
+    hal_status_t ret = HAL_OK;
+    uint128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
+                       {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
+              b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                       {0, 6}, {0, 7}, {0, 8}, {0, 9}, {0, 10}};
+    uint128_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = hal_min_u128(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmin_u128(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_u128(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+
+// vmin_i128
+static int test_hal_vmin_i128(void) {
+    hal_status_t ret = HAL_OK;
+    int128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
+                      {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
+             b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                      {0, 6}, {0, 7}, {0, 8}, {0, 9}, {0, 10}};
+    int128_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = hal_min_i128(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmin_i128(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_i128(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+
+static int test_hal_vmax_u128(void) {
+    hal_status_t ret = HAL_OK;
+    uint128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
+                      {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
+             b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                      {0, 6}, {0, 7}, {0, 8}, {0, 9}, {0, 10}};
+    uint128_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = hal_max_u128(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmax_u128(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_u128(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+static int test_hal_vmax_i128(void) {
+    hal_status_t ret = HAL_OK;
+    const int128_t a[10] = {{0, 2},  {0, 4},  {0, 6},  {0, 8},  {0, 10},
+                      {0, 12}, {0, 14}, {0, 16}, {0, 18}, {0, 20}},
+             b[10] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                      {0, 6}, {0, 7}, {0, 8}, {0, 9}, {0, 10}};
+    int128_t c_hw[10] = {0}, c_sw[10] = {0};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = hal_max_i128(a[i], b[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vmax_i128(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_i128(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+
+static int test_hal_vsqrt_f32(void) {
+    hal_status_t ret = HAL_OK;
+    float a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    float c_hw[10] = {0.0f}, c_sw[10] = {0.0f};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = sqrtf(a[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vsqrt_f32(c_hw, a, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_f32(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
+static int test_hal_vrsqrt7_f32(void) {
+    hal_status_t ret = HAL_OK;
+    float a[10] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    float c_hw[10] = {0.0f}, c_sw[10] = {0.0f};
+    for (int i = 0; i < 10; i++)
+        c_sw[i] = sqrtf(a[i]);
+
+    hal_init();
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vsqrt_f32(c_hw, a, 10);
+    uint64_t end = get_mcycle();
+    /* --- Profiling End --- */
+    if (ret != HAL_OK) {
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+    }
+    if (hal_verify_array_f32(c_sw, c_hw, 10)) {
+        return (int)(end - start); /* Return elapsed clock cycles on success */
+    } else {
+        return -1; /* Return -1 on failure */
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // [Note] 64-bit and 128-bit test stubs
@@ -1874,7 +2206,7 @@ static int test_hal_edge_overflow_i32(void) {
 
     ret = hal_vadd_i32(c_hw, a, b, LEN);
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     // Verify if INT32_MAX + 1 correctly rolls over to INT32_MIN
     return hal_verify_array_i32(c_sw, c_hw, LEN) ? 0 : -1;
@@ -1902,7 +2234,7 @@ static int test_hal_edge_float_limits(void) {
 
     ret = hal_vadd_f32(c_hw, a, b, LEN);
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     return hal_verify_array_f32(c_sw, c_hw, LEN) ? 0 : -1;
 }
@@ -1934,7 +2266,7 @@ static int test_hal_edge_unaligned_access(void) {
     // If it passes safely, it is supported.
     ret = hal_vadd_f32(unaligned_c, unaligned_a, unaligned_b, LEN);
     if (ret != HAL_OK) {
-        printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", ret, __func__);
+        printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
     }
     return 0; // PASS if it survives up to here
 }
@@ -2122,6 +2454,55 @@ static const HAL_TEST_FUNCTION_DEF hal_test_lists[] = {
                                "Matrix Mul (float)"},
     [HAL_TEST_MTRX_MUL_TILED_F32] = {HAL_TEST_MTRX_MUL_TILED_F32, test_hal_mtrx_vmul_tiled_f32,
                                      "MTRX_MUL_TILED_F32", "Matrix Mul tiled (float)"},
+
+    [HAL_TEST_VMIN_U8] = {HAL_TEST_VMIN_U8, test_hal_vmin_u8, "VMIN_U8", "Vector min (uint8_t)"},
+    [HAL_TEST_VMIN_U16] = {HAL_TEST_VMIN_U16, test_hal_vmin_u16, "VMIN_U16",
+                           "Vector min (uint16_t)"},
+    [HAL_TEST_VMIN_U32] = {HAL_TEST_VMIN_U32, test_hal_vmin_u32, "VMIN_U32",
+                           "Vector min (uint32_t)"},
+    [HAL_TEST_VMIN_U64] = {HAL_TEST_VMIN_U64, test_hal_vmin_u64, "VMIN_U64",
+                           "Vector min (uint64_t)"},
+    [HAL_TEST_VMIN_U128] = {HAL_TEST_VMIN_U128, test_hal_vmin_u128, "VMIN_U128",
+                            "Vector min (uint128_t)"},
+
+    [HAL_TEST_VMIN_I8] = {HAL_TEST_VMIN_I8, test_hal_vmin_i8, "VMIN_I8", "Vector min (int8_t)"},
+    [HAL_TEST_VMIN_I16] = {HAL_TEST_VMIN_I16, test_hal_vmin_i16, "VMIN_I16",
+                           "Vector min (int16_t)"},
+    [HAL_TEST_VMIN_I32] = {HAL_TEST_VMIN_I32, test_hal_vmin_i32, "VMIN_I32",
+                           "Vector min (int32_t)"},
+    [HAL_TEST_VMIN_I64] = {HAL_TEST_VMIN_I64, test_hal_vmin_i64, "VMIN_I64",
+                           "Vector min (int64_t)"},
+    [HAL_TEST_VMIN_I128] = {HAL_TEST_VMIN_I128, test_hal_vmin_i128, "VMIN_I128",
+                            "Vector min (int128_t)"},
+    [HAL_TEST_VMIN_F32] = {HAL_TEST_VMIN_F32, test_hal_vmin_f32, "VMIN_F32",
+                            "Vector min (float)"},
+
+    [HAL_TEST_VMAX_U8] = {HAL_TEST_VMAX_U8, test_hal_vmax_u8, "VMAX_U8", "Vector max (uint8_t)"},
+    [HAL_TEST_VMAX_U16] = {HAL_TEST_VMAX_U16, test_hal_vmax_u16, "VMAX_U16",
+                           "Vector max (uint16_t)"},
+    [HAL_TEST_VMAX_U32] = {HAL_TEST_VMAX_U32, test_hal_vmax_u32, "VMAX_U32",
+                           "Vector max (uint32_t)"},
+    [HAL_TEST_VMAX_U64] = {HAL_TEST_VMAX_U64, test_hal_vmax_u64, "VMAX_U64",
+                           "Vector max (uint64_t)"},
+    [HAL_TEST_VMAX_U128] = {HAL_TEST_VMAX_U128, test_hal_vmax_u128, "VMAX_U128",
+                            "Vector max (uint128_t)"},
+
+    [HAL_TEST_VMAX_I8] = {HAL_TEST_VMAX_I8, test_hal_vmax_i8, "VMAX_I8", "Vector max (int8_t)"},
+    [HAL_TEST_VMAX_I16] = {HAL_TEST_VMAX_I16, test_hal_vmax_i16, "VMAX_I16",
+                           "Vector max (int16_t)"},
+    [HAL_TEST_VMAX_I32] = {HAL_TEST_VMAX_I32, test_hal_vmax_i32, "VMAX_I32",
+                           "Vector max (int32_t)"},
+    [HAL_TEST_VMAX_I64] = {HAL_TEST_VMAX_I64, test_hal_vmax_i64, "VMAX_I64",
+                           "Vector max (int64_t)"},
+    [HAL_TEST_VMAX_I128] = {HAL_TEST_VMAX_I128, test_hal_vmax_i128, "VMAX_I128",
+                            "Vector max (int128_t)"},
+    [HAL_TEST_VMAX_F32] = {HAL_TEST_VMAX_F32, test_hal_vmax_f32, "VMAX_F32",
+                            "Vector max (float)"},
+
+    [HAL_TEST_VSQRT_F32] = {HAL_TEST_VSQRT_F32, test_hal_vsqrt_f32, "VSQRT_F32",
+                            "Vector sqrt (float)"},
+    [HAL_TEST_VRSQRT7_F32] = {HAL_TEST_VRSQRT7_F32, test_hal_vrsqrt7_f32, "VRSQRT7_F32",
+                            "Vector rsqrt7(estimate to 7 bits) (float)"},
 };
 
 /* * Execute all tests and return the number of failed tests.
@@ -2168,4 +2549,47 @@ int hal_do_all_test(void) {
     return fail_count;
 }
 
-int main() { return hal_do_all_test(); }
+static int test_hal_vdiv_f32_1(void) {
+    hal_status_t ret = HAL_OK;
+
+    float a[10] = {20.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f, 90.0f, 100.0f};
+
+    /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */
+    float b[10] = {2.0f, 2.0f, 0.0f, 2.0f, 2.0f, 2.0f, 2.0f, 0.0f, 2.0f, 2.0f};
+    float c_hw[10] = {0.0f}, c_sw[10] = {0.0f};
+
+    /* Generate SW reference answer (Prevent PC crash from divide-by-zero) */
+    for (int i = 0; i < 10; i++) {
+        if (b[i] == 0)
+            c_sw[i] = 0.0f;
+        else
+            c_sw[i] = a[i] / b[i];
+    }
+
+    /* --- Profiling Start --- */
+    uint64_t start = get_mcycle();
+    ret = hal_vdiv_f32(c_hw, a, b, 10);
+    uint64_t end = get_mcycle();
+
+    /* Print log if HAL function detects an error */
+    if (ret != 0) {
+        if (ret == 1 || ret == HAL_ERR_DIV_BY_ZERO) {
+            printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
+        } else {
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);
+        }
+    }
+
+    for (int i=0; i<10; i++) {
+        printf("[%d] S=%f : H=%f\n", i, c_sw[i], c_hw[i]);
+    }
+
+    return 0;
+}
+
+
+int main() {
+    // return test_hal_vdiv_f32_1();
+    return hal_do_all_test();
+}
+

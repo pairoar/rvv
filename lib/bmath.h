@@ -1,7 +1,7 @@
 #ifndef BMATH_H
 #define BMATH_H
 
-#include "hal_basic_math.h"
+#include "hal_internal_math.h"
 
 // 치환 방향 수정: math_ 함수를 hal_ 함수로 연결
 #define math_add_i128    hal_add_i128

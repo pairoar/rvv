@@ -35,8 +35,6 @@ hal_status_t hal_matrix_vmul_tiled_u128(uint256_t *c, const uint128_t *a, const 
 /* Tiled Matrix Multiplication (Float) */
 hal_status_t hal_matrix_vmul_tiled_f32(double *c, const float *a, const float *b, int M, int N, int K,
                                int tile_size);
-// hal_status_t hal_matrix_vmul_tiled_f32(float *c, const float *a, const float *b, int M, int N, int K,
-//                               int tile_size);
 
 #ifdef __cplusplus
 }

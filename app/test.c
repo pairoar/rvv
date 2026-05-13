@@ -1,4 +1,7 @@
+#include "bmath.h"
 #include "test_mat_data.h"
+#include "vmath.h"
+#include "vmath_types.h"
 #include <float.h>
 #include <math.h>
 #include <stddef.h>
@@ -6,10 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vmath.h"
-#include "vmath_types.h"
-#include "bmath.h"
-
 
 #define SAFE_FREE(ptr)                                                                             \
     do {                                                                                           \
@@ -128,6 +127,33 @@ typedef enum {
     TEST_INST_MTRX_MUL_F32,
     TEST_INST_MTRX_MUL_TILED_F32,
 
+    /* min/max */
+    TEST_INST_VMIN_I8,
+    TEST_INST_VMIN_U8,
+    TEST_INST_VMIN_I16,
+    TEST_INST_VMIN_U16,
+    TEST_INST_VMIN_I32,
+    TEST_INST_VMIN_U32,
+    TEST_INST_VMIN_I64,
+    TEST_INST_VMIN_U64,
+    TEST_INST_VMIN_I128,
+    TEST_INST_VMIN_U128,
+    TEST_INST_VMIN_F32,
+
+    TEST_INST_VMAX_I8,
+    TEST_INST_VMAX_U8,
+    TEST_INST_VMAX_I16,
+    TEST_INST_VMAX_U16,
+    TEST_INST_VMAX_I32,
+    TEST_INST_VMAX_U32,
+    TEST_INST_VMAX_I64,
+    TEST_INST_VMAX_U64,
+    TEST_INST_VMAX_I128,
+    TEST_INST_VMAX_U128,
+    TEST_INST_VMAX_F32,
+
+    TEST_INST_VSQRT_F32,
+
     TEST_INST_MAX,
 } TEST_INST_LIST_E;
 
@@ -202,7 +228,9 @@ static int test_verify_result_u256(const uint256_t a, const uint256_t b) {
 }
 
 static int test_verify_result_f32(const float a, const float b) { return (fabsf(a - b) < EPSILON); }
-static int test_verify_result_f64(const double a, const double b) { return (fabs(a - b) < EPSILON); }
+static int test_verify_result_f64(const double a, const double b) {
+    return (fabs(a - b) < EPSILON);
+}
 
 static int test_verify_array_i8(const int8_t *a, const int8_t *b, const size_t n) {
     int result = 0;
@@ -532,7 +560,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
              b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
         T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
-        int result = HAL_MATH_SUCCESS;                                                             \
+        int result = HAL_OK;                                                             \
         for (int i = 0; i < 10; i++)                                                               \
             c_sw[i] = a[i] + b[i];                                                                 \
                                                                                                    \
@@ -668,10 +696,10 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         uint64_t end = get_mcycle();                                                               \
         /* Print log if HAL function detects an error */                                           \
         if (result != 0) {                                                                         \
-            if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {                               \
+            if (result == 1 || result == HAL_ERR_DIV_BY_ZERO) {                                    \
                 printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);       \
             } else {                                                                               \
-                printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);      \
+                printf("    -> [ERROR] Unexpected error code %d in %s\n", result, __func__);       \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -682,7 +710,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 6. DOT Test */                                                                              \
-    static int test_vmath_dot_##S_IN(void) {                                                        \
+    static int test_vmath_dot_##S_IN(void) {                                                       \
         T_IN a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, b[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};      \
         T_OUT c_hw = 0, c_sw = 0;                                                                  \
         int result = VMATH_SUCCESS;                                                                \
@@ -690,15 +718,16 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
             c_sw += (T_OUT)a[i] * (T_OUT)b[i];                                                     \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        vmath_matrix_dot_##S_IN(&c_hw, a, b, 10);                                                          \
+        vmath_matrix_dot_##S_IN(&c_hw, a, b, 10);                                                  \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -709,7 +738,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
     }                                                                                              \
     /* 7. MTRX MUL Test */                                                                         \
-    static int test_vmath_mtrx_mul_##S_IN(void) {                                                   \
+    static int test_vmath_mtrx_mul_##S_IN(void) {                                                  \
         T_IN a[6] = {1, 2, 3, 4, 5, 6}, b[6] = {1, 2, 3, 4, 5, 6};                                 \
         T_OUT c_hw[4] = {0}, c_sw[4] = {0};                                                        \
         int result = VMATH_SUCCESS;                                                                \
@@ -723,15 +752,16 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start = get_mcycle();                                                             \
-        vmath_matrix_mul_##S_IN(c_hw, a, b, 2, 2, 3);                                               \
+        vmath_matrix_mul_##S_IN(c_hw, a, b, 2, 2, 3);                                              \
         uint64_t end = get_mcycle();                                                               \
         /* --- Profiling End --- */                                                                \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -743,7 +773,7 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
     }                                                                                              \
     /* 8. MTRX MUL Tiled Test */                                                                   \
     static int test_vmath_mtrx_mul_tiled_##S_IN(void) {                                            \
-        int result = HAL_MATH_SUCCESS;                                                             \
+        int result = VMATH_SUCCESS;                                                                       \
         int M = 131, N = 71, K = 79;                                                               \
         int tile_size = 64;                                                                        \
         T_IN *A = (T_IN *)malloc(sizeof(T_IN) * M * K);                                            \
@@ -771,15 +801,16 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         }                                                                                          \
         /* --- Profiling Start --- */                                                              \
         uint64_t start_hal = get_mcycle();                                                         \
-        vmath_matrix_mul_tiled_##S_IN(CH, A, B, M, N, K, tile_size);                                \
+        vmath_matrix_mul_tiled_##S_IN(CH, A, B, M, N, K, tile_size);                               \
         uint64_t end_hal = get_mcycle();                                                           \
         /* --- Profiling End --- */                                                                \
         /* Print log if HAL function detects an error */                                           \
-        if (result != 0) {                                                                            \
-            if (result == VMATH_ERR_NULL_PTR) {                                                       \
+        if (result != 0) {                                                                         \
+            if (result == VMATH_ERR_NULL_PTR) {                                                    \
                 printf("    -> [ERROR] Unexpected VMATH_ERR_NULL_PTR error in %s\n", __func__);    \
-            } else if (result == VMATH_ERR_INVALID_SIZE) {                                            \
-                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n", __func__);\
+            } else if (result == VMATH_ERR_INVALID_SIZE) {                                         \
+                printf("    -> [ERROR] Unexpected VMATH_ERR_INVALID_SIZE error in %s\n",           \
+                       __func__);                                                                  \
             }                                                                                      \
             return result;                                                                         \
         }                                                                                          \
@@ -791,6 +822,54 @@ static int test_verify_array_f64(const double *a, const double *b, const size_t 
         SAFE_FREE(CS);                                                                             \
         SAFE_FREE(CH);                                                                             \
         return result;                                                                             \
+    }                                                                                              \
+    /* 9. min Test */                                                                              \
+    static int test_vmath_vmin_##S_IN(void) {                                                        \
+        int ret = VMATH_SUCCESS;                                                                 \
+        T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
+             b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
+        T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
+        for (int i = 0; i < 10; i++)                                                               \
+            c_sw[i] = MIN(a[i], b[i]);                                                             \
+                                                                                                   \
+        /* --- Profiling Start --- */                                                              \
+        uint64_t start = get_mcycle();                                                             \
+        ret = vmath_min_##S_IN(c_hw, a, b, 10);                                                    \
+        uint64_t end = get_mcycle();                                                               \
+        /* --- Profiling End --- */                                                                \
+                                                                                                   \
+        if (ret != HAL_OK) {                                                                       \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
+        }                                                                                          \
+        if (test_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
+            return (int)(end - start); /* Return elapsed clock cycles on success */                \
+        } else {                                                                                   \
+            return -1; /* Return -1 on failure */                                                  \
+        }                                                                                          \
+    }                                                                                              \
+    /* 10. max Test */                                                                              \
+    static int test_vmath_vmax_##S_IN(void) {                                                        \
+        int ret = VMATH_SUCCESS;                                                                 \
+        T_IN a[10] = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20},                                         \
+             b[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};                                              \
+        T_IN c_hw[10] = {0}, c_sw[10] = {0};                                                       \
+        for (int i = 0; i < 10; i++)                                                               \
+            c_sw[i] = MAX(a[i], b[i]);                                                             \
+                                                                                                   \
+        /* --- Profiling Start --- */                                                              \
+        uint64_t start = get_mcycle();                                                             \
+        ret = vmath_max_##S_IN(c_hw, a, b, 10);                                                     \
+        uint64_t end = get_mcycle();                                                               \
+        /* --- Profiling End --- */                                                                \
+                                                                                                   \
+        if (ret != HAL_OK) {                                                                       \
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", ret, __func__);              \
+        }                                                                                          \
+        if (test_verify_array_##S_IN(c_sw, c_hw, 10)) {                                             \
+            return (int)(end - start); /* Return elapsed clock cycles on success */                \
+        } else {                                                                                   \
+            return -1; /* Return -1 on failure */                                                  \
+        }                                                                                          \
     }
 
 // -----------------------------------------------------------------------------
@@ -982,7 +1061,7 @@ static int test_vmath_div_i64(void) {
     /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */
     int64_t b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};
     int64_t c_hw[10] = {0}, c_sw[10] = {0};
-    int result = HAL_MATH_SUCCESS;
+    int result = HAL_OK;
     /* Generate SW reference answer (Prevent PC crash from divide-by-zero) */
     for (int i = 0; i < 10; i++) {
         if (b[i] == 0)
@@ -996,10 +1075,10 @@ static int test_vmath_div_i64(void) {
     uint64_t end = get_mcycle();
     /* Print log if HAL function detects an error */
     if (result != 0) {
-        if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {
+        if (result == 1 || result == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", result, __func__);
         }
     }
     if (test_verify_array_i64(c_sw, c_hw, 10)) {
@@ -1015,7 +1094,7 @@ static int test_vmath_div_u64(void) {
     /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */
     uint64_t b[10] = {2, 2, 0, 2, 2, 2, 2, 0, 2, 2};
     uint64_t c_hw[10] = {0}, c_sw[10] = {0};
-    int result = HAL_MATH_SUCCESS;
+    int result = HAL_OK;
     /* Generate SW reference answer (Prevent PC crash from divide-by-zero) */
     for (int i = 0; i < 10; i++) {
         if (b[i] == 0)
@@ -1029,10 +1108,10 @@ static int test_vmath_div_u64(void) {
     uint64_t end = get_mcycle();
     /* Print log if HAL function detects an error */
     if (result != 0) {
-        if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {
+        if (result == 1 || result == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", result, __func__);
         }
     }
     if (test_verify_array_u64(c_sw, c_hw, 10)) {
@@ -1465,7 +1544,7 @@ static int test_vmath_div_i128(void) {
     /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */
     int128_t b[10] = {{0, 2}, {0, 2}, {0}, {0, 2}, {0, 2}, {0, 2}, {0, 2}, {0}, {0, 2}, {0, 2}};
     int128_t c_hw[10] = {0}, c_sw[10] = {0};
-    int result = HAL_MATH_SUCCESS;
+    int result = HAL_OK;
     /* Generate SW reference answer (Prevent PC crash from divide-by-zero) */
     for (int i = 0; i < 10; i++) {
         if ((b[i].u == 0) && (b[i].l == 0)) {
@@ -1481,10 +1560,10 @@ static int test_vmath_div_i128(void) {
     uint64_t end = get_mcycle();
     /* Print log if HAL function detects an error */
     if (result != 0) {
-        if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {
+        if (result == 1 || result == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", result, __func__);
         }
     }
     if (test_verify_array_i128(c_sw, c_hw, 10)) {
@@ -1501,7 +1580,7 @@ static int test_vmath_div_u128(void) {
     /* Intentionally insert 0 at indices 2 and 7 to test exception handling. */
     uint128_t b[10] = {{0, 2}, {0, 2}, {0}, {0, 2}, {0, 2}, {0, 2}, {0, 2}, {0}, {0, 2}, {0, 2}};
     uint128_t c_hw[10] = {0}, c_sw[10] = {0};
-    int result = HAL_MATH_SUCCESS;
+    int result = HAL_OK;
     /* Generate SW reference answer (Prevent PC crash from divide-by-zero) */
     for (int i = 0; i < 10; i++) {
         if ((b[i].u == 0) && (b[i].l == 0)) {
@@ -1517,10 +1596,10 @@ static int test_vmath_div_u128(void) {
     uint64_t end = get_mcycle();
     /* Print log if HAL function detects an error */
     if (result != 0) {
-        if (result == 1 || result == HAL_MATH_ERR_DIV_BY_ZERO) {
+        if (result == 1 || result == HAL_ERR_DIV_BY_ZERO) {
             printf("    -> [INFO] Caught expected DIV_BY_ZERO error in %s\n", __func__);
         } else {
-            printf("    -> [ERROR] Unexpected error code 0x%02X in %s\n", result, __func__);
+            printf("    -> [ERROR] Unexpected error code %d in %s\n", result, __func__);
         }
     }
     if (test_verify_array_u128(c_sw, c_hw, 10)) {
@@ -1885,155 +1964,172 @@ static int test_vmath_edge_unaligned_access(void) {
 
 static const TEST_INST_FUNCTION_DEF test_vmath_lists[] = {
     [TEST_INST_VADD_I8] = {TEST_INST_VADD_I8, test_vmath_add_i8, "VADD_I8", "Vector add (int8_t)"},
-    [TEST_INST_VADD_I16] = {TEST_INST_VADD_I16, test_vmath_add_i16, "VADD_I16", "Vector add (int16_t)"},
-    [TEST_INST_VADD_I32] = {TEST_INST_VADD_I32, test_vmath_add_i32, "VADD_I32", "Vector add (int32_t)"},
-    [TEST_INST_VADD_I64] = {TEST_INST_VADD_I64, test_vmath_add_i64, "VADD_I64", "Vector add (int64_t)"},
+    [TEST_INST_VADD_I16] = {TEST_INST_VADD_I16, test_vmath_add_i16, "VADD_I16",
+                            "Vector add (int16_t)"},
+    [TEST_INST_VADD_I32] = {TEST_INST_VADD_I32, test_vmath_add_i32, "VADD_I32",
+                            "Vector add (int32_t)"},
+    [TEST_INST_VADD_I64] = {TEST_INST_VADD_I64, test_vmath_add_i64, "VADD_I64",
+                            "Vector add (int64_t)"},
     [TEST_INST_VADD_I128] = {TEST_INST_VADD_I128, test_vmath_add_i128, "VADD_I128",
-                            "Vector add (int128_t)"},
+                             "Vector add (int128_t)"},
 
     [TEST_INST_VADD_U8] = {TEST_INST_VADD_U8, test_vmath_add_u8, "VADD_U8", "Vector add (uint8_t)"},
     [TEST_INST_VADD_U16] = {TEST_INST_VADD_U16, test_vmath_add_u16, "VADD_U16",
-                           "Vector add (uint16_t)"},
+                            "Vector add (uint16_t)"},
     [TEST_INST_VADD_U32] = {TEST_INST_VADD_U32, test_vmath_add_u32, "VADD_U32",
-                           "Vector add (uint32_t)"},
+                            "Vector add (uint32_t)"},
     [TEST_INST_VADD_U64] = {TEST_INST_VADD_U64, test_vmath_add_u64, "VADD_U64",
-                           "Vector add (uint64_t)"},
+                            "Vector add (uint64_t)"},
     [TEST_INST_VADD_U128] = {TEST_INST_VADD_U128, test_vmath_add_u128, "VADD_U128",
-                            "Vector add (uint128_t)"},
+                             "Vector add (uint128_t)"},
 
     [TEST_INST_VSUB_I8] = {TEST_INST_VSUB_I8, test_vmath_sub_i8, "VSUB_I8", "Vector sub (int8_t)"},
-    [TEST_INST_VSUB_I16] = {TEST_INST_VSUB_I16, test_vmath_sub_i16, "VSUB_I16", "Vector sub (int16_t)"},
-    [TEST_INST_VSUB_I32] = {TEST_INST_VSUB_I32, test_vmath_sub_i32, "VSUB_I32", "Vector sub (int32_t)"},
-    [TEST_INST_VSUB_I64] = {TEST_INST_VSUB_I64, test_vmath_sub_i64, "VSUB_I64", "Vector sub (int64_t)"},
+    [TEST_INST_VSUB_I16] = {TEST_INST_VSUB_I16, test_vmath_sub_i16, "VSUB_I16",
+                            "Vector sub (int16_t)"},
+    [TEST_INST_VSUB_I32] = {TEST_INST_VSUB_I32, test_vmath_sub_i32, "VSUB_I32",
+                            "Vector sub (int32_t)"},
+    [TEST_INST_VSUB_I64] = {TEST_INST_VSUB_I64, test_vmath_sub_i64, "VSUB_I64",
+                            "Vector sub (int64_t)"},
     [TEST_INST_VSUB_I128] = {TEST_INST_VSUB_I128, test_vmath_sub_i128, "VSUB_I128",
-                            "Vector sub (int128_t)"},
+                             "Vector sub (int128_t)"},
 
     [TEST_INST_VSUB_U8] = {TEST_INST_VSUB_U8, test_vmath_sub_u8, "VSUB_U8", "Vector sub (uint8_t)"},
     [TEST_INST_VSUB_U16] = {TEST_INST_VSUB_U16, test_vmath_sub_u16, "VSUB_U16",
-                           "Vector sub (uint16_t)"},
+                            "Vector sub (uint16_t)"},
     [TEST_INST_VSUB_U32] = {TEST_INST_VSUB_U32, test_vmath_sub_u32, "VSUB_U32",
-                           "Vector sub (uint32_t)"},
+                            "Vector sub (uint32_t)"},
     [TEST_INST_VSUB_U64] = {TEST_INST_VSUB_U64, test_vmath_sub_u64, "VSUB_U64",
-                           "Vector sub (uint64_t)"},
+                            "Vector sub (uint64_t)"},
     [TEST_INST_VSUB_U128] = {TEST_INST_VSUB_U128, test_vmath_sub_u128, "VSUB_U128",
-                            "Vector sub (uint128_t)"},
+                             "Vector sub (uint128_t)"},
 
     [TEST_INST_VMUL_I8] = {TEST_INST_VMUL_I8, test_vmath_mul_i8, "VMUL_I8", "Vector mul (int8_t)"},
-    [TEST_INST_VMUL_I16] = {TEST_INST_VMUL_I16, test_vmath_mul_i16, "VMUL_I16", "Vector mul (int16_t)"},
-    [TEST_INST_VMUL_I32] = {TEST_INST_VMUL_I32, test_vmath_mul_i32, "VMUL_I32", "Vector mul (int32_t)"},
-    [TEST_INST_VMUL_I64] = {TEST_INST_VMUL_I64, test_vmath_mul_i64, "VMUL_I64", "Vector mul (int64_t)"},
+    [TEST_INST_VMUL_I16] = {TEST_INST_VMUL_I16, test_vmath_mul_i16, "VMUL_I16",
+                            "Vector mul (int16_t)"},
+    [TEST_INST_VMUL_I32] = {TEST_INST_VMUL_I32, test_vmath_mul_i32, "VMUL_I32",
+                            "Vector mul (int32_t)"},
+    [TEST_INST_VMUL_I64] = {TEST_INST_VMUL_I64, test_vmath_mul_i64, "VMUL_I64",
+                            "Vector mul (int64_t)"},
     [TEST_INST_VMUL_I128] = {TEST_INST_VMUL_I128, test_vmath_mul_i128, "VMUL_I128",
-                            "Vector mul (int128_t)"},
+                             "Vector mul (int128_t)"},
 
     [TEST_INST_VMUL_U8] = {TEST_INST_VMUL_U8, test_vmath_mul_u8, "VMUL_U8", "Vector mul (uint8_t)"},
     [TEST_INST_VMUL_U16] = {TEST_INST_VMUL_U16, test_vmath_mul_u16, "VMUL_U16",
-                           "Vector mul (uint16_t)"},
+                            "Vector mul (uint16_t)"},
     [TEST_INST_VMUL_U32] = {TEST_INST_VMUL_U32, test_vmath_mul_u32, "VMUL_U32",
-                           "Vector mul (uint32_t)"},
+                            "Vector mul (uint32_t)"},
     [TEST_INST_VMUL_U64] = {TEST_INST_VMUL_U64, test_vmath_mul_u64, "VMUL_U64",
-                           "Vector mul (uint64_t)"},
+                            "Vector mul (uint64_t)"},
     [TEST_INST_VMUL_U128] = {TEST_INST_VMUL_U128, test_vmath_mul_u128, "VMUL_U128",
-                            "Vector mul (uint128_t)"},
+                             "Vector mul (uint128_t)"},
 
     [TEST_INST_VMAC_I8] = {TEST_INST_VMAC_I8, test_vmath_mac_i8, "VMAC_I8", "Vector mac (int8_t)"},
-    [TEST_INST_VMAC_I16] = {TEST_INST_VMAC_I16, test_vmath_mac_i16, "VMAC_I16", "Vector mac (int16_t)"},
-    [TEST_INST_VMAC_I32] = {TEST_INST_VMAC_I32, test_vmath_mac_i32, "VMAC_I32", "Vector mac (int32_t)"},
-    [TEST_INST_VMAC_I64] = {TEST_INST_VMAC_I64, test_vmath_mac_i64, "VMAC_I64", "Vector mac (int64_t)"},
+    [TEST_INST_VMAC_I16] = {TEST_INST_VMAC_I16, test_vmath_mac_i16, "VMAC_I16",
+                            "Vector mac (int16_t)"},
+    [TEST_INST_VMAC_I32] = {TEST_INST_VMAC_I32, test_vmath_mac_i32, "VMAC_I32",
+                            "Vector mac (int32_t)"},
+    [TEST_INST_VMAC_I64] = {TEST_INST_VMAC_I64, test_vmath_mac_i64, "VMAC_I64",
+                            "Vector mac (int64_t)"},
     [TEST_INST_VMAC_I128] = {TEST_INST_VMAC_I128, test_vmath_mac_i128, "VMAC_I128",
-                            "Vector mac (int128_t)"},
+                             "Vector mac (int128_t)"},
 
     [TEST_INST_VMAC_U8] = {TEST_INST_VMAC_U8, test_vmath_mac_u8, "VMAC_U8", "Vector mac (uint8_t)"},
     [TEST_INST_VMAC_U16] = {TEST_INST_VMAC_U16, test_vmath_mac_u16, "VMAC_U16",
-                           "Vector mac (uint16_t)"},
+                            "Vector mac (uint16_t)"},
     [TEST_INST_VMAC_U32] = {TEST_INST_VMAC_U32, test_vmath_mac_u32, "VMAC_U32",
-                           "Vector mac (uint32_t)"},
+                            "Vector mac (uint32_t)"},
     [TEST_INST_VMAC_U64] = {TEST_INST_VMAC_U64, test_vmath_mac_u64, "VMAC_U64",
-                           "Vector mac (uint64_t)"},
+                            "Vector mac (uint64_t)"},
     [TEST_INST_VMAC_U128] = {TEST_INST_VMAC_U128, test_vmath_mac_u128, "VMAC_U128",
-                            "Vector mac (uint128_t)"},
+                             "Vector mac (uint128_t)"},
 
     [TEST_INST_VDIV_I8] = {TEST_INST_VDIV_I8, test_vmath_div_i8, "VDIV_I8", "Vector div (int8_t)"},
-    [TEST_INST_VDIV_I16] = {TEST_INST_VDIV_I16, test_vmath_div_i16, "VDIV_I16", "Vector div (int16_t)"},
-    [TEST_INST_VDIV_I32] = {TEST_INST_VDIV_I32, test_vmath_div_i32, "VDIV_I32", "Vector div (int32_t)"},
-    [TEST_INST_VDIV_I64] = {TEST_INST_VDIV_I64, test_vmath_div_i64, "VDIV_I64", "Vector div (int64_t)"},
+    [TEST_INST_VDIV_I16] = {TEST_INST_VDIV_I16, test_vmath_div_i16, "VDIV_I16",
+                            "Vector div (int16_t)"},
+    [TEST_INST_VDIV_I32] = {TEST_INST_VDIV_I32, test_vmath_div_i32, "VDIV_I32",
+                            "Vector div (int32_t)"},
+    [TEST_INST_VDIV_I64] = {TEST_INST_VDIV_I64, test_vmath_div_i64, "VDIV_I64",
+                            "Vector div (int64_t)"},
     [TEST_INST_VDIV_I128] = {TEST_INST_VDIV_I128, test_vmath_div_i128, "VDIV_I128",
-                            "Vector div (int128_t)"},
+                             "Vector div (int128_t)"},
 
     [TEST_INST_VDIV_U8] = {TEST_INST_VDIV_U8, test_vmath_div_u8, "VDIV_U8", "Vector div (uint8_t)"},
     [TEST_INST_VDIV_U16] = {TEST_INST_VDIV_U16, test_vmath_div_u16, "VDIV_U16",
-                           "Vector div (uint16_t)"},
+                            "Vector div (uint16_t)"},
     [TEST_INST_VDIV_U32] = {TEST_INST_VDIV_U32, test_vmath_div_u32, "VDIV_U32",
-                           "Vector div (uint32_t)"},
+                            "Vector div (uint32_t)"},
     [TEST_INST_VDIV_U64] = {TEST_INST_VDIV_U64, test_vmath_div_u64, "VDIV_U64",
-                           "Vector div (uint64_t)"},
+                            "Vector div (uint64_t)"},
     [TEST_INST_VDIV_U128] = {TEST_INST_VDIV_U128, test_vmath_div_u128, "VDIV_U128",
-                            "Vector div (uint128_t)"},
+                             "Vector div (uint128_t)"},
 
     [TEST_INST_VDOT_I8] = {TEST_INST_VDOT_I8, test_vmath_dot_i8, "VDOT_I8",
-                          "Vector dot product (int8_t)"},
+                           "Vector dot product (int8_t)"},
     [TEST_INST_VDOT_I16] = {TEST_INST_VDOT_I16, test_vmath_dot_i16, "VDOT_I16",
-                           "Vector dot product (int16_t)"},
+                            "Vector dot product (int16_t)"},
     [TEST_INST_VDOT_I32] = {TEST_INST_VDOT_I32, test_vmath_dot_i32, "VDOT_I32",
-                           "Vector dot product (int32_t)"},
+                            "Vector dot product (int32_t)"},
     [TEST_INST_VDOT_I64] = {TEST_INST_VDOT_I64, test_vmath_dot_i64, "VDOT_I64",
-                           "Vector dot product (int64_t)"},
+                            "Vector dot product (int64_t)"},
     [TEST_INST_VDOT_I128] = {TEST_INST_VDOT_I128, test_vmath_dot_i128, "VDOT_I128",
-                            "Vector dot product (int128_t)"},
+                             "Vector dot product (int128_t)"},
 
     [TEST_INST_VDOT_U8] = {TEST_INST_VDOT_U8, test_vmath_dot_u8, "VDOT_U8",
-                          "Vector dot product (uint8_t)"},
+                           "Vector dot product (uint8_t)"},
     [TEST_INST_VDOT_U16] = {TEST_INST_VDOT_U16, test_vmath_dot_u16, "VDOT_U16",
-                           "Vector dot product (uint16_t)"},
+                            "Vector dot product (uint16_t)"},
     [TEST_INST_VDOT_U32] = {TEST_INST_VDOT_U32, test_vmath_dot_u32, "VDOT_U32",
-                           "Vector dot product (uint32_t)"},
+                            "Vector dot product (uint32_t)"},
     [TEST_INST_VDOT_U64] = {TEST_INST_VDOT_U64, test_vmath_dot_u64, "VDOT_U64",
-                           "Vector dot product (uint64_t)"},
+                            "Vector dot product (uint64_t)"},
     [TEST_INST_VDOT_U128] = {TEST_INST_VDOT_U128, test_vmath_dot_u128, "VDOT_U128",
-                            "Vector dot product (uint128_t)"},
+                             "Vector dot product (uint128_t)"},
 
     [TEST_INST_MTRX_MUL_I8] = {TEST_INST_MTRX_MUL_I8, test_vmath_mtrx_mul_i8, "MTRX_MUL_I8",
-                              "Matrix Mul (int8_t)"},
+                               "Matrix Mul (int8_t)"},
     [TEST_INST_MTRX_MUL_I16] = {TEST_INST_MTRX_MUL_I16, test_vmath_mtrx_mul_i16, "MTRX_MUL_I16",
-                               "Matrix Mul (int16_t)"},
+                                "Matrix Mul (int16_t)"},
     [TEST_INST_MTRX_MUL_I32] = {TEST_INST_MTRX_MUL_I32, test_vmath_mtrx_mul_i32, "MTRX_MUL_I32",
-                               "Matrix Mul (int32_t)"},
+                                "Matrix Mul (int32_t)"},
     [TEST_INST_MTRX_MUL_I64] = {TEST_INST_MTRX_MUL_I64, test_vmath_mtrx_mul_i64, "MTRX_MUL_I64",
-                               "Matrix Mul (int64_t)"},
+                                "Matrix Mul (int64_t)"},
     [TEST_INST_MTRX_MUL_I128] = {TEST_INST_MTRX_MUL_I128, test_vmath_mtrx_mul_i128, "MTRX_MUL_I128",
-                                "Matrix Mul (int128_t)"},
+                                 "Matrix Mul (int128_t)"},
 
     [TEST_INST_MTRX_MUL_U8] = {TEST_INST_MTRX_MUL_U8, test_vmath_mtrx_mul_u8, "MTRX_MUL_U8",
-                              "Matrix Mul (uint8_t)"},
+                               "Matrix Mul (uint8_t)"},
     [TEST_INST_MTRX_MUL_U16] = {TEST_INST_MTRX_MUL_U16, test_vmath_mtrx_mul_u16, "MTRX_MUL_U16",
-                               "Matrix Mul (uint16_t)"},
+                                "Matrix Mul (uint16_t)"},
     [TEST_INST_MTRX_MUL_U32] = {TEST_INST_MTRX_MUL_U32, test_vmath_mtrx_mul_u32, "MTRX_MUL_U32",
-                               "Matrix Mul (uint32_t)"},
+                                "Matrix Mul (uint32_t)"},
     [TEST_INST_MTRX_MUL_U64] = {TEST_INST_MTRX_MUL_U64, test_vmath_mtrx_mul_u64, "MTRX_MUL_U64",
-                               "Matrix Mul (uint64_t)"},
+                                "Matrix Mul (uint64_t)"},
     [TEST_INST_MTRX_MUL_U128] = {TEST_INST_MTRX_MUL_U128, test_vmath_mtrx_mul_u128, "MTRX_MUL_U128",
-                                "Matrix Mul (uint128_t)"},
+                                 "Matrix Mul (uint128_t)"},
 
     [TEST_INST_MTRX_MUL_TILED_I8] = {TEST_INST_MTRX_MUL_TILED_I8, test_vmath_mtrx_mul_tiled_i8,
-                                    "MTRX_MUL_TILED_I8", "Matrix Mul tiled (int8_t)"},
+                                     "MTRX_MUL_TILED_I8", "Matrix Mul tiled (int8_t)"},
     [TEST_INST_MTRX_MUL_TILED_I16] = {TEST_INST_MTRX_MUL_TILED_I16, test_vmath_mtrx_mul_tiled_i16,
-                                     "MTRX_MUL_TILED_I16", "Matrix Mul tiled (int16_t)"},
+                                      "MTRX_MUL_TILED_I16", "Matrix Mul tiled (int16_t)"},
     [TEST_INST_MTRX_MUL_TILED_I32] = {TEST_INST_MTRX_MUL_TILED_I32, test_vmath_mtrx_mul_tiled_i32,
-                                     "MTRX_MUL_TILED_I32", "Matrix Mul tiled (int32_t)"},
+                                      "MTRX_MUL_TILED_I32", "Matrix Mul tiled (int32_t)"},
     [TEST_INST_MTRX_MUL_TILED_I64] = {TEST_INST_MTRX_MUL_TILED_I64, test_vmath_mtrx_mul_tiled_i64,
-                                     "MTRX_MUL_TILED_I64", "Matrix Mul tiled (int64_t)"},
-    [TEST_INST_MTRX_MUL_TILED_I128] = {TEST_INST_MTRX_MUL_TILED_I128, test_vmath_mtrx_mul_tiled_i128,
-                                      "MTRX_MUL_TILED_I128", "Matrix Mul tiled (int128_t)"},
+                                      "MTRX_MUL_TILED_I64", "Matrix Mul tiled (int64_t)"},
+    [TEST_INST_MTRX_MUL_TILED_I128] = {TEST_INST_MTRX_MUL_TILED_I128,
+                                       test_vmath_mtrx_mul_tiled_i128, "MTRX_MUL_TILED_I128",
+                                       "Matrix Mul tiled (int128_t)"},
 
     [TEST_INST_MTRX_MUL_TILED_U8] = {TEST_INST_MTRX_MUL_TILED_U8, test_vmath_mtrx_mul_tiled_u8,
-                                    "MTRX_MUL_TILED_U8", "Matrix Mul tiled (uint8_t)"},
+                                     "MTRX_MUL_TILED_U8", "Matrix Mul tiled (uint8_t)"},
     [TEST_INST_MTRX_MUL_TILED_U16] = {TEST_INST_MTRX_MUL_TILED_U16, test_vmath_mtrx_mul_tiled_u16,
-                                     "MTRX_MUL_TILED_U16", "Matrix Mul tiled (uint16_t)"},
+                                      "MTRX_MUL_TILED_U16", "Matrix Mul tiled (uint16_t)"},
     [TEST_INST_MTRX_MUL_TILED_U32] = {TEST_INST_MTRX_MUL_TILED_U32, test_vmath_mtrx_mul_tiled_u32,
-                                     "MTRX_MUL_TILED_U32", "Matrix Mul tiled (uint32_t)"},
+                                      "MTRX_MUL_TILED_U32", "Matrix Mul tiled (uint32_t)"},
     [TEST_INST_MTRX_MUL_TILED_U64] = {TEST_INST_MTRX_MUL_TILED_U64, test_vmath_mtrx_mul_tiled_u64,
-                                     "MTRX_MUL_TILED_U64", "Matrix Mul tiled (uint64_t)"},
-    [TEST_INST_MTRX_MUL_TILED_U128] = {TEST_INST_MTRX_MUL_TILED_U128, test_vmath_mtrx_mul_tiled_u128,
-                                      "MTRX_MUL_TILED_U128", "Matrix Mul tiled (uint128_t)"},
+                                      "MTRX_MUL_TILED_U64", "Matrix Mul tiled (uint64_t)"},
+    [TEST_INST_MTRX_MUL_TILED_U128] = {TEST_INST_MTRX_MUL_TILED_U128,
+                                       test_vmath_mtrx_mul_tiled_u128, "MTRX_MUL_TILED_U128",
+                                       "Matrix Mul tiled (uint128_t)"},
 
     [TEST_INST_ADD_F32] = {TEST_INST_ADD_F32, test_vmath_add_f32, "VADD_F32", "Vector add (float)"},
     [TEST_INST_SUB_F32] = {TEST_INST_SUB_F32, test_vmath_sub_f32, "VSUB_F32", "Vector sub (float)"},
@@ -2041,11 +2137,11 @@ static const TEST_INST_FUNCTION_DEF test_vmath_lists[] = {
     [TEST_INST_MAC_F32] = {TEST_INST_MAC_F32, test_vmath_mac_f32, "VMAC_F32", "Vector mac (float)"},
     [TEST_INST_DIV_F32] = {TEST_INST_DIV_F32, test_vmath_div_f32, "VDIV_F32", "Vector div (float)"},
     [TEST_INST_DOT_F32] = {TEST_INST_DOT_F32, test_vmath_dot_f32, "VDOT_F32",
-                          "Vector dot product (float)"},
+                           "Vector dot product (float)"},
     [TEST_INST_MTRX_MUL_F32] = {TEST_INST_MTRX_MUL_F32, test_vmath_mtrx_mul_f32, "MTRX_MUL_F32",
-                               "Matrix Mul (float)"},
+                                "Matrix Mul (float)"},
     [TEST_INST_MTRX_MUL_TILED_F32] = {TEST_INST_MTRX_MUL_TILED_F32, test_vmath_mtrx_mul_tiled_f32,
-                                     "MTRX_MUL_TILED_F32", "Matrix Mul tiled (float)"},
+                                      "MTRX_MUL_TILED_F32", "Matrix Mul tiled (float)"},
 };
 
 /* * Execute all tests and return the number of failed tests.
@@ -2054,15 +2150,16 @@ static const TEST_INST_FUNCTION_DEF test_vmath_lists[] = {
 int test_do_all_test(void) {
     int fail_count = 0;
     int pass_count = 0;
-
     for (int i = 0; i < TEST_INST_MAX; i++) {
         if (test_vmath_lists[i].func == NULL)
             continue;
 
         int result = test_vmath_lists[i].func();
 
-        if (result == -1) { // <--- Modification: Treat as failure only when it is exactly -1, not just any negative number
-            printf("[FAIL] %-15s : %s\n", test_vmath_lists[i].name, test_vmath_lists[i].description);
+        if (result == -1) { // <--- Modification: Treat as failure only when it is exactly -1, not
+                            // just any negative number
+            printf("[FAIL] %-15s : %s\n", test_vmath_lists[i].name,
+                   test_vmath_lists[i].description);
             fail_count++;
         } else { // Unconditional success if not -1 & print cycle count
             printf("[PASS] %-15s : %s ", test_vmath_lists[i].name, test_vmath_lists[i].description);

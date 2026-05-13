@@ -242,6 +242,44 @@ vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const
 
 // --> tile end
 
+/* min */
+vmath_status_t vmath_min_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b, const size_t len);
+vmath_status_t vmath_min_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b, const size_t len);
+
+vmath_status_t vmath_min_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b, const size_t len);
+vmath_status_t vmath_min_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b, const size_t len);
+
+vmath_status_t vmath_min_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b, const size_t len);
+vmath_status_t vmath_min_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b, const size_t len);
+
+vmath_status_t vmath_min_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b, const size_t len);
+vmath_status_t vmath_min_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b, const size_t len);
+
+vmath_status_t vmath_min_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b, const size_t len);
+vmath_status_t vmath_min_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b, const size_t len);
+
+/* max */
+vmath_status_t vmath_max_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b, const size_t len);
+vmath_status_t vmath_max_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b, const size_t len);
+
+vmath_status_t vmath_max_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b, const size_t len);
+vmath_status_t vmath_max_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b, const size_t len);
+
+vmath_status_t vmath_max_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b, const size_t len);
+vmath_status_t vmath_max_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b, const size_t len);
+
+vmath_status_t vmath_max_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b, const size_t len);
+vmath_status_t vmath_max_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b, const size_t len);
+
+vmath_status_t vmath_max_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b, const size_t len);
+vmath_status_t vmath_max_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b, const size_t len);
+
+vmath_status_t vmath_min_f32(float *dst, const float *src_a, const float *src_b, const size_t len);
+vmath_status_t vmath_max_f32(float *dst, const float *src_a, const float *src_b, const size_t len);
+
+vmath_status_t vmath_sqrt_f32(float *dst, const float *src_a, const size_t len);
+vmath_status_t vmath_rsqrt7_f32(float *dst, const float *src_a, const size_t len);
+
 /* ======================================================================== */
 /*    Close C++ Block                                                       */
 /* ======================================================================== */

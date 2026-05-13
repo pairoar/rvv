@@ -14,9 +14,9 @@
 /* ======================================================================== */
 /* User-Defined Headers                                                     */
 /* ======================================================================== */
-#include "vmath_types.h"
-#include "hal_soft_math.h"
 #include "hal_math.h"
+#include "hal_soft_math.h"
+#include "vmath_types.h"
 
 /* ======================================================================== */
 /*  Macros (#define)                                                        */
@@ -1973,6 +1973,480 @@ OUT:
     return ret;
 }
 // --> tile end
+
+/* max/max */
+// 8
+vmath_status_t vmath_min_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_u8(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_min_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_i8(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 16
+vmath_status_t vmath_min_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_u16(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_min_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_i16(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 32
+vmath_status_t vmath_min_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_u32(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_min_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_i32(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+/* 64 */
+vmath_status_t vmath_min_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_u64(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_min_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_i64(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 128
+vmath_status_t vmath_min_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_u128(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_min_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmin_i128(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 8
+vmath_status_t vmath_max_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_u8(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_i8(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 16
+vmath_status_t vmath_max_u16(uint16_t *dst, const uint16_t *src_a, const uint16_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_u16(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_i16(int16_t *dst, const int16_t *src_a, const int16_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_i16(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 32
+vmath_status_t vmath_max_u32(uint32_t *dst, const uint32_t *src_a, const uint32_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_u32(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_i32(int32_t *dst, const int32_t *src_a, const int32_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_i32(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+/* 64 */
+vmath_status_t vmath_max_u64(uint64_t *dst, const uint64_t *src_a, const uint64_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_u64(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_i64(int64_t *dst, const int64_t *src_a, const int64_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_i64(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+// 128
+vmath_status_t vmath_max_u128(uint128_t *dst, const uint128_t *src_a, const uint128_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_u128(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_i128(int128_t *dst, const int128_t *src_a, const int128_t *src_b,
+                            const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    ret = hal_vmax_i128(dst, src_a, src_b, len);
+OUT:
+    return ret;
+}
+
+/* f32 */
+vmath_status_t vmath_max_f32(float *dst, const float *src_a, const float *src_b, const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    // 1. 파라미터 유효성 검사 (안전성 확보)
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    // 2. HAL 계층 호출 (실제 연산 위임)
+    ret = hal_vmax_f32(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_max_f32(float *dst, const float *src_a, const float *src_b, const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    // 1. 파라미터 유효성 검사 (안전성 확보)
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    // 2. HAL 계층 호출 (실제 연산 위임)
+    ret = hal_vmax_f32(dst, src_a, src_b, len);
+
+OUT:
+    return ret;
+}
+
+// sqrt_f32
+vmath_status_t vmath_sqrt_f32(float *dst, const float *src_a, const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    // 1. 파라미터 유효성 검사 (안전성 확보)
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    // 2. HAL 계층 호출 (실제 연산 위임)
+    ret = hal_vsqrt_f32(dst, src_a, len);
+
+OUT:
+    return ret;
+}
+
+vmath_status_t vmath_rsqrt7_f32(float *dst, const float *src_a, const size_t len) {
+    vmath_status_t ret = VMATH_SUCCESS;
+
+    // 1. 파라미터 유효성 검사 (안전성 확보)
+    if (src_a == NULL || src_b == NULL || dst == NULL) {
+        ret = VMATH_ERR_NULL_PTR;
+        goto OUT;
+    }
+    if (len == 0) {
+        ret = VMATH_SUCCESS;
+        goto OUT;
+    }
+
+    // 2. HAL 계층 호출 (실제 연산 위임)
+    ret = hal_vrsqrt7_f32(dst, src_a, len);
+
+OUT:
+    return ret;
+}
+
 
 /* ======================================================================== */
 /* Static Functions (Internal implementations)                              */
