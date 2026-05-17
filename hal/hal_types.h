@@ -39,7 +39,7 @@ typedef struct {
     uint64_t d[4];
 } int256_t;
 
-// 128-bit signed integer type definition
+// 128-bit unsigned integer type definition
 typedef struct {
     uint64_t u;
     uint64_t l;

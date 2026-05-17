@@ -44,24 +44,99 @@
 
 // --> new start
 
-/* addition */
-vmath_status_t vmath_add_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
-                            const size_t len) {
-    vmath_status_t ret = VMATH_SUCCESS;
-    if (src_a == NULL || src_b == NULL || dst == NULL) {
-        ret = VMATH_ERR_NULL_PTR;
-        goto OUT;
+// -----------------------------------------------------------------------------
+// Type 1
+//      1 input, 1 output
+//      min, max, sqrt, ...
+// -----------------------------------------------------------------------------
+
+/*
+    OP_N    : operation name
+    OP_T    : operation type
+    OP_FUNC : function name
+    T_IN    : input type
+    T_OUT   : output type(result)
+    n       : length
+    b       : output array
+    a       : input array
+
+        vmath_status_t vmath_sqrt_i16(int16_t *b, const int16_t *a, const size_t n)
+*/
+#define DEFINE_LIB_GENERAL_OPS1(OP_N, OP_T, HAL_FUNC, T_IN, T_OUT)                   \
+    vmath_status_t vmath_##OP_N##_##OP_T(T_OUT *b, const T_IN *a, const size_t n) {  \
+        vmath_status_t ret = VMATH_SUCCESS;                                         \
+        if (a == NULL || b == NULL || c == NULL) {      \
+            ret = VMATH_ERR_NULL_PTR;                   \
+            goto OUT;                                   \
+        }                                               \
+        if (len == 0) {                                 \
+            ret = VMATH_SUCCESS;                        \
+            goto OUT;                                   \
+        }                                               \
+        ret = HAL_FUNC(b, a, len);                \
+    OUT:                                                \
+        return ret;                                     \
     }
 
-    if (len == 0) {
-        ret = VMATH_SUCCESS;
-        goto OUT;
+// -----------------------------------------------------------------------------
+// Type 2
+//     2 input, 1 output
+//     add, sub, multiplication
+// -----------------------------------------------------------------------------
+/*
+    OP_N    : operation name
+    OP_T    : operation type
+    OP_FUNC : function name
+    T_IN    : input type
+    T_OUT   : output type(result)
+    n       : length
+    c       : output array
+    a       : input array1
+    b       : input array2
+
+    vmath_status_t vmath_min_i16(int16_t *c, const int16_t *a, const int16_t *b, const size_t n)
+*/
+
+#define DEFINE_LIB_GENERAL_OPS2(OP_N, OP_T, OP_FUNC, T_IN, T_OUT)                   \
+    vmath_status_t vmath_##OP_N##_##OP_T(T_OUT *c, const T_IN *a, const T_IN *b, const size_t n) { \
+        vmath_status_t ret = VMATH_SUCCESS;                                         \
+        if ((a) == NULL || (b) == NULL || (c) == NULL) {      \
+            ret = VMATH_ERR_NULL_PTR;                   \
+            goto OUT;                                   \
+        }                                               \
+        if ((n) == 0) {                                 \
+            ret = VMATH_SUCCESS;                        \
+            goto OUT;                                   \
+        }                                               \
+        ret = HAL_FUNC(c, a, b, n);                   \
+    OUT:                                                \
+        return ret;                                     \
     }
 
-    ret = hal_vadd_i8(dst, src_a, src_b, len);
-OUT:
-    return ret;
-}
+
+
+// -----------------------------------------------------------------------------
+// signle-width addition
+// -----------------------------------------------------------------------------
+DEFINE_LIB_GENERAL_OPS2(add, i8, hal_vadd_i8, int8_t, int8_t)
+
+// vmath_status_t vmath_add_i8(int8_t *dst, const int8_t *src_a, const int8_t *src_b,
+//                             const size_t len) {
+//     vmath_status_t ret = VMATH_SUCCESS;
+//     if (src_a == NULL || src_b == NULL || dst == NULL) {
+//         ret = VMATH_ERR_NULL_PTR;
+//         goto OUT;
+//     }
+
+//     if (len == 0) {
+//         ret = VMATH_SUCCESS;
+//         goto OUT;
+//     }
+
+//     ret = hal_vadd_i8(dst, src_a, src_b, len);
+// OUT:
+//     return ret;
+// }
 
 vmath_status_t vmath_add_u8(uint8_t *dst, const uint8_t *src_a, const uint8_t *src_b,
                             const size_t len) {
@@ -1196,8 +1271,8 @@ OUT:
 }
 
 /* matrix multiplication */
-vmath_status_t vmath_matrix_mul_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, size_t M,
-                                   size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, const int M,
+                                   const const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1219,13 +1294,13 @@ vmath_status_t vmath_matrix_mul_i8(int16_t *dst, const int8_t *src_a, const int8
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_i8(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_i8(dst, src_a, src_b, M, N, K);
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                                   size_t M, size_t N, size_t K) {
+                                   const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1247,14 +1322,14 @@ vmath_status_t vmath_matrix_mul_u8(uint16_t *dst, const uint8_t *src_a, const ui
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_u8(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_u8(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1275,14 +1350,14 @@ vmath_status_t vmath_matrix_mul_i16(int32_t *dst, const int16_t *src_a, const in
         ret = VMATH_SUCCESS;
         goto OUT;
     }
-    ret = hal_matrix_vmul_i16(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_i16(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1304,14 +1379,14 @@ vmath_status_t vmath_matrix_mul_u16(uint32_t *dst, const uint16_t *src_a, const 
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_u16(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_u16(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1333,14 +1408,14 @@ vmath_status_t vmath_matrix_mul_i32(int64_t *dst, const int32_t *src_a, const in
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_i32(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_i32(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1362,14 +1437,14 @@ vmath_status_t vmath_matrix_mul_u32(uint64_t *dst, const uint32_t *src_a, const 
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_u32(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_u32(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1391,14 +1466,14 @@ vmath_status_t vmath_matrix_mul_i64(int128_t *dst, const int64_t *src_a, const i
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_i64(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_i64(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b,
-                                    size_t M, size_t N, size_t K) {
+                                    const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1420,14 +1495,14 @@ vmath_status_t vmath_matrix_mul_u64(uint128_t *dst, const uint64_t *src_a, const
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_u64(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_u64(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b,
-                                     size_t M, size_t N, size_t K) {
+                                     const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1449,14 +1524,14 @@ vmath_status_t vmath_matrix_mul_i128(int256_t *dst, const int128_t *src_a, const
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_i128(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_i128(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b,
-                                     size_t M, size_t N, size_t K) {
+                                     const int M, const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1478,7 +1553,7 @@ vmath_status_t vmath_matrix_mul_u128(uint256_t *dst, const uint128_t *src_a, con
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_u128(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_u128(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
@@ -1615,8 +1690,8 @@ OUT:
 }
 
 /* float matrix multilication */
-vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float *src_b, size_t M,
-                                    size_t N, size_t K) {
+vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float *src_b, const int M,
+                                    const int N, const int K) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1638,7 +1713,7 @@ vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_f32(dst, src_a, src_b, (int)M, (int)N, (int)K);
+    ret = hal_matrix_vmul_f32(dst, src_a, src_b, M, N, K);
 
 OUT:
     return ret;
@@ -1649,7 +1724,7 @@ OUT:
 // --> tiled start
 /* Tiled Matrix Multiplication (Signed) */
 vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b,
-                                         int M, int N, int K, int tile_size) {
+                                         int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1671,14 +1746,14 @@ vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, cons
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_i8(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_i8(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b,
-                                          int M, int N, int K, int tile_size) {
+                                          int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1700,14 +1775,14 @@ vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, co
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_i16(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_i16(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b,
-                                          int M, int N, int K, int tile_size) {
+                                          int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1729,14 +1804,14 @@ vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, co
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_i32(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_i32(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
 }
 
 vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b,
-                                          int M, int N, int K, int tile_size) {
+                                          int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1758,7 +1833,7 @@ vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, c
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_i64(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_i64(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1788,7 +1863,7 @@ vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a,
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_i128(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_i128(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1796,7 +1871,7 @@ OUT:
 
 /* Tiled Matrix Multiplication (Unsigned) */
 vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b,
-                                         int M, int N, int K, int tile_size) {
+                                         int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1818,7 +1893,7 @@ vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, co
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_u8(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_u8(dst, src_a, src_b, M, N, K, tile_size);
 OUT:
     return ret;
 }
@@ -1847,7 +1922,7 @@ vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a,
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_u16(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_u16(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1877,7 +1952,7 @@ vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a,
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_u32(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_u32(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1907,7 +1982,7 @@ vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a,
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_u64(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_u64(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1937,7 +2012,7 @@ vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_u128(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_u128(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;
@@ -1945,7 +2020,7 @@ OUT:
 
 /* Tiled Matrix Multiplication (Float) */
 vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const float *src_b,
-                                          int M, int N, int K, int tile_size) {
+                                          int M, int N, int K, const int tile_size) {
     vmath_status_t ret = VMATH_SUCCESS;
 
     if (src_a == NULL || src_b == NULL || dst == NULL) {
@@ -1967,7 +2042,7 @@ vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const
         goto OUT;
     }
 
-    ret = hal_matrix_vmul_tiled_f32(dst, src_a, src_b, (int)M, (int)N, (int)K, tile_size);
+    ret = hal_matrix_vmul_tiled_f32(dst, src_a, src_b, M, N, K, tile_size);
 
 OUT:
     return ret;

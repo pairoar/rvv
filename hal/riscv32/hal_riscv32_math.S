@@ -514,7 +514,7 @@ hal_matrix_vmul_f32:
 .global hal_matrix_vmul_tiled_f32
 # ==============================================================================
 # void hal_matrix_vmul_tiled_f32(double* c, const float* a, const float* b,
-#                               int M, int N, int K, int tile_size);
+#                               const int M, const int N, const int K, const int tile_size);
 # ==============================================================================
 hal_matrix_vmul_tiled_f32:
     beqz a3, .L_end_f32
