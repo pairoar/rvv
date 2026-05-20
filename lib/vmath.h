@@ -224,21 +224,21 @@ vmath_status_t vmath_matrix_mul_f32(double *dst, const float *src_a, const float
 // <-- new end
 
 // --> tiled start
-vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b, int M, int N, int K, int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_i8(int16_t *dst, const int8_t *src_a, const int8_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_i16(int32_t *dst, const int16_t *src_a, const int16_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_i32(int64_t *dst, const int32_t *src_a, const int32_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_i64(int128_t *dst, const int64_t *src_a, const int64_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_i128(int256_t *dst, const int128_t *src_a, const int128_t *src_b, int M, int N, int K, const int tile_size);
 
 /* Tiled Matrix Multiplication (Unsigned) */
-vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b, int M, int N, int K, int tile_size);
-vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b, int M, int N, int K, int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_u8(uint16_t *dst, const uint8_t *src_a, const uint8_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_u16(uint32_t *dst, const uint16_t *src_a, const uint16_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_u32(uint64_t *dst, const uint32_t *src_a, const uint32_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_u64(uint128_t *dst, const uint64_t *src_a, const uint64_t *src_b, int M, int N, int K, const int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_u128(uint256_t *dst, const uint128_t *src_a, const uint128_t *src_b, int M, int N, int K, const int tile_size);
 
 /* Tiled Matrix Multiplication (Float) */
-vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const float *src_b, int M, int N, int K, int tile_size);
+vmath_status_t vmath_matrix_mul_tiled_f32(double *dst, const float *src_a, const float *src_b, int M, int N, int K, const int tile_size);
 
 // --> tile end
 
