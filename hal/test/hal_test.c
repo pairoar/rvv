@@ -13,10 +13,6 @@
     https://blog.regehr.org/archives/213
 */
 
-#ifdef CONFIG_CUSTOM_ACCELERATOR
-#include "cust_accel.h"
-extern void ca_hw_init(void);
-#endif
 
 #define SAFE_FREE(ptr)                                                                             \
     do {                                                                                           \
